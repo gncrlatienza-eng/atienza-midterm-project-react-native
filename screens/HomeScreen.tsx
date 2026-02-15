@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { View, Text, ScrollView, SafeAreaView, useWindowDimensions, RefreshControl, Keyboard, } from 'react-native';
+import { View, Text, ScrollView, SafeAreaView, useWindowDimensions, RefreshControl, Keyboard, Alert, } from 'react-native';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -16,6 +16,7 @@ import {  showSaveJobModal, showRemoveJobModal, showSuccessAlert, showErrorAlert
 import { fetchJobs, searchJobs } from '../api/Api';
 import { Job } from '../types/Job';
 import { RootStackParamList } from '../types/Navigation';
+import { getAppliedJobIds, cancelApplication } from '../utils/applicationUtils';
 
 const SAVED_JOBS_KEY = '@saved_jobs';
 
@@ -33,8 +34,9 @@ export const HomeScreen = () => {
   const [error, setError] = useState<string | null>(null);
   const [isSearchFocused, setIsSearchFocused] = useState(false);
   const [savedJobIds, setSavedJobIds] = useState<Set<string>>(new Set());
+  const [appliedJobIds, setAppliedJobIds] = useState<Set<string>>(new Set()); // NEW
   
-  // NEW: Application form modal state
+  // Application form modal state
   const [showApplicationForm, setShowApplicationForm] = useState(false);
   const [selectedJob, setSelectedJob] = useState<Job | null>(null);
 
@@ -61,12 +63,19 @@ export const HomeScreen = () => {
     }
   }, []);
 
+  // NEW: Load applied job IDs
+  const loadAppliedJobIds = useCallback(async () => {
+    const appliedIds = await getAppliedJobIds();
+    setAppliedJobIds(appliedIds);
+  }, []);
+
   // Load jobs from API
   const loadJobs = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
       await loadSavedJobIds();
+      await loadAppliedJobIds(); // NEW
       const jobs = await fetchJobs();
       setAllJobs(jobs);
       setDisplayedJobs(jobs);
@@ -77,7 +86,7 @@ export const HomeScreen = () => {
     } finally {
       setLoading(false);
     }
-  }, [loadSavedJobIds]);
+  }, [loadSavedJobIds, loadAppliedJobIds]);
 
   // Initial load
   useEffect(() => {
@@ -92,11 +101,12 @@ export const HomeScreen = () => {
     }
   }, [searchQuery, allJobs]);
 
-  // Refresh saved job IDs when screen comes into focus
+  // Refresh saved and applied job IDs when screen comes into focus
   useFocusEffect(
     useCallback(() => {
       loadSavedJobIds();
-    }, [loadSavedJobIds])
+      loadAppliedJobIds(); // NEW
+    }, [loadSavedJobIds, loadAppliedJobIds])
   );
 
   const handleRefresh = async () => {
@@ -104,6 +114,7 @@ export const HomeScreen = () => {
     setError(null);
     try {
       await loadSavedJobIds();
+      await loadAppliedJobIds(); // NEW
       const jobs = await fetchJobs();
       setAllJobs(jobs);
       setDisplayedJobs(jobs);
@@ -156,20 +167,74 @@ export const HomeScreen = () => {
     }
   };
 
-  // UPDATED: Open application form instead of "Coming Soon"
+  // UPDATED: Show confirmation before opening form
   const handleApply = (jobId: string) => {
     const job = allJobs.find(j => j.id === jobId);
     if (job) {
-      setSelectedJob(job);
-      setShowApplicationForm(true);
+      Alert.alert(
+        'Apply for Job',
+        `Are you sure you want to apply for ${job.title} at ${job.company}?`,
+        [
+          {
+            text: 'Cancel',
+            style: 'cancel',
+          },
+          {
+            text: 'Apply',
+            style: 'default',
+            onPress: () => {
+              setSelectedJob(job);
+              setShowApplicationForm(true);
+            },
+          },
+        ],
+        { cancelable: true }
+      );
     }
   };
 
-  // NEW: Handle successful application
-  const handleApplicationSuccess = () => {
+  // NEW: Handle cancel application
+  const handleCancelApplication = (jobId: string) => {
+    const job = allJobs.find(j => j.id === jobId);
+    if (job) {
+      Alert.alert(
+        'Cancel Application',
+        `Are you sure you want to cancel your application for ${job.title}?`,
+        [
+          {
+            text: 'No',
+            style: 'cancel',
+          },
+          {
+            text: 'Yes, Cancel',
+            style: 'destructive',
+            onPress: async () => {
+              const success = await cancelApplication(jobId);
+              if (success) {
+                setAppliedJobIds(prev => {
+                  const newSet = new Set(prev);
+                  newSet.delete(jobId);
+                  return newSet;
+                });
+                showSuccessAlert('Cancelled', 'Your application has been cancelled');
+              } else {
+                showErrorAlert('Failed to cancel application');
+              }
+            },
+          },
+        ],
+        { cancelable: true }
+      );
+    }
+  };
+
+  // Handle successful application
+  const handleApplicationSuccess = async () => {
     setShowApplicationForm(false);
+    if (selectedJob) {
+      setAppliedJobIds(prev => new Set(prev).add(selectedJob.id));
+    }
     setSelectedJob(null);
-    // Stay on HomeScreen - don't navigate
   };
 
   const handleJobPress = (job: Job) => {
@@ -230,6 +295,7 @@ export const HomeScreen = () => {
           {!searchQuery && <Text style={styles.sectionTitle}>All Jobs</Text>}
           {displayedJobs.map((job) => {
             const isJobSaved = savedJobIds.has(job.id);
+            const isJobApplied = appliedJobIds.has(job.id); // NEW
             return (
               <JobCard
                 key={job.id}
@@ -237,6 +303,8 @@ export const HomeScreen = () => {
                 onSave={handleSaveJob}
                 onApply={handleApply}
                 onPress={handleJobPress}
+                onCancelApplication={handleCancelApplication} // NEW
+                isApplied={isJobApplied} // NEW
               />
             );
           })}
@@ -272,7 +340,7 @@ export const HomeScreen = () => {
           {renderContent()}
         </View>
 
-        {/* NEW: Application Form Modal */}
+        {/* Application Form Modal */}
         {selectedJob && (
           <ApplicationFormScreen
             visible={showApplicationForm}

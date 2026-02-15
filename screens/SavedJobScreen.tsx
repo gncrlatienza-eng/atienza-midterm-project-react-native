@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from 'react';
-import { View, Text, ScrollView, SafeAreaView, useWindowDimensions, RefreshControl, } from 'react-native';
+import { View, Text, ScrollView, SafeAreaView, useWindowDimensions, RefreshControl, Alert, } from 'react-native';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -12,6 +12,7 @@ import { ApplicationFormScreen } from './ApplicationFormScreen';
 import {  showRemoveJobModal, showSuccessAlert, showErrorAlert } from '../components/ConfirmationModal';
 import { Job } from '../types/Job';
 import { RootStackParamList } from '../types/Navigation';
+import { getAppliedJobIds } from '../utils/applicationUtils';
 
 const SAVED_JOBS_KEY = '@saved_jobs';
 
@@ -26,14 +27,22 @@ export const SavedJobsScreen: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [showApplicationForm, setShowApplicationForm] = useState(false);
   const [selectedJob, setSelectedJob] = useState<Job | null>(null);
+  const [appliedJobIds, setAppliedJobIds] = useState<Set<string>>(new Set()); // NEW
 
   // Load saved jobs from AsyncStorage
   const loadSavedJobs = async () => {
     try {
       const savedJobsJson = await AsyncStorage.getItem(SAVED_JOBS_KEY);
+      const appliedIds = await getAppliedJobIds(); // NEW
+      setAppliedJobIds(appliedIds); // NEW
+      
       if (savedJobsJson) {
-        const jobs = JSON.parse(savedJobsJson);
-        setSavedJobs(jobs);
+        const jobs: Job[] = JSON.parse(savedJobsJson);
+        // UPDATED: Filter out jobs that have been applied to
+        const unappliedJobs = jobs.filter(job => !appliedIds.has(job.id));
+        setSavedJobs(unappliedJobs);
+      } else {
+        setSavedJobs([]);
       }
     } catch (error) {
       console.error('Error loading saved jobs:', error);
@@ -64,7 +73,15 @@ export const SavedJobsScreen: React.FC = () => {
       showRemoveJobModal(job.title, async () => {
         const updatedJobs = savedJobs.filter(j => j.id !== jobId);
         setSavedJobs(updatedJobs);
-        await AsyncStorage.setItem(SAVED_JOBS_KEY, JSON.stringify(updatedJobs));
+        
+        // Also remove from AsyncStorage
+        const savedJobsJson = await AsyncStorage.getItem(SAVED_JOBS_KEY);
+        if (savedJobsJson) {
+          let allSavedJobs: Job[] = JSON.parse(savedJobsJson);
+          allSavedJobs = allSavedJobs.filter(j => j.id !== jobId);
+          await AsyncStorage.setItem(SAVED_JOBS_KEY, JSON.stringify(allSavedJobs));
+        }
+        
         showSuccessAlert('Removed', 'Job removed from saved jobs');
       });
     } catch (error) {
@@ -73,17 +90,43 @@ export const SavedJobsScreen: React.FC = () => {
     }
   };
 
+  // UPDATED: Show confirmation before opening form
   const handleApply = (jobId: string) => {
     const job = savedJobs.find(j => j.id === jobId);
     if (job) {
-      setSelectedJob(job);
-      setShowApplicationForm(true);
+      Alert.alert(
+        'Apply for Job',
+        `Are you sure you want to apply for ${job.title} at ${job.company}?`,
+        [
+          {
+            text: 'Cancel',
+            style: 'cancel',
+          },
+          {
+            text: 'Apply',
+            style: 'default',
+            onPress: () => {
+              setSelectedJob(job);
+              setShowApplicationForm(true);
+            },
+          },
+        ],
+        { cancelable: true }
+      );
     }
   };
 
-  const handleApplicationSuccess = () => {
+  const handleApplicationSuccess = async () => {
     setShowApplicationForm(false);
+    
+    // Remove the applied job from saved jobs list
+    if (selectedJob) {
+      setSavedJobs(prev => prev.filter(j => j.id !== selectedJob.id));
+      setAppliedJobIds(prev => new Set(prev).add(selectedJob.id));
+    }
+    
     setSelectedJob(null);
+    
     // Navigate to FindJobs tab
     navigation.navigate('MainTabs');
   };

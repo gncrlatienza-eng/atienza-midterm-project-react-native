@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from 'react';
-import { View, ScrollView, SafeAreaView, useWindowDimensions, Share, Platform } from 'react-native';
+import { View, ScrollView, SafeAreaView, useWindowDimensions, Share, Platform, Alert } from 'react-native';
 import { useTheme } from '../context/ThemedContext';
 import { useFocusEffect } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -45,8 +45,26 @@ export const JobDetailsScreen: React.FC<JobDetailsScreenProps> = ({ route, navig
     }, [job.id])
   );
 
+  // UPDATED: Show confirmation before opening form
   const handleApply = () => {
-    setShowApplicationForm(true);
+    Alert.alert(
+      'Apply for Job',
+      `Are you sure you want to apply for ${job.title} at ${job.company}?`,
+      [
+        {
+          text: 'Cancel',
+          style: 'cancel',
+        },
+        {
+          text: 'Apply',
+          style: 'default',
+          onPress: () => {
+            setShowApplicationForm(true);
+          },
+        },
+      ],
+      { cancelable: true }
+    );
   };
 
   const handleApplicationSuccess = () => {

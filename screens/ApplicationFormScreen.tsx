@@ -51,28 +51,35 @@ export const ApplicationFormScreen: React.FC<ApplicationFormScreenProps> = ({
     return emailRegex.test(email);
   };
 
-  // Updated Philippine phone validation
+  // UPDATED: More flexible Philippine phone validation
   const validatePhone = (phone: string): boolean => {
     // Remove all non-digit characters
     const digitsOnly = phone.replace(/\D/g, '');
     
-    // Philippine mobile numbers:
-    // - Start with +63 or 63 or 0
-    // - Followed by 9 (mobile prefix)
-    // - Total 10 digits after country code (9XXXXXXXXX)
-    // Examples: +639171234567, 09171234567, 639171234567
+    // Accept these formats:
+    // 10 digits starting with 9: 9171234567
+    // 11 digits starting with 09: 09171234567
+    // 12 digits starting with 639: 639171234567
+    // 13 digits starting with +639: +639171234567
     
-    // Check if starts with +63
-    if (phone.startsWith('+63')) {
-      return digitsOnly.length === 12 && digitsOnly.startsWith('639');
+    // 10 digits (9XXXXXXXXX)
+    if (digitsOnly.length === 10 && digitsOnly.startsWith('9')) {
+      return true;
     }
-    // Check if starts with 63
-    if (phone.startsWith('63')) {
-      return digitsOnly.length === 12 && digitsOnly.startsWith('639');
+    
+    // 11 digits (09XXXXXXXXX)
+    if (digitsOnly.length === 11 && digitsOnly.startsWith('09')) {
+      return true;
     }
-    // Check if starts with 0
-    if (phone.startsWith('0')) {
-      return digitsOnly.length === 11 && digitsOnly.startsWith('09');
+    
+    // 12 digits (639XXXXXXXXX)
+    if (digitsOnly.length === 12 && digitsOnly.startsWith('639')) {
+      return true;
+    }
+    
+    // 13 digits (+639XXXXXXXXX)
+    if (digitsOnly.length === 13 && phone.startsWith('+') && digitsOnly.startsWith('639')) {
+      return true;
     }
     
     return false;
@@ -108,7 +115,7 @@ export const ApplicationFormScreen: React.FC<ApplicationFormScreenProps> = ({
       newErrors.phone = 'Contact number is required';
       isValid = false;
     } else if (!validatePhone(formData.phone)) {
-      newErrors.phone = 'Please enter a valid Philippine mobile number (e.g., +63 917 XXX XXXX or 0917 XXX XXXX)';
+      newErrors.phone = 'Please enter a valid Philippine mobile number (10 or 11 digits)';
       isValid = false;
     }
 

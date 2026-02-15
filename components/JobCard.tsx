@@ -10,7 +10,9 @@ interface JobCardProps {
   onSave: (jobId: string) => void;
   onApply: (jobId: string) => void;
   onPress: (job: Job) => void;
-  showRemove?: boolean; // New prop to show "Remove" instead of "Save"
+  onCancelApplication?: (jobId: string) => void; // NEW: Cancel application
+  showRemove?: boolean;
+  isApplied?: boolean; // NEW: Show if user applied
 }
 
 // Location Pin Icon
@@ -50,7 +52,15 @@ const CheckIcon: React.FC<{ color: string }> = ({ color }) => (
   </Svg>
 );
 
-export const JobCard: React.FC<JobCardProps> = ({ job, onSave, onApply, onPress, showRemove = false }) => {
+export const JobCard: React.FC<JobCardProps> = ({ 
+  job, 
+  onSave, 
+  onApply, 
+  onPress, 
+  onCancelApplication,
+  showRemove = false,
+  isApplied = false, // NEW
+}) => {
   const { colors } = useTheme();
   const { width: screenWidth } = useWindowDimensions();
 
@@ -174,10 +184,28 @@ export const JobCard: React.FC<JobCardProps> = ({ job, onSave, onApply, onPress,
       alignItems: 'center',
       backgroundColor: colors.primary,
     },
+    appliedButton: {
+      backgroundColor: '#34C759', // iOS green
+    },
+    cancelButton: {
+      backgroundColor: colors.backgroundSecondary,
+      borderWidth: 1,
+      borderColor: colors.borderLight,
+    },
     applyButtonText: {
       fontSize: 15,
       fontWeight: '600',
       color: '#FFFFFF',
+    },
+    appliedButtonText: {
+      fontSize: 15,
+      fontWeight: '600',
+      color: '#FFFFFF',
+    },
+    cancelButtonText: {
+      fontSize: 15,
+      fontWeight: '600',
+      color: colors.text,
     },
   });
 
@@ -266,32 +294,65 @@ export const JobCard: React.FC<JobCardProps> = ({ job, onSave, onApply, onPress,
       </View>
 
       <View style={styles.actions}>
-        <TouchableOpacity
-          style={[styles.saveButton, getSaveButtonStyle()]}
-          onPress={(e) => {
-            e.stopPropagation();
-            onSave(job.id);
-          }}
-          activeOpacity={0.7}
-        >
-          {isSaved && !showRemove && (
-            <CheckIcon color="#FFFFFF" />
-          )}
-          <Text style={getSaveButtonTextStyle()}>
-            {getSaveButtonText()}
-          </Text>
-        </TouchableOpacity>
+        {/* Show Applied + Cancel when applied, otherwise Show Save + Apply */}
+        {isApplied ? (
+          <>
+            {/* Applied Button */}
+            <TouchableOpacity
+              style={[styles.applyButton, styles.appliedButton]}
+              disabled={true}
+              activeOpacity={1}
+            >
+              <CheckIcon color="#FFFFFF" />
+              <Text style={styles.appliedButtonText}>Applied</Text>
+            </TouchableOpacity>
 
-        <TouchableOpacity
-          style={styles.applyButton}
-          onPress={(e) => {
-            e.stopPropagation();
-            onApply(job.id);
-          }}
-          activeOpacity={0.7}
-        >
-          <Text style={styles.applyButtonText}>Apply</Text>
-        </TouchableOpacity>
+            {/* Cancel Button */}
+            {onCancelApplication && (
+              <TouchableOpacity
+                style={[styles.saveButton, styles.cancelButton]}
+                onPress={(e) => {
+                  e.stopPropagation();
+                  onCancelApplication(job.id);
+                }}
+                activeOpacity={0.7}
+              >
+                <Text style={styles.cancelButtonText}>Cancel</Text>
+              </TouchableOpacity>
+            )}
+          </>
+        ) : (
+          <>
+            {/* Save Button */}
+            <TouchableOpacity
+              style={[styles.saveButton, getSaveButtonStyle()]}
+              onPress={(e) => {
+                e.stopPropagation();
+                onSave(job.id);
+              }}
+              activeOpacity={0.7}
+            >
+              {isSaved && !showRemove && (
+                <CheckIcon color="#FFFFFF" />
+              )}
+              <Text style={getSaveButtonTextStyle()}>
+                {getSaveButtonText()}
+              </Text>
+            </TouchableOpacity>
+
+            {/* Apply Button */}
+            <TouchableOpacity
+              style={styles.applyButton}
+              onPress={(e) => {
+                e.stopPropagation();
+                onApply(job.id);
+              }}
+              activeOpacity={0.7}
+            >
+              <Text style={styles.applyButtonText}>Apply</Text>
+            </TouchableOpacity>
+          </>
+        )}
       </View>
     </TouchableOpacity>
   );
