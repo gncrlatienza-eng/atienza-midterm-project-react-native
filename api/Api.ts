@@ -61,16 +61,29 @@ export const fetchJobs = async (): Promise<Job[]> => {
         const formatCurrency = (amount: number, currency: string) => {
           if (currency === 'USD') {
             return `$${(amount / 1000).toFixed(0)}k`;
+          } else if (currency === 'EUR') {
+            return `€${(amount / 1000).toFixed(0)}k`;
+          } else if (currency === 'GBP') {
+            return `£${(amount / 1000).toFixed(0)}k`;
           }
           return `${currency} ${amount.toLocaleString()}`;
         };
         salary = `${formatCurrency(job.minSalary, job.currency)} - ${formatCurrency(job.maxSalary, job.currency)}`;
+      } else if (job.minSalary && job.currency) {
+        // Only min salary
+        const formatCurrency = (amount: number, currency: string) => {
+          if (currency === 'USD') return `$${(amount / 1000).toFixed(0)}k`;
+          if (currency === 'EUR') return `€${(amount / 1000).toFixed(0)}k`;
+          if (currency === 'GBP') return `£${(amount / 1000).toFixed(0)}k`;
+          return `${currency} ${amount.toLocaleString()}`;
+        };
+        salary = `${formatCurrency(job.minSalary, job.currency)}+`;
       } else if (job.salary || job.salary_range || job.compensation) {
         salary = job.salary || job.salary_range || job.compensation;
       }
 
       return {
-        id: generateStableId(job), // ✅ Use stable ID instead of random UUID
+        id: generateStableId(job),
         title: job.title || job.job_title || 'Untitled Position',
         company: job.companyName || job.company || job.company_name || 'Company Name',
         companyLogo: job.companyLogo || job.company_logo || job.logo || undefined,
@@ -84,12 +97,6 @@ export const fetchJobs = async (): Promise<Job[]> => {
         isSaved: false,
       };
     });
-
-    console.log('Mapped jobs with logos:', jobs.slice(0, 3).map(j => ({ 
-      company: j.company, 
-      logo: j.companyLogo,
-      id: j.id.slice(0, 8) // Show first 8 chars of stable ID
-    })));
 
     return jobs;
   } catch (error) {
