@@ -56,6 +56,9 @@ export const createHomeStyles = (colors: ThemeColors, width: number, height: num
     featuredSection: {
       marginBottom: 24,
     },
+    featuredCardsContainer: {
+      // Container for featured cards - no extra styling needed
+    },
     allJobsSection: {
     },
     sectionTitle: {
@@ -63,6 +66,7 @@ export const createHomeStyles = (colors: ThemeColors, width: number, height: num
       fontWeight: '700',
       color: colors.text,
       marginBottom: 12,
+      paddingHorizontal: 20, // ✅ FIXED: Aligns with FeaturedJobCard marginHorizontal: 20
     },
     jobCard: {
       backgroundColor: colors.card,

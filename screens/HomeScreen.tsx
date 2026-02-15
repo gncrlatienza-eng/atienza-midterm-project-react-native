@@ -53,6 +53,11 @@ export const HomeScreen = () => {
     setError(null);
     try {
       const jobs = await fetchJobs();
+      console.log('Loaded jobs:', jobs.length);
+      // Log first job to verify logo property
+      if (jobs.length > 0) {
+        console.log('First job logo:', jobs[0].companyLogo || jobs[0].logo);
+      }
       setAllJobs(jobs);
       setDisplayedJobs(jobs);
     } catch (err) {
@@ -149,13 +154,15 @@ export const HomeScreen = () => {
         {!searchQuery && allJobs.length > 0 && (
           <View style={styles.featuredSection}>
             <Text style={styles.sectionTitle}>Featured</Text>
-            {allJobs.slice(0, 3).map((job) => (
-              <FeaturedJobCard
-                key={job.id}
-                job={job}
-                onPress={handleJobPress}
-              />
-            ))}
+            <View style={styles.featuredCardsContainer}>
+              {allJobs.slice(0, 3).map((job) => (
+                <FeaturedJobCard
+                  key={job.id}
+                  job={job}
+                  onPress={handleJobPress}
+                />
+              ))}
+            </View>
           </View>
         )}
 

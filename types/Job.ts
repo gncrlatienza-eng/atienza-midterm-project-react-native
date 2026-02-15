@@ -4,7 +4,8 @@ export interface Job {
   title: string;
   company: string;
   location?: string;
-  logo?: string; // Company logo URL from API
+  companyLogo?: string; // Company logo URL from API (matches API response)
+  logo?: string; // Fallback/legacy support
   salary?: string;
   description?: string;
   type?: string; // Full-time, Part-time, Contract, etc.

@@ -40,16 +40,22 @@ export const fetchJobs = async (): Promise<Job[]> => {
     const jobs: Job[] = jobsData.map((job: any) => ({
       id: uuid.v4() as string, // Generate unique ID for each job
       title: job.title || job.job_title || 'Untitled Position',
-      company: job.company || job.company_name || 'Company Name',
-      location: job.location || job.city || job.address || job.job_location || undefined,
+      company: job.companyName || job.company || job.company_name || 'Company Name',
+      companyLogo: job.companyLogo || job.company_logo || job.logo || undefined, // ✅ ADDED THIS
+      location: job.locations?.[0] || job.location || job.city || job.address || job.job_location || undefined,
       salary: job.salary || job.salary_range || job.compensation || undefined,
       description: job.description || job.job_description || job.details || undefined,
-      type: job.type || job.job_type || job.employment_type || job.position_type || undefined,
-      posted: job.posted || job.date_posted || job.created_at || job.post_date || undefined,
+      type: job.jobType || job.type || job.job_type || job.employment_type || job.position_type || undefined,
+      posted: job.pubDate || job.posted || job.date_posted || job.created_at || job.post_date || undefined,
       requirements: job.requirements || job.qualifications || job.required_skills || undefined,
       benefits: job.benefits || job.perks || job.advantages || undefined,
       isSaved: false,
     }));
+
+    console.log('Mapped jobs with logos:', jobs.slice(0, 3).map(j => ({ 
+      company: j.company, 
+      logo: j.companyLogo 
+    })));
 
     return jobs;
   } catch (error) {
