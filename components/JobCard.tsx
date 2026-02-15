@@ -1,9 +1,9 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, useWindowDimensions } from 'react-native';
+import { View, Text, TouchableOpacity, Image, useWindowDimensions } from 'react-native';
 import { useTheme } from '../context/ThemedContext';
 import { Job } from '../types/Job';
-import { createHomeStyles } from '../styles/HomeScreen';
 import { StyleSheet } from 'react-native';
+import Svg, { Path, Circle } from 'react-native-svg';
 
 interface JobCardProps {
   job: Job;
@@ -12,110 +12,207 @@ interface JobCardProps {
   onPress: (job: Job) => void;
 }
 
+// Location Pin Icon
+const LocationIcon: React.FC<{ color: string }> = ({ color }) => (
+  <Svg width="12" height="12" viewBox="0 0 24 24" fill="none">
+    <Path d="M21 10C21 17 12 23 12 23C12 23 3 17 3 10C3 7.61305 3.94821 5.32387 5.63604 3.63604C7.32387 1.94821 9.61305 1 12 1C14.3869 1 16.6761 1.94821 18.364 3.63604C20.0518 5.32387 21 7.61305 21 10Z" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+    <Circle cx="12" cy="10" r="3" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+  </Svg>
+);
+
+// Clock Icon
+const ClockIcon: React.FC<{ color: string }> = ({ color }) => (
+  <Svg width="12" height="12" viewBox="0 0 24 24" fill="none">
+    <Circle cx="12" cy="12" r="10" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+    <Path d="M12 6V12L16 14" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+  </Svg>
+);
+
 export const JobCard: React.FC<JobCardProps> = ({ job, onSave, onApply, onPress }) => {
   const { colors } = useTheme();
-  const { width, height } = useWindowDimensions();
-  const baseStyles = createHomeStyles(colors, width, height);
+  const { width } = useWindowDimensions();
 
-  // Generate company logo from first letter
-  const getCompanyInitial = (company: string) => {
-    return company.charAt(0).toUpperCase();
-  };
-
-  // Generate a color based on company name
-  const getLogoColor = (company: string) => {
-    const logoColors = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#FFA07A', '#98D8C8', '#F7DC6F', '#BB8FCE'];
-    const index = company.charCodeAt(0) % logoColors.length;
-    return logoColors[index];
+  // Get company logo URL from Clearbit
+  const getCompanyLogoUrl = (company: string) => {
+    const domain = company.toLowerCase()
+      .replace(/\s+/g, '')
+      .replace(/[^a-z0-9]/g, '');
+    return `https://logo.clearbit.com/${domain}.com`;
   };
 
   const styles = StyleSheet.create({
-    logo: {
+    card: {
+      backgroundColor: colors.card,
+      borderRadius: 16,
+      padding: 16,
+      marginBottom: 12,
+      borderWidth: 1,
+      borderColor: colors.borderLight,
+    },
+    header: {
+      flexDirection: 'row',
+      marginBottom: 12,
+    },
+    logoContainer: {
       width: 48,
       height: 48,
       borderRadius: 10,
+      backgroundColor: colors.backgroundSecondary,
+      marginRight: 12,
+      overflow: 'hidden',
+      borderWidth: 1,
+      borderColor: colors.borderLight,
+    },
+    logo: {
+      width: '100%',
+      height: '100%',
+    },
+    logoFallback: {
+      width: '100%',
+      height: '100%',
       justifyContent: 'center',
       alignItems: 'center',
-      marginRight: 12,
+      backgroundColor: colors.backgroundSecondary,
     },
     logoText: {
       fontSize: 20,
       fontWeight: '700',
-      color: '#FFFFFF',
+      color: colors.textSecondary,
     },
     headerContent: {
       flex: 1,
+      justifyContent: 'center',
     },
-    infoRow: {
+    title: {
+      fontSize: 17,
+      fontWeight: '700',
+      color: colors.text,
+      marginBottom: 4,
+    },
+    company: {
+      fontSize: 15,
+      fontWeight: '600',
+      color: colors.textSecondary,
+    },
+    details: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 12,
+      marginBottom: 16,
+    },
+    detailItem: {
       flexDirection: 'row',
       alignItems: 'center',
       gap: 6,
-      marginTop: 4,
     },
-    infoText: {
+    detailText: {
       fontSize: 13,
       color: colors.textTertiary,
+      fontWeight: '400',
     },
-    separator: {
-      fontSize: 13,
-      color: colors.textTertiary,
+    actions: {
+      flexDirection: 'row',
+      gap: 12,
+    },
+    saveButton: {
+      flex: 1,
+      paddingVertical: 12,
+      borderRadius: 12,
+      alignItems: 'center',
+      backgroundColor: colors.backgroundSecondary,
+      borderWidth: 1,
+      borderColor: colors.borderLight,
+    },
+    saveButtonText: {
+      fontSize: 15,
+      fontWeight: '600',
+      color: colors.text,
+    },
+    applyButton: {
+      flex: 1,
+      paddingVertical: 12,
+      borderRadius: 12,
+      alignItems: 'center',
+      backgroundColor: colors.primary,
+    },
+    applyButtonText: {
+      fontSize: 15,
+      fontWeight: '600',
+      color: '#FFFFFF',
     },
   });
 
+  const [logoError, setLogoError] = React.useState(false);
+
   return (
     <TouchableOpacity
-      style={baseStyles.jobCard}
+      style={styles.card}
       onPress={() => onPress(job)}
       activeOpacity={0.7}
     >
-      <View style={baseStyles.jobHeader}>
-        <View style={[styles.logo, { backgroundColor: getLogoColor(job.company) }]}>
-          <Text style={styles.logoText}>{getCompanyInitial(job.company)}</Text>
+      <View style={styles.header}>
+        <View style={styles.logoContainer}>
+          {!logoError ? (
+            <Image
+              source={{ uri: getCompanyLogoUrl(job.company) }}
+              style={styles.logo}
+              onError={() => setLogoError(true)}
+            />
+          ) : (
+            <View style={styles.logoFallback}>
+              <Text style={styles.logoText}>
+                {job.company.charAt(0).toUpperCase()}
+              </Text>
+            </View>
+          )}
         </View>
 
         <View style={styles.headerContent}>
-          <Text style={baseStyles.jobTitle} numberOfLines={1}>{job.title}</Text>
-          <Text style={baseStyles.company} numberOfLines={1}>{job.company}</Text>
-          
-          <View style={styles.infoRow}>
-            {job.location && (
-              <>
-                <Text style={styles.infoText}>{job.location}</Text>
-                {job.type && <Text style={styles.separator}>•</Text>}
-              </>
-            )}
-            {job.type && (
-              <Text style={styles.infoText}>{job.type}</Text>
-            )}
-          </View>
+          <Text style={styles.title} numberOfLines={1}>
+            {job.title}
+          </Text>
+          <Text style={styles.company} numberOfLines={1}>
+            {job.company}
+          </Text>
         </View>
       </View>
 
-      <View style={baseStyles.actionButtons}>
+      <View style={styles.details}>
+        {job.location && (
+          <View style={styles.detailItem}>
+            <LocationIcon color={colors.textTertiary} />
+            <Text style={styles.detailText}>{job.location}</Text>
+          </View>
+        )}
+        {job.type && (
+          <View style={styles.detailItem}>
+            <ClockIcon color={colors.textTertiary} />
+            <Text style={styles.detailText}>{job.type}</Text>
+          </View>
+        )}
+      </View>
+
+      <View style={styles.actions}>
         <TouchableOpacity
-          style={[baseStyles.saveButton, job.isSaved && baseStyles.savedButton]}
+          style={styles.saveButton}
           onPress={(e) => {
             e.stopPropagation();
             onSave(job.id);
           }}
           activeOpacity={0.7}
         >
-          <Text style={[baseStyles.buttonText, job.isSaved && { color: '#FFFFFF' }]}>
-            {job.isSaved ? 'Saved' : 'Save'}
-          </Text>
+          <Text style={styles.saveButtonText}>Save</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
-          style={baseStyles.applyButton}
+          style={styles.applyButton}
           onPress={(e) => {
             e.stopPropagation();
             onApply(job.id);
           }}
           activeOpacity={0.7}
         >
-          <Text style={[baseStyles.buttonText, baseStyles.applyButtonText]}>
-            Apply
-          </Text>
+          <Text style={styles.applyButtonText}>Apply</Text>
         </TouchableOpacity>
       </View>
     </TouchableOpacity>
