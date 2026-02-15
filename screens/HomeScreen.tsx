@@ -8,7 +8,6 @@ import {
   RefreshControl,
   Alert,
   Keyboard,
-  Animated,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -38,10 +37,6 @@ export const HomeScreen = () => {
   const [error, setError] = useState<string | null>(null);
   const [isSearchFocused, setIsSearchFocused] = useState(false);
 
-  // Animation for Featured section collapse/expand
-  const featuredHeight = React.useRef(new Animated.Value(1)).current;
-  const featuredOpacity = React.useRef(new Animated.Value(1)).current;
-
   useEffect(() => {
     loadJobs();
   }, []);
@@ -52,39 +47,6 @@ export const HomeScreen = () => {
       setDisplayedJobs(filtered);
     }
   }, [searchQuery, allJobs]);
-
-  // Animate Featured section when search query changes
-  useEffect(() => {
-    if (searchQuery) {
-      // Collapse Featured section
-      Animated.parallel([
-        Animated.timing(featuredHeight, {
-          toValue: 0,
-          duration: 300,
-          useNativeDriver: false,
-        }),
-        Animated.timing(featuredOpacity, {
-          toValue: 0,
-          duration: 200,
-          useNativeDriver: true,
-        }),
-      ]).start();
-    } else {
-      // Expand Featured section
-      Animated.parallel([
-        Animated.timing(featuredHeight, {
-          toValue: 1,
-          duration: 300,
-          useNativeDriver: false,
-        }),
-        Animated.timing(featuredOpacity, {
-          toValue: 1,
-          duration: 300,
-          useNativeDriver: true,
-        }),
-      ]).start();
-    }
-  }, [searchQuery]);
 
   const loadJobs = async () => {
     setLoading(true);
@@ -188,27 +150,15 @@ export const HomeScreen = () => {
           />
         }
       >
-        {/* Featured Section - Animated collapse/expand */}
-        {allJobs.length > 0 && (
-          <Animated.View
-            style={{
-              height: featuredHeight.interpolate({
-                inputRange: [0, 1],
-                outputRange: [0, 280], // Adjust based on your card height
-              }),
-              opacity: featuredOpacity,
-              overflow: 'hidden',
-              marginBottom: searchQuery ? 0 : 24,
-            }}
-          >
-            <View style={styles.featuredSection}>
-              <Text style={styles.sectionTitle}>Featured</Text>
-              <FeaturedCarousel
-                jobs={allJobs.slice(0, 5)} // Show up to 5 featured jobs in rotation
-                onJobPress={handleJobPress}
-              />
-            </View>
-          </Animated.View>
+        {/* Featured Section - Only show when NOT searching */}
+        {!searchQuery && allJobs.length > 0 && (
+          <View style={styles.featuredSection}>
+            <Text style={styles.sectionTitle}>Featured</Text>
+            <FeaturedCarousel
+              jobs={allJobs.slice(0, 5)} // Show up to 5 featured jobs in rotation
+              onJobPress={handleJobPress}
+            />
+          </View>
         )}
 
         {/* All Jobs */}
