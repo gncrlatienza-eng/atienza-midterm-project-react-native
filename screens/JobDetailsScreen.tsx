@@ -58,13 +58,23 @@ const cleanHTMLText = (text: string): string => {
   
   // Remove HTML tags but keep line breaks
   return text
-    .replace(/<h3>/g, '\n')
-    .replace(/<\/h3>/g, '\n')
-    .replace(/<ul>/g, '\n')
-    .replace(/<\/ul>/g, '\n')
-    .replace(/<li>/g, '• ')
-    .replace(/<\/li>/g, '\n')
+    .replace(/<h3>/gi, '\n')
+    .replace(/<\/h3>/gi, '\n')
+    .replace(/<ul>/gi, '\n')
+    .replace(/<\/ul>/gi, '\n')
+    .replace(/<li>/gi, '• ')
+    .replace(/<\/li>/gi, '\n')
+    .replace(/<p>/gi, '\n')
+    .replace(/<\/p>/gi, '\n')
+    .replace(/<br\s*\/?>/gi, '\n')
+    .replace(/<strong>/gi, '')
+    .replace(/<\/strong>/gi, '')
+    .replace(/<em>/gi, '')
+    .replace(/<\/em>/gi, '')
     .replace(/<[^>]*>/g, '')
+    // Remove emoji characters (including all unicode emojis)
+    .replace(/[\u{1F300}-\u{1F9FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]/gu, '')
+    // Clean up multiple newlines
     .replace(/\n\n+/g, '\n\n')
     .trim();
 };
@@ -109,7 +119,7 @@ export const JobDetailsScreen: React.FC<JobDetailsScreenProps> = ({ route, navig
 
           {/* Job Details Badges */}
           <View style={styles.badgesContainer}>
-            {job.location && (
+            {job.location && job.location.trim() !== '' && (
               <View style={styles.badge}>
                 <View style={styles.badgeContent}>
                   <LocationIcon color={colors.textSecondary} size={14} />
@@ -117,7 +127,7 @@ export const JobDetailsScreen: React.FC<JobDetailsScreenProps> = ({ route, navig
                 </View>
               </View>
             )}
-            {job.salary && (
+            {job.salary && job.salary.trim() !== '' && (
               <View style={styles.badge}>
                 <View style={styles.badgeContent}>
                   <SalaryIcon color={colors.textSecondary} size={14} />
@@ -125,7 +135,7 @@ export const JobDetailsScreen: React.FC<JobDetailsScreenProps> = ({ route, navig
                 </View>
               </View>
             )}
-            {job.type && (
+            {job.type && job.type.trim() !== '' && (
               <View style={styles.badge}>
                 <View style={styles.badgeContent}>
                   <TypeIcon color={colors.textSecondary} size={14} />
@@ -133,7 +143,7 @@ export const JobDetailsScreen: React.FC<JobDetailsScreenProps> = ({ route, navig
                 </View>
               </View>
             )}
-            {job.posted && (
+            {job.posted && job.posted.trim() !== '' && (
               <View style={styles.badge}>
                 <View style={styles.badgeContent}>
                   <CalendarIcon color={colors.textSecondary} size={14} />

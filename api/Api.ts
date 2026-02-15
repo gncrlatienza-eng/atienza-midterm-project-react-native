@@ -41,13 +41,13 @@ export const fetchJobs = async (): Promise<Job[]> => {
       id: uuid.v4() as string, // Generate unique ID for each job
       title: job.title || job.job_title || 'Untitled Position',
       company: job.company || job.company_name || 'Company Name',
-      location: job.location || job.city || 'Location',
-      salary: job.salary || job.salary_range || undefined,
-      description: job.description || job.job_description || undefined,
-      type: job.type || job.job_type || job.employment_type || undefined,
-      posted: job.posted || job.date_posted || job.created_at || undefined,
-      requirements: job.requirements || job.qualifications || undefined,
-      benefits: job.benefits || job.perks || undefined,
+      location: job.location || job.city || job.address || job.job_location || undefined,
+      salary: job.salary || job.salary_range || job.compensation || undefined,
+      description: job.description || job.job_description || job.details || undefined,
+      type: job.type || job.job_type || job.employment_type || job.position_type || undefined,
+      posted: job.posted || job.date_posted || job.created_at || job.post_date || undefined,
+      requirements: job.requirements || job.qualifications || job.required_skills || undefined,
+      benefits: job.benefits || job.perks || job.advantages || undefined,
       isSaved: false,
     }));
 
