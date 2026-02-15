@@ -11,24 +11,26 @@ interface FeaturedJobCardProps {
 
 export const FeaturedJobCard: React.FC<FeaturedJobCardProps> = ({ job, onPress }) => {
   const { colors } = useTheme();
-  const { width } = useWindowDimensions();
+  const { width: screenWidth } = useWindowDimensions();
+
+  const cardWidth = screenWidth - 64; // Full width minus margins
 
   const styles = StyleSheet.create({
     card: {
       backgroundColor: colors.card,
-      borderRadius: 20,
-      padding: 20,
-      marginBottom: 16,
+      borderRadius: 16,
+      padding: 16,
+      marginBottom: 12,
       borderWidth: 1,
       borderColor: colors.borderLight,
-      width: '100%',
+      width: cardWidth,
     },
     logoContainer: {
-      width: 64,
-      height: 64,
-      borderRadius: 14,
+      width: 56,
+      height: 56,
+      borderRadius: 12,
       backgroundColor: colors.backgroundSecondary,
-      marginBottom: 16,
+      marginBottom: 12,
       overflow: 'hidden',
       borderWidth: 1,
       borderColor: colors.borderLight,
@@ -36,7 +38,7 @@ export const FeaturedJobCard: React.FC<FeaturedJobCardProps> = ({ job, onPress }
     logo: {
       width: '100%',
       height: '100%',
-      resizeMode: 'cover',
+      resizeMode: 'contain',
     },
     logoFallback: {
       width: '100%',
@@ -46,48 +48,47 @@ export const FeaturedJobCard: React.FC<FeaturedJobCardProps> = ({ job, onPress }
       backgroundColor: colors.backgroundSecondary,
     },
     logoText: {
-      fontSize: 28,
+      fontSize: 24,
       fontWeight: '700',
       color: colors.textSecondary,
     },
     title: {
-      fontSize: 18,
+      fontSize: 17,
       fontWeight: '700',
       color: colors.text,
-      marginBottom: 6,
-      lineHeight: 24,
+      marginBottom: 4,
     },
     company: {
-      fontSize: 16,
+      fontSize: 15,
       fontWeight: '600',
       color: colors.textSecondary,
-      marginBottom: 12,
+      marginBottom: 8,
     },
     details: {
       flexDirection: 'row',
       alignItems: 'center',
-      marginBottom: 20,
+      marginBottom: 16,
     },
     detail: {
-      fontSize: 14,
+      fontSize: 13,
       color: colors.textTertiary,
       fontWeight: '400',
     },
     separator: {
-      marginHorizontal: 8,
-      fontSize: 14,
+      marginHorizontal: 6,
+      fontSize: 13,
       color: colors.textTertiary,
     },
     viewButton: {
       backgroundColor: colors.primary,
-      paddingVertical: 12,
-      paddingHorizontal: 28,
-      borderRadius: 22,
+      paddingVertical: 10,
+      paddingHorizontal: 24,
+      borderRadius: 20,
       alignSelf: 'flex-end',
     },
     viewButtonText: {
       color: '#FFFFFF',
-      fontSize: 16,
+      fontSize: 15,
       fontWeight: '600',
     },
   });

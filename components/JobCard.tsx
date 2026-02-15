@@ -30,28 +30,30 @@ const ClockIcon: React.FC<{ color: string }> = ({ color }) => (
 
 export const JobCard: React.FC<JobCardProps> = ({ job, onSave, onApply, onPress }) => {
   const { colors } = useTheme();
-  const { width } = useWindowDimensions();
+  const { width: screenWidth } = useWindowDimensions();
+
+  const cardWidth = screenWidth - 64; // Full width minus margins
 
   const styles = StyleSheet.create({
     card: {
       backgroundColor: colors.card,
-      borderRadius: 20,
-      padding: 20,
-      marginBottom: 16,
+      borderRadius: 16,
+      padding: 16,
+      marginBottom: 12,
       borderWidth: 1,
       borderColor: colors.borderLight,
-      width: '100%',
+      width: cardWidth,
     },
     header: {
       flexDirection: 'row',
-      marginBottom: 16,
+      marginBottom: 12,
     },
     logoContainer: {
-      width: 56,
-      height: 56,
-      borderRadius: 12,
+      width: 48,
+      height: 48,
+      borderRadius: 10,
       backgroundColor: colors.backgroundSecondary,
-      marginRight: 14,
+      marginRight: 12,
       overflow: 'hidden',
       borderWidth: 1,
       borderColor: colors.borderLight,
@@ -59,7 +61,7 @@ export const JobCard: React.FC<JobCardProps> = ({ job, onSave, onApply, onPress 
     logo: {
       width: '100%',
       height: '100%',
-      resizeMode: 'cover',
+      resizeMode: 'contain',
     },
     logoFallback: {
       width: '100%',
@@ -69,7 +71,7 @@ export const JobCard: React.FC<JobCardProps> = ({ job, onSave, onApply, onPress 
       backgroundColor: colors.backgroundSecondary,
     },
     logoText: {
-      fontSize: 24,
+      fontSize: 20,
       fontWeight: '700',
       color: colors.textSecondary,
     },
@@ -78,22 +80,21 @@ export const JobCard: React.FC<JobCardProps> = ({ job, onSave, onApply, onPress 
       justifyContent: 'center',
     },
     title: {
-      fontSize: 18,
+      fontSize: 17,
       fontWeight: '700',
       color: colors.text,
-      marginBottom: 6,
-      lineHeight: 24,
+      marginBottom: 4,
     },
     company: {
-      fontSize: 16,
+      fontSize: 15,
       fontWeight: '600',
       color: colors.textSecondary,
     },
     details: {
       flexDirection: 'row',
       alignItems: 'center',
-      gap: 14,
-      marginBottom: 18,
+      gap: 12,
+      marginBottom: 16,
     },
     detailItem: {
       flexDirection: 'row',
@@ -101,7 +102,7 @@ export const JobCard: React.FC<JobCardProps> = ({ job, onSave, onApply, onPress 
       gap: 6,
     },
     detailText: {
-      fontSize: 14,
+      fontSize: 13,
       color: colors.textTertiary,
       fontWeight: '400',
     },
@@ -111,27 +112,27 @@ export const JobCard: React.FC<JobCardProps> = ({ job, onSave, onApply, onPress 
     },
     saveButton: {
       flex: 1,
-      paddingVertical: 14,
-      borderRadius: 14,
+      paddingVertical: 12,
+      borderRadius: 12,
       alignItems: 'center',
       backgroundColor: colors.backgroundSecondary,
       borderWidth: 1,
       borderColor: colors.borderLight,
     },
     saveButtonText: {
-      fontSize: 16,
+      fontSize: 15,
       fontWeight: '600',
       color: colors.text,
     },
     applyButton: {
       flex: 1,
-      paddingVertical: 14,
-      borderRadius: 14,
+      paddingVertical: 12,
+      borderRadius: 12,
       alignItems: 'center',
       backgroundColor: colors.primary,
     },
     applyButtonText: {
-      fontSize: 16,
+      fontSize: 15,
       fontWeight: '600',
       color: '#FFFFFF',
     },
