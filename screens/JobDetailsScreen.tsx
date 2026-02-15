@@ -40,15 +40,15 @@ export const JobDetailsScreen: React.FC<JobDetailsScreenProps> = ({ route, navig
 
   const handleShare = async () => {
     try {
-      // Create formatted message
+      // Create formatted message without emojis
       const shareMessage = `
 Check out this job opportunity!
 
 ${job.title}
 ${job.company}
-${job.location ? `📍 ${job.location}` : ''}
-${job.salary ? `💰 ${job.salary}` : ''}
-${job.type ? `⏰ ${job.type}` : ''}
+${job.location ? `Location: ${job.location}` : ''}
+${job.salary ? `Salary: ${job.salary}` : ''}
+${job.type ? `Type: ${job.type}` : ''}
 
 ${job.description ? job.description.substring(0, 200).replace(/<[^>]*>/g, '') + '...' : ''}
       `.trim();
@@ -56,9 +56,7 @@ ${job.description ? job.description.substring(0, 200).replace(/<[^>]*>/g, '') + 
       const shareOptions = Platform.select({
         ios: {
           message: shareMessage,
-          // Adding a URL enables AirDrop and full iOS share experience
-          // You can use the job's actual URL if you have one
-          url: `https://empllo.com/jobs/${job.id}`, // Replace with your actual job URL
+          url: `https://empllo.com/jobs/${job.id}`,
           title: `${job.title} at ${job.company}`,
         },
         android: {
@@ -74,14 +72,11 @@ ${job.description ? job.description.substring(0, 200).replace(/<[^>]*>/g, '') + 
 
       if (result.action === Share.sharedAction) {
         if (result.activityType) {
-          // Shared via specific app (AirDrop, Messages, etc.)
           console.log('Shared via:', result.activityType);
         } else {
-          // Shared (Android)
           console.log('Job shared successfully');
         }
       } else if (result.action === Share.dismissedAction) {
-        // User dismissed the share sheet
         console.log('Share dismissed');
       }
     } catch (error) {
@@ -109,7 +104,10 @@ ${job.description ? job.description.substring(0, 200).replace(/<[^>]*>/g, '') + 
         <ScrollView
           style={styles.scrollView}
           showsVerticalScrollIndicator={false}
-          contentContainerStyle={styles.scrollContent}
+          contentContainerStyle={[
+            styles.scrollContent,
+            { paddingBottom: 120 } // Extra padding for tab bar
+          ]}
         >
           {/* Hero Section */}
           <JobHeroSection
@@ -121,14 +119,15 @@ ${job.description ? job.description.substring(0, 200).replace(/<[^>]*>/g, '') + 
             onSave={handleSave}
           />
 
-          {/* Divider */}
-          <View style={styles.divider} />
+          {/* Spacer */}
+          <View style={{ height: 32 }} />
 
-          {/* Description */}
+          {/* About the Role */}
           <JobContentSection
             title="About the Role"
             content={job.description}
             styles={styles}
+            colors={colors}
           />
 
           {/* Requirements */}
@@ -136,17 +135,19 @@ ${job.description ? job.description.substring(0, 200).replace(/<[^>]*>/g, '') + 
             title="Requirements"
             listItems={job.requirements}
             styles={styles}
+            colors={colors}
           />
 
-          {/* Benefits */}
+          {/* Benefits & Perks */}
           <JobContentSection
             title="Benefits & Perks"
             listItems={job.benefits}
             styles={styles}
+            colors={colors}
           />
 
           {/* Bottom Spacing */}
-          <View style={{ height: 40 }} />
+          <View style={{ height: 20 }} />
         </ScrollView>
       </View>
     </SafeAreaView>
