@@ -42,6 +42,7 @@ export const fetchJobs = async (): Promise<Job[]> => {
       title: job.title || job.job_title || 'Untitled Position',
       company: job.company || job.company_name || 'Company Name',
       location: job.location || job.city || job.address || job.job_location || undefined,
+      logo: job.logo || job.company_logo || job.companyLogo || job.image || job.company_image || undefined,
       salary: job.salary || job.salary_range || job.compensation || undefined,
       description: job.description || job.job_description || job.details || undefined,
       type: job.type || job.job_type || job.employment_type || job.position_type || undefined,

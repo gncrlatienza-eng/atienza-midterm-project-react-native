@@ -4,6 +4,7 @@ export interface Job {
   title: string;
   company: string;
   location: string;
+  logo?: string; // Company logo URL
   salary?: string;
   description?: string;
   type?: string; // Full-time, Part-time, Contract, etc.
@@ -21,6 +22,7 @@ export interface JobApiResponse {
   title: string;
   company: string;
   location: string;
+  logo?: string;
   salary?: string;
   description?: string;
   type?: string;

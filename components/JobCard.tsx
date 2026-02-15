@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, useWindowDimensions } from 'react-native';
+import { View, Text, TouchableOpacity, useWindowDimensions, Image } from 'react-native';
 import { useTheme } from '../context/ThemedContext';
 import { Job } from '../types/Job';
 import { createHomeStyles } from '../styles/HomeScreen';
@@ -23,6 +23,21 @@ export const JobCard: React.FC<JobCardProps> = ({ job, onSave, onApply, onPress 
       activeOpacity={0.7}
     >
       <View style={styles.jobHeader}>
+        {/* Company Logo */}
+        {job.logo ? (
+          <Image
+            source={{ uri: job.logo }}
+            style={styles.companyLogo}
+            resizeMode="contain"
+          />
+        ) : (
+          <View style={styles.logoPlaceholder}>
+            <Text style={styles.logoPlaceholderText}>
+              {job.company.charAt(0).toUpperCase()}
+            </Text>
+          </View>
+        )}
+
         <View style={styles.jobInfo}>
           <Text style={styles.jobTitle}>{job.title}</Text>
           <Text style={styles.company}>{job.company}</Text>
@@ -32,17 +47,17 @@ export const JobCard: React.FC<JobCardProps> = ({ job, onSave, onApply, onPress 
       <View style={styles.jobDetails}>
         {job.location && (
           <View style={styles.detailBadge}>
-            <Text style={styles.detailText}>{job.location}</Text>
+            <Text style={styles.detailText}>📍 {job.location}</Text>
           </View>
         )}
         {job.salary && (
           <View style={styles.detailBadge}>
-            <Text style={styles.detailText}>{job.salary}</Text>
+            <Text style={styles.detailText}>💰 {job.salary}</Text>
           </View>
         )}
         {job.type && (
           <View style={styles.detailBadge}>
-            <Text style={styles.detailText}>{job.type}</Text>
+            <Text style={styles.detailText}>⏰ {job.type}</Text>
           </View>
         )}
       </View>

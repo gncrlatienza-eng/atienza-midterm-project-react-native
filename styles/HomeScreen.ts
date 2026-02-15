@@ -69,13 +69,40 @@ export const createHomeStyles = (colors: ThemeColors, width: number, height: num
     },
     jobHeader: {
       flexDirection: 'row',
-      justifyContent: 'space-between',
-      alignItems: 'flex-start',
+      alignItems: 'center', // Changed from 'flex-start' to 'center' for logo alignment
       marginBottom: 12,
+    },
+    // NEW: Company logo image styles
+    companyLogo: {
+      width: 52,
+      height: 52,
+      borderRadius: 12,
+      marginRight: 12,
+      backgroundColor: colors.backgroundSecondary,
+      borderWidth: 1,
+      borderColor: colors.borderLight,
+    },
+    // NEW: Logo placeholder when no image available
+    logoPlaceholder: {
+      width: 52,
+      height: 52,
+      borderRadius: 12,
+      marginRight: 12,
+      backgroundColor: colors.primary + '15', // 15% opacity of primary color
+      justifyContent: 'center',
+      alignItems: 'center',
+      borderWidth: 1,
+      borderColor: colors.primary + '25', // 25% opacity for subtle border
+    },
+    // NEW: Text inside logo placeholder
+    logoPlaceholderText: {
+      fontSize: 22,
+      fontWeight: '700',
+      color: colors.primary,
     },
     jobInfo: {
       flex: 1,
-      marginRight: 12,
+      marginRight: 0, // Removed marginRight since logo is now on the left
     },
     jobTitle: {
       fontSize: width * 0.045,
@@ -87,13 +114,14 @@ export const createHomeStyles = (colors: ThemeColors, width: number, height: num
       fontSize: width * 0.038,
       color: colors.textSecondary,
       fontWeight: '600',
-      marginBottom: 8,
+      marginBottom: 0, // Removed bottom margin since we moved details below
     },
     jobDetails: {
       flexDirection: 'row',
       flexWrap: 'wrap',
       gap: 8,
       marginBottom: 12,
+      marginTop: 12, // Added top margin for spacing from header
     },
     detailBadge: {
       backgroundColor: colors.backgroundSecondary,
