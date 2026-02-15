@@ -39,8 +39,7 @@ export const HomeScreen = () => {
   }, [searchQuery]);
 
   useEffect(() => {
-    loadJobs();
-    loadSavedJobIds();
+    loadJobs(); // This now also loads saved IDs
   }, []);
 
   // Refresh saved job IDs when screen comes into focus
@@ -83,6 +82,9 @@ export const HomeScreen = () => {
       }
       setAllJobs(jobs);
       setDisplayedJobs(jobs);
+      
+      // Load saved status AFTER jobs are loaded
+      await loadSavedJobIds();
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to load jobs';
       setError(errorMessage);
