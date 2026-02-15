@@ -12,29 +12,60 @@ export const createLoadingStyles = (colors: ThemeColors, width: number, height: 
     content: {
       alignItems: 'center',
       justifyContent: 'center',
+      width: width * 0.8,
     },
-    logoContainer: {
+    // Magnifying glass container
+    magnifyingGlassContainer: {
+      width: width * 0.5,
+      height: width * 0.5,
+      justifyContent: 'center',
+      alignItems: 'center',
       marginBottom: height * 0.05,
     },
-    logo: {
-      fontSize: width * 0.15,
+    magnifyingGlass: {
+      width: width * 0.25,
+      height: width * 0.25,
+      borderRadius: (width * 0.25) / 2,
+      borderWidth: 4,
+      borderColor: colors.text,
+      position: 'absolute',
+    },
+    magnifyingHandle: {
+      width: 4,
+      height: width * 0.12,
+      backgroundColor: colors.text,
+      position: 'absolute',
+      bottom: -width * 0.08,
+      right: -width * 0.02,
+      transform: [{ rotate: '45deg' }],
+      borderRadius: 2,
+    },
+    titleContainer: {
+      marginBottom: height * 0.08,
+    },
+    title: {
+      fontSize: width * 0.12,
       fontWeight: '700',
-      color: colors.primary,
+      color: colors.text,
       letterSpacing: -1,
+      textAlign: 'center',
     },
     subtitle: {
-      fontSize: width * 0.045,
+      fontSize: width * 0.04,
       color: colors.textSecondary,
-      fontWeight: '600',
-      marginTop: 8,
-    },
-    loadingContainer: {
-      marginTop: height * 0.08,
-    },
-    loadingText: {
-      marginTop: 20,
-      fontSize: width * 0.038,
-      color: colors.textTertiary,
       fontWeight: '500',
+      marginTop: 8,
+      textAlign: 'center',
+    },
+    loadingDots: {
+      flexDirection: 'row',
+      gap: 8,
+      marginTop: 20,
+    },
+    dot: {
+      width: 8,
+      height: 8,
+      borderRadius: 4,
+      backgroundColor: colors.textTertiary,
     },
   });

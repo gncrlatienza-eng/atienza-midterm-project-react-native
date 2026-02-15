@@ -3,17 +3,32 @@ import {
   View,
   TextInput,
   TouchableOpacity,
-  Text,
   useWindowDimensions,
 } from 'react-native';
 import { useTheme } from '../context/ThemedContext';
 import { createSearchBarStyles } from '../styles/SearchBar';
+import Svg, { Circle, Path } from 'react-native-svg';
 
 interface SearchBarProps {
   value: string;
   onChangeText: (text: string) => void;
   placeholder?: string;
 }
+
+// Minimalistic Search Icon Component
+const SearchIcon: React.FC<{ color: string }> = ({ color }) => (
+  <Svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+    <Circle cx="11" cy="11" r="7" stroke={color} strokeWidth="2" />
+    <Path d="M16 16L21 21" stroke={color} strokeWidth="2" strokeLinecap="round" />
+  </Svg>
+);
+
+// Minimalistic X Icon Component
+const CloseIcon: React.FC<{ color: string }> = ({ color }) => (
+  <Svg width="12" height="12" viewBox="0 0 24 24" fill="none">
+    <Path d="M6 6L18 18M18 6L6 18" stroke={color} strokeWidth="3" strokeLinecap="round" />
+  </Svg>
+);
 
 export const SearchBar: React.FC<SearchBarProps> = ({
   value,
@@ -32,7 +47,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({
 
   return (
     <View style={[styles.container, isFocused && styles.focused]}>
-      <Text style={styles.icon}>🔍</Text>
+      <SearchIcon color={colors.textTertiary} />
       
       <TextInput
         style={styles.input}
@@ -53,7 +68,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({
           onPress={handleClear}
           activeOpacity={0.7}
         >
-          <Text style={styles.clearIcon}>✕</Text>
+          <CloseIcon color={colors.background} />
         </TouchableOpacity>
       )}
     </View>

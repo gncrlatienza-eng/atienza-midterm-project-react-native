@@ -36,7 +36,7 @@ export const createHomeStyles = (colors: ThemeColors, width: number, height: num
       backgroundColor: colors.backgroundSecondary,
       justifyContent: 'center',
       alignItems: 'center',
-      borderWidth: 0, // No border for minimalist look
+      borderWidth: 0,
     },
     themeToggleText: {
       fontSize: 20,
