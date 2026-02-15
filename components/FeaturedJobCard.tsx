@@ -183,11 +183,17 @@ export const FeaturedJobCard: React.FC<FeaturedJobCardProps> = ({ job, onPress }
         {job.location && (
           <>
             <Text style={styles.detail}>{job.location}</Text>
-            {job.type && <Text style={styles.separator}>•</Text>}
+            {(job.type || job.salary) && <Text style={styles.separator}>•</Text>}
           </>
         )}
         {job.type && (
-          <Text style={styles.detail}>{job.type}</Text>
+          <>
+            <Text style={styles.detail}>{job.type}</Text>
+            {job.salary && <Text style={styles.separator}>•</Text>}
+          </>
+        )}
+        {job.salary && (
+          <Text style={styles.detail}>{job.salary}</Text>
         )}
       </View>
 

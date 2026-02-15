@@ -54,20 +54,36 @@ export const fetchJobs = async (): Promise<Job[]> => {
     }
 
     // Map jobs with STABLE IDs
-    const jobs: Job[] = jobsData.map((job: any) => ({
-      id: generateStableId(job), // ✅ Use stable ID instead of random UUID
-      title: job.title || job.job_title || 'Untitled Position',
-      company: job.companyName || job.company || job.company_name || 'Company Name',
-      companyLogo: job.companyLogo || job.company_logo || job.logo || undefined,
-      location: job.locations?.[0] || job.location || job.city || job.address || job.job_location || undefined,
-      salary: job.salary || job.salary_range || job.compensation || undefined,
-      description: job.description || job.job_description || job.details || undefined,
-      type: job.jobType || job.type || job.job_type || job.employment_type || job.position_type || undefined,
-      posted: job.pubDate || job.posted || job.date_posted || job.created_at || job.post_date || undefined,
-      requirements: job.requirements || job.qualifications || job.required_skills || undefined,
-      benefits: job.benefits || job.perks || job.advantages || undefined,
-      isSaved: false,
-    }));
+    const jobs: Job[] = jobsData.map((job: any) => {
+      // Format salary from minSalary, maxSalary, currency
+      let salary = undefined;
+      if (job.minSalary && job.maxSalary && job.currency) {
+        const formatCurrency = (amount: number, currency: string) => {
+          if (currency === 'USD') {
+            return `$${(amount / 1000).toFixed(0)}k`;
+          }
+          return `${currency} ${amount.toLocaleString()}`;
+        };
+        salary = `${formatCurrency(job.minSalary, job.currency)} - ${formatCurrency(job.maxSalary, job.currency)}`;
+      } else if (job.salary || job.salary_range || job.compensation) {
+        salary = job.salary || job.salary_range || job.compensation;
+      }
+
+      return {
+        id: generateStableId(job), // ✅ Use stable ID instead of random UUID
+        title: job.title || job.job_title || 'Untitled Position',
+        company: job.companyName || job.company || job.company_name || 'Company Name',
+        companyLogo: job.companyLogo || job.company_logo || job.logo || undefined,
+        location: job.locations?.[0] || job.location || job.city || job.address || job.job_location || undefined,
+        salary: salary,
+        description: job.description || job.job_description || job.details || undefined,
+        type: job.jobType || job.type || job.job_type || job.employment_type || job.position_type || undefined,
+        posted: job.pubDate || job.posted || job.date_posted || job.created_at || job.post_date || undefined,
+        requirements: job.requirements || job.qualifications || job.required_skills || undefined,
+        benefits: job.benefits || job.perks || job.advantages || undefined,
+        isSaved: false,
+      };
+    });
 
     console.log('Mapped jobs with logos:', jobs.slice(0, 3).map(j => ({ 
       company: j.company, 

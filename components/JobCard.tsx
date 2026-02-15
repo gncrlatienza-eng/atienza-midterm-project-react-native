@@ -29,6 +29,14 @@ const ClockIcon: React.FC<{ color: string }> = ({ color }) => (
   </Svg>
 );
 
+// Money Icon
+const MoneyIcon: React.FC<{ color: string }> = ({ color }) => (
+  <Svg width="12" height="12" viewBox="0 0 24 24" fill="none">
+    <Circle cx="12" cy="12" r="10" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+    <Path d="M12 6V18M9 9C9 7.89543 9.89543 7 11 7H13C14.1046 7 15 7.89543 15 9C15 10.1046 14.1046 11 13 11H11C9.89543 11 9 11.8954 9 13C9 14.1046 9.89543 15 11 15H13C14.1046 15 15 14.1046 15 13" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+  </Svg>
+);
+
 // Check Icon for "Saved" button
 const CheckIcon: React.FC<{ color: string }> = ({ color }) => (
   <Svg width="16" height="16" viewBox="0 0 24 24" fill="none">
@@ -247,6 +255,12 @@ export const JobCard: React.FC<JobCardProps> = ({ job, onSave, onApply, onPress,
           <View style={styles.detailItem}>
             <ClockIcon color={colors.textTertiary} />
             <Text style={styles.detailText}>{job.type}</Text>
+          </View>
+        )}
+        {job.salary && (
+          <View style={styles.detailItem}>
+            <MoneyIcon color={colors.textTertiary} />
+            <Text style={styles.detailText}>{job.salary}</Text>
           </View>
         )}
       </View>
