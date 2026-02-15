@@ -12,7 +12,7 @@ import { FeaturedCarousel } from '../components/FeaturedCarousel';
 import { EmptyState } from '../components/EmptyState';
 import { LoadingState } from '../components/LoadingState';
 import { ApplicationFormScreen } from './ApplicationFormScreen';
-import {  showSaveJobModal, showRemoveJobModal, showSuccessAlert, showErrorAlert } from '../components/ConfirmationModal';
+import {  showSaveJobModal, showRemoveJobModal, showApplyJobModal, showSuccessAlert, showErrorAlert } from '../components/ConfirmationModal';
 import { fetchJobs, searchJobs } from '../api/Api';
 import { Job } from '../types/Job';
 import { RootStackParamList } from '../types/Navigation';
@@ -34,13 +34,11 @@ export const HomeScreen = () => {
   const [error, setError] = useState<string | null>(null);
   const [isSearchFocused, setIsSearchFocused] = useState(false);
   const [savedJobIds, setSavedJobIds] = useState<Set<string>>(new Set());
-  const [appliedJobIds, setAppliedJobIds] = useState<Set<string>>(new Set()); // NEW
+  const [appliedJobIds, setAppliedJobIds] = useState<Set<string>>(new Set());
   
-  // Application form modal state
   const [showApplicationForm, setShowApplicationForm] = useState(false);
   const [selectedJob, setSelectedJob] = useState<Job | null>(null);
 
-  // Load saved job IDs from AsyncStorage
   const loadSavedJobIds = useCallback(async (): Promise<Set<string>> => {
     try {
       const savedJobsJson = await AsyncStorage.getItem(SAVED_JOBS_KEY);
@@ -63,19 +61,17 @@ export const HomeScreen = () => {
     }
   }, []);
 
-  // NEW: Load applied job IDs
   const loadAppliedJobIds = useCallback(async () => {
     const appliedIds = await getAppliedJobIds();
     setAppliedJobIds(appliedIds);
   }, []);
 
-  // Load jobs from API
   const loadJobs = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
       await loadSavedJobIds();
-      await loadAppliedJobIds(); // NEW
+      await loadAppliedJobIds();
       const jobs = await fetchJobs();
       setAllJobs(jobs);
       setDisplayedJobs(jobs);
@@ -88,12 +84,10 @@ export const HomeScreen = () => {
     }
   }, [loadSavedJobIds, loadAppliedJobIds]);
 
-  // Initial load
   useEffect(() => {
     loadJobs();
   }, [loadJobs]);
 
-  // Filter jobs when search query changes
   useEffect(() => {
     if (allJobs.length > 0) {
       const filtered = searchJobs(allJobs, searchQuery);
@@ -101,11 +95,10 @@ export const HomeScreen = () => {
     }
   }, [searchQuery, allJobs]);
 
-  // Refresh saved and applied job IDs when screen comes into focus
   useFocusEffect(
     useCallback(() => {
       loadSavedJobIds();
-      loadAppliedJobIds(); // NEW
+      loadAppliedJobIds();
     }, [loadSavedJobIds, loadAppliedJobIds])
   );
 
@@ -114,7 +107,7 @@ export const HomeScreen = () => {
     setError(null);
     try {
       await loadSavedJobIds();
-      await loadAppliedJobIds(); // NEW
+      await loadAppliedJobIds();
       const jobs = await fetchJobs();
       setAllJobs(jobs);
       setDisplayedJobs(jobs);
@@ -137,7 +130,6 @@ export const HomeScreen = () => {
       const existingIndex = savedJobs.findIndex(j => j.id === jobId);
       
       if (existingIndex >= 0) {
-        // Show remove confirmation
         showRemoveJobModal(job.title, async () => {
           savedJobs.splice(existingIndex, 1);
           await AsyncStorage.setItem(SAVED_JOBS_KEY, JSON.stringify(savedJobs));
@@ -151,7 +143,6 @@ export const HomeScreen = () => {
           showSuccessAlert('Removed', 'Job removed from saved jobs');
         });
       } else {
-        // Show save confirmation
         showSaveJobModal(job.title, async () => {
           savedJobs.push({ ...job, isSaved: true, savedAt: new Date().toISOString() });
           await AsyncStorage.setItem(SAVED_JOBS_KEY, JSON.stringify(savedJobs));
@@ -167,33 +158,17 @@ export const HomeScreen = () => {
     }
   };
 
-  // UPDATED: Show confirmation before opening form
   const handleApply = (jobId: string) => {
     const job = allJobs.find(j => j.id === jobId);
     if (job) {
-      Alert.alert(
-        'Apply for Job',
-        `Are you sure you want to apply for ${job.title} at ${job.company}?`,
-        [
-          {
-            text: 'Cancel',
-            style: 'cancel',
-          },
-          {
-            text: 'Apply',
-            style: 'default',
-            onPress: () => {
-              setSelectedJob(job);
-              setShowApplicationForm(true);
-            },
-          },
-        ],
-        { cancelable: true }
-      );
+      showApplyJobModal(job.title, job.company, () => {
+        setSelectedJob(job);
+        setShowApplicationForm(true);
+      });
     }
   };
 
-  // NEW: Handle cancel application
+  // FIXED: When cancelling, just remove from applied - don't auto-save
   const handleCancelApplication = (jobId: string) => {
     const job = allJobs.find(j => j.id === jobId);
     if (job) {
@@ -211,6 +186,7 @@ export const HomeScreen = () => {
             onPress: async () => {
               const success = await cancelApplication(jobId);
               if (success) {
+                // Just remove from applied IDs - don't add to saved
                 setAppliedJobIds(prev => {
                   const newSet = new Set(prev);
                   newSet.delete(jobId);
@@ -228,11 +204,30 @@ export const HomeScreen = () => {
     }
   };
 
-  // Handle successful application
   const handleApplicationSuccess = async () => {
     setShowApplicationForm(false);
     if (selectedJob) {
+      // Add to applied jobs
       setAppliedJobIds(prev => new Set(prev).add(selectedJob.id));
+      
+      // FIXED: Remove from saved jobs when applying (whether it was saved or not)
+      setSavedJobIds(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(selectedJob.id);
+        return newSet;
+      });
+      
+      // Remove from AsyncStorage saved jobs
+      try {
+        const savedJobsJson = await AsyncStorage.getItem(SAVED_JOBS_KEY);
+        if (savedJobsJson) {
+          let savedJobs: Job[] = JSON.parse(savedJobsJson);
+          savedJobs = savedJobs.filter(j => j.id !== selectedJob.id);
+          await AsyncStorage.setItem(SAVED_JOBS_KEY, JSON.stringify(savedJobs));
+        }
+      } catch (error) {
+        console.error('Error removing from saved jobs:', error);
+      }
     }
     setSelectedJob(null);
   };
@@ -295,7 +290,7 @@ export const HomeScreen = () => {
           {!searchQuery && <Text style={styles.sectionTitle}>All Jobs</Text>}
           {displayedJobs.map((job) => {
             const isJobSaved = savedJobIds.has(job.id);
-            const isJobApplied = appliedJobIds.has(job.id); // NEW
+            const isJobApplied = appliedJobIds.has(job.id);
             return (
               <JobCard
                 key={job.id}
@@ -303,8 +298,8 @@ export const HomeScreen = () => {
                 onSave={handleSaveJob}
                 onApply={handleApply}
                 onPress={handleJobPress}
-                onCancelApplication={handleCancelApplication} // NEW
-                isApplied={isJobApplied} // NEW
+                onCancelApplication={handleCancelApplication}
+                isApplied={isJobApplied}
               />
             );
           })}
@@ -340,7 +335,6 @@ export const HomeScreen = () => {
           {renderContent()}
         </View>
 
-        {/* Application Form Modal */}
         {selectedJob && (
           <ApplicationFormScreen
             visible={showApplicationForm}
