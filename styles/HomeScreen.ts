@@ -44,11 +44,9 @@ export const createHomeStyles = (colors: ThemeColors, width: number, height: num
     },
     searchContainer: {
       marginBottom: height * 0.01,
-      paddingHorizontal: width * 0.05,
     },
     contentContainer: {
       flex: 1,
-      paddingHorizontal: width * 0.05,
       backgroundColor: colors.background,
     },
     jobList: {
@@ -56,11 +54,9 @@ export const createHomeStyles = (colors: ThemeColors, width: number, height: num
       paddingBottom: height * 0.02,
     },
     featuredSection: {
-      paddingHorizontal: width * 0.05,
       marginBottom: 24,
     },
     allJobsSection: {
-      paddingHorizontal: width * 0.05,
     },
     sectionTitle: {
       fontSize: width * 0.055,

@@ -13,17 +13,15 @@ export const FeaturedJobCard: React.FC<FeaturedJobCardProps> = ({ job, onPress }
   const { colors } = useTheme();
   const { width: screenWidth } = useWindowDimensions();
 
-  const cardWidth = screenWidth - 64; // Full width minus margins
-
   const styles = StyleSheet.create({
     card: {
       backgroundColor: colors.card,
       borderRadius: 16,
       padding: 16,
       marginBottom: 12,
+      marginHorizontal: 20,
       borderWidth: 1,
       borderColor: colors.borderLight,
-      width: cardWidth,
     },
     logoContainer: {
       width: 56,
