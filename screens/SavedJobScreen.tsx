@@ -1,10 +1,5 @@
 import React from 'react';
-import {
-  View,
-  Text,
-  SafeAreaView,
-  useWindowDimensions,
-} from 'react-native';
+import { View, Text, SafeAreaView, useWindowDimensions,} from 'react-native';
 import { useTheme } from '../context/ThemedContext';
 import { createHomeStyles } from '../styles/HomeScreen';
 
