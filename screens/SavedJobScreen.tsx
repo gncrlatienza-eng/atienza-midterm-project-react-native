@@ -102,7 +102,7 @@ export const SavedJobsScreen: React.FC = () => {
           </View>
         ) : savedJobs.length === 0 ? (
           <EmptyState 
-            message="No saved jobs yet.{'\n'}Start saving jobs you're interested in!" 
+            message="No saved jobs yet" 
           />
         ) : (
           <ScrollView
