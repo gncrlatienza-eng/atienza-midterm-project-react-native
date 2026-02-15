@@ -13,29 +13,22 @@ export const FeaturedJobCard: React.FC<FeaturedJobCardProps> = ({ job, onPress }
   const { colors } = useTheme();
   const { width } = useWindowDimensions();
 
-  // Get company logo URL from Clearbit
-  const getCompanyLogoUrl = (company: string) => {
-    const domain = company.toLowerCase()
-      .replace(/\s+/g, '')
-      .replace(/[^a-z0-9]/g, '');
-    return `https://logo.clearbit.com/${domain}.com`;
-  };
-
   const styles = StyleSheet.create({
     card: {
       backgroundColor: colors.card,
-      borderRadius: 16,
-      padding: 16,
-      marginBottom: 12,
+      borderRadius: 20,
+      padding: 20,
+      marginBottom: 16,
       borderWidth: 1,
       borderColor: colors.borderLight,
+      width: '100%',
     },
     logoContainer: {
-      width: 56,
-      height: 56,
-      borderRadius: 12,
+      width: 64,
+      height: 64,
+      borderRadius: 14,
       backgroundColor: colors.backgroundSecondary,
-      marginBottom: 12,
+      marginBottom: 16,
       overflow: 'hidden',
       borderWidth: 1,
       borderColor: colors.borderLight,
@@ -43,6 +36,7 @@ export const FeaturedJobCard: React.FC<FeaturedJobCardProps> = ({ job, onPress }
     logo: {
       width: '100%',
       height: '100%',
+      resizeMode: 'cover',
     },
     logoFallback: {
       width: '100%',
@@ -52,47 +46,48 @@ export const FeaturedJobCard: React.FC<FeaturedJobCardProps> = ({ job, onPress }
       backgroundColor: colors.backgroundSecondary,
     },
     logoText: {
-      fontSize: 24,
+      fontSize: 28,
       fontWeight: '700',
       color: colors.textSecondary,
     },
     title: {
-      fontSize: 17,
+      fontSize: 18,
       fontWeight: '700',
       color: colors.text,
-      marginBottom: 4,
+      marginBottom: 6,
+      lineHeight: 24,
     },
     company: {
-      fontSize: 15,
+      fontSize: 16,
       fontWeight: '600',
       color: colors.textSecondary,
-      marginBottom: 8,
+      marginBottom: 12,
     },
     details: {
       flexDirection: 'row',
       alignItems: 'center',
-      marginBottom: 16,
+      marginBottom: 20,
     },
     detail: {
-      fontSize: 13,
+      fontSize: 14,
       color: colors.textTertiary,
       fontWeight: '400',
     },
     separator: {
-      marginHorizontal: 6,
-      fontSize: 13,
+      marginHorizontal: 8,
+      fontSize: 14,
       color: colors.textTertiary,
     },
     viewButton: {
       backgroundColor: colors.primary,
-      paddingVertical: 10,
-      paddingHorizontal: 24,
-      borderRadius: 20,
+      paddingVertical: 12,
+      paddingHorizontal: 28,
+      borderRadius: 22,
       alignSelf: 'flex-end',
     },
     viewButtonText: {
       color: '#FFFFFF',
-      fontSize: 15,
+      fontSize: 16,
       fontWeight: '600',
     },
   });
@@ -106,9 +101,9 @@ export const FeaturedJobCard: React.FC<FeaturedJobCardProps> = ({ job, onPress }
       activeOpacity={0.7}
     >
       <View style={styles.logoContainer}>
-        {!logoError ? (
+        {job.logo && !logoError ? (
           <Image
-            source={{ uri: getCompanyLogoUrl(job.company) }}
+            source={{ uri: job.logo }}
             style={styles.logo}
             onError={() => setLogoError(true)}
           />

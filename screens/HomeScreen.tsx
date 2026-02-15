@@ -133,8 +133,6 @@ export const HomeScreen = () => {
       return <EmptyState message={message} />;
     }
 
-    const featuredJobs = searchQuery ? [] : allJobs.slice(0, 3);
-
     return (
       <ScrollView
         style={styles.jobList}
@@ -147,11 +145,11 @@ export const HomeScreen = () => {
           />
         }
       >
-        {/* Featured Section */}
-        {featuredJobs.length > 0 && (
+        {/* Featured Section - Only show when NOT searching */}
+        {!searchQuery && allJobs.length > 0 && (
           <View style={styles.featuredSection}>
             <Text style={styles.sectionTitle}>Featured</Text>
-            {featuredJobs.map((job) => (
+            {allJobs.slice(0, 3).map((job) => (
               <FeaturedJobCard
                 key={job.id}
                 job={job}

@@ -3,8 +3,8 @@ export interface Job {
   id: string; // Generated using UUID since API doesn't provide IDs
   title: string;
   company: string;
-  location: string;
-  logo?: string; // Company logo URL
+  location?: string;
+  logo?: string; // Company logo URL from API
   salary?: string;
   description?: string;
   type?: string; // Full-time, Part-time, Contract, etc.
@@ -22,7 +22,6 @@ export interface JobApiResponse {
   title: string;
   company: string;
   location: string;
-  logo?: string;
   salary?: string;
   description?: string;
   type?: string;

@@ -32,33 +32,26 @@ export const JobCard: React.FC<JobCardProps> = ({ job, onSave, onApply, onPress 
   const { colors } = useTheme();
   const { width } = useWindowDimensions();
 
-  // Get company logo URL from Clearbit
-  const getCompanyLogoUrl = (company: string) => {
-    const domain = company.toLowerCase()
-      .replace(/\s+/g, '')
-      .replace(/[^a-z0-9]/g, '');
-    return `https://logo.clearbit.com/${domain}.com`;
-  };
-
   const styles = StyleSheet.create({
     card: {
       backgroundColor: colors.card,
-      borderRadius: 16,
-      padding: 16,
-      marginBottom: 12,
+      borderRadius: 20,
+      padding: 20,
+      marginBottom: 16,
       borderWidth: 1,
       borderColor: colors.borderLight,
+      width: '100%',
     },
     header: {
       flexDirection: 'row',
-      marginBottom: 12,
+      marginBottom: 16,
     },
     logoContainer: {
-      width: 48,
-      height: 48,
-      borderRadius: 10,
+      width: 56,
+      height: 56,
+      borderRadius: 12,
       backgroundColor: colors.backgroundSecondary,
-      marginRight: 12,
+      marginRight: 14,
       overflow: 'hidden',
       borderWidth: 1,
       borderColor: colors.borderLight,
@@ -66,6 +59,7 @@ export const JobCard: React.FC<JobCardProps> = ({ job, onSave, onApply, onPress 
     logo: {
       width: '100%',
       height: '100%',
+      resizeMode: 'cover',
     },
     logoFallback: {
       width: '100%',
@@ -75,7 +69,7 @@ export const JobCard: React.FC<JobCardProps> = ({ job, onSave, onApply, onPress 
       backgroundColor: colors.backgroundSecondary,
     },
     logoText: {
-      fontSize: 20,
+      fontSize: 24,
       fontWeight: '700',
       color: colors.textSecondary,
     },
@@ -84,21 +78,22 @@ export const JobCard: React.FC<JobCardProps> = ({ job, onSave, onApply, onPress 
       justifyContent: 'center',
     },
     title: {
-      fontSize: 17,
+      fontSize: 18,
       fontWeight: '700',
       color: colors.text,
-      marginBottom: 4,
+      marginBottom: 6,
+      lineHeight: 24,
     },
     company: {
-      fontSize: 15,
+      fontSize: 16,
       fontWeight: '600',
       color: colors.textSecondary,
     },
     details: {
       flexDirection: 'row',
       alignItems: 'center',
-      gap: 12,
-      marginBottom: 16,
+      gap: 14,
+      marginBottom: 18,
     },
     detailItem: {
       flexDirection: 'row',
@@ -106,7 +101,7 @@ export const JobCard: React.FC<JobCardProps> = ({ job, onSave, onApply, onPress 
       gap: 6,
     },
     detailText: {
-      fontSize: 13,
+      fontSize: 14,
       color: colors.textTertiary,
       fontWeight: '400',
     },
@@ -116,27 +111,27 @@ export const JobCard: React.FC<JobCardProps> = ({ job, onSave, onApply, onPress 
     },
     saveButton: {
       flex: 1,
-      paddingVertical: 12,
-      borderRadius: 12,
+      paddingVertical: 14,
+      borderRadius: 14,
       alignItems: 'center',
       backgroundColor: colors.backgroundSecondary,
       borderWidth: 1,
       borderColor: colors.borderLight,
     },
     saveButtonText: {
-      fontSize: 15,
+      fontSize: 16,
       fontWeight: '600',
       color: colors.text,
     },
     applyButton: {
       flex: 1,
-      paddingVertical: 12,
-      borderRadius: 12,
+      paddingVertical: 14,
+      borderRadius: 14,
       alignItems: 'center',
       backgroundColor: colors.primary,
     },
     applyButtonText: {
-      fontSize: 15,
+      fontSize: 16,
       fontWeight: '600',
       color: '#FFFFFF',
     },
@@ -152,9 +147,9 @@ export const JobCard: React.FC<JobCardProps> = ({ job, onSave, onApply, onPress 
     >
       <View style={styles.header}>
         <View style={styles.logoContainer}>
-          {!logoError ? (
+          {job.logo && !logoError ? (
             <Image
-              source={{ uri: getCompanyLogoUrl(job.company) }}
+              source={{ uri: job.logo }}
               style={styles.logo}
               onError={() => setLogoError(true)}
             />
