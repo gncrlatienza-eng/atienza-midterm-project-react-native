@@ -9,6 +9,7 @@ export const createHomeStyles = (colors: ThemeColors, width: number, height: num
     },
     safeArea: {
       flex: 1,
+      backgroundColor: colors.background,
     },
     header: {
       paddingHorizontal: width * 0.05,
@@ -32,17 +33,14 @@ export const createHomeStyles = (colors: ThemeColors, width: number, height: num
       width: 44,
       height: 44,
       borderRadius: 22,
-      backgroundColor: colors.cardElevated,
+      backgroundColor: colors.backgroundSecondary,
       justifyContent: 'center',
       alignItems: 'center',
-      shadowColor: colors.shadow,
-      shadowOffset: { width: 0, height: 2 },
-      shadowOpacity: 0.1,
-      shadowRadius: 4,
-      elevation: 3,
+      borderWidth: 0, // No border for minimalist look
     },
     themeToggleText: {
-      fontSize: 22,
+      fontSize: 20,
+      opacity: 0.8,
     },
     searchContainer: {
       marginBottom: height * 0.01,
@@ -50,6 +48,7 @@ export const createHomeStyles = (colors: ThemeColors, width: number, height: num
     contentContainer: {
       flex: 1,
       paddingHorizontal: width * 0.05,
+      backgroundColor: colors.background,
     },
     jobList: {
       paddingTop: height * 0.015,
@@ -143,6 +142,7 @@ export const createHomeStyles = (colors: ThemeColors, width: number, height: num
       justifyContent: 'center',
       alignItems: 'center',
       paddingVertical: height * 0.1,
+      backgroundColor: colors.background,
     },
     emptyText: {
       fontSize: width * 0.045,
@@ -154,5 +154,6 @@ export const createHomeStyles = (colors: ThemeColors, width: number, height: num
       flex: 1,
       justifyContent: 'center',
       alignItems: 'center',
+      backgroundColor: colors.background,
     },
   });

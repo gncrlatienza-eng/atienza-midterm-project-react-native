@@ -5,33 +5,39 @@ export const createSearchBarStyles = (colors: ThemeColors, width: number) =>
   StyleSheet.create({
     container: {
       backgroundColor: colors.backgroundSecondary,
-      borderRadius: 12,
+      borderRadius: 30, // Pill-shaped like iOS
       flexDirection: 'row',
       alignItems: 'center',
-      paddingHorizontal: 12,
-      height: 44,
-      borderWidth: 1,
-      borderColor: colors.borderLight,
+      paddingHorizontal: 16,
+      height: 48,
+      borderWidth: 0, // No border for iOS style
     },
     focused: {
-      borderColor: colors.primary,
-      backgroundColor: colors.card,
+      backgroundColor: colors.backgroundSecondary, // Keep same background when focused
     },
     icon: {
       fontSize: 18,
       marginRight: 8,
+      opacity: 0.6,
     },
     input: {
       flex: 1,
       fontSize: width * 0.04,
       color: colors.text,
-      fontWeight: '500',
+      fontWeight: '400',
     },
     clearButton: {
       padding: 4,
+      width: 24,
+      height: 24,
+      borderRadius: 12,
+      backgroundColor: colors.textTertiary,
+      justifyContent: 'center',
+      alignItems: 'center',
     },
     clearIcon: {
-      fontSize: 16,
-      color: colors.textTertiary,
+      fontSize: 12,
+      color: colors.background,
+      fontWeight: '700',
     },
   });

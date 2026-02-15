@@ -1,15 +1,15 @@
 import React from 'react';
-import { StatusBar } from 'expo-status-bar';
+import { StatusBar } from 'react-native';
 import { useTheme } from '../context/ThemedContext';
 
 export const ThemedStatusBar = () => {
-  const { isDark } = useTheme();
-
+  const { isDark, colors } = useTheme();
+  
   return (
-    <StatusBar
-      style={isDark ? 'light' : 'dark'}
-      backgroundColor="transparent"
-      translucent
+    <StatusBar 
+      barStyle={isDark ? 'light-content' : 'dark-content'}
+      backgroundColor={colors.background}
+      translucent={false}
     />
   );
 };
