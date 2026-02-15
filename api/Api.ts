@@ -1,8 +1,25 @@
 import axios from 'axios';
-import uuid from 'react-native-uuid';
 import { Job, JobApiResponse } from '../types/Job';
 
 const API_BASE_URL = 'https://empllo.com/api/v1';
+
+// Generate a stable ID based on job content
+const generateStableId = (job: any): string => {
+  // Create a unique string from job data
+  const uniqueString = `${job.title}-${job.companyName}-${job.locations?.[0] || ''}-${job.pubDate || ''}`;
+  
+  // Simple hash function to convert string to consistent ID
+  let hash = 0;
+  for (let i = 0; i < uniqueString.length; i++) {
+    const char = uniqueString.charCodeAt(i);
+    hash = ((hash << 5) - hash) + char;
+    hash = hash & hash; // Convert to 32bit integer
+  }
+  
+  // Convert to hex and make it look like a UUID
+  const hashHex = Math.abs(hash).toString(16).padStart(8, '0');
+  return `${hashHex}-${hashHex}-${hashHex}-${hashHex}-${hashHex}${hashHex}`;
+};
 
 // Fetch all jobs from the API
 export const fetchJobs = async (): Promise<Job[]> => {
@@ -36,12 +53,12 @@ export const fetchJobs = async (): Promise<Job[]> => {
       jobsData = jobsData.jobs || jobsData.data || [];
     }
 
-    // The API returns jobs without unique IDs, so we add them using UUID
+    // Map jobs with STABLE IDs
     const jobs: Job[] = jobsData.map((job: any) => ({
-      id: uuid.v4() as string, // Generate unique ID for each job
+      id: generateStableId(job), // ✅ Use stable ID instead of random UUID
       title: job.title || job.job_title || 'Untitled Position',
       company: job.companyName || job.company || job.company_name || 'Company Name',
-      companyLogo: job.companyLogo || job.company_logo || job.logo || undefined, // ✅ ADDED THIS
+      companyLogo: job.companyLogo || job.company_logo || job.logo || undefined,
       location: job.locations?.[0] || job.location || job.city || job.address || job.job_location || undefined,
       salary: job.salary || job.salary_range || job.compensation || undefined,
       description: job.description || job.job_description || job.details || undefined,
@@ -54,7 +71,8 @@ export const fetchJobs = async (): Promise<Job[]> => {
 
     console.log('Mapped jobs with logos:', jobs.slice(0, 3).map(j => ({ 
       company: j.company, 
-      logo: j.companyLogo 
+      logo: j.companyLogo,
+      id: j.id.slice(0, 8) // Show first 8 chars of stable ID
     })));
 
     return jobs;

@@ -1,14 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import {
-  View,
-  Text,
-  ScrollView,
-  SafeAreaView,
-  useWindowDimensions,
-  RefreshControl,
-  Alert,
-  Keyboard,
-} from 'react-native';
+import { View, Text, ScrollView, SafeAreaView, useWindowDimensions, RefreshControl, Alert, Keyboard, } from 'react-native';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -42,20 +33,25 @@ export const HomeScreen = () => {
   const [savedJobIds, setSavedJobIds] = useState<Set<string>>(new Set());
 
   // Load saved job IDs from AsyncStorage
-  const loadSavedJobIds = useCallback(async () => {
+  const loadSavedJobIds = useCallback(async (): Promise<Set<string>> => {
     try {
       const savedJobsJson = await AsyncStorage.getItem(SAVED_JOBS_KEY);
+      
       if (savedJobsJson) {
         const savedJobs: Job[] = JSON.parse(savedJobsJson);
         const ids = new Set(savedJobs.map(job => job.id));
-        console.log('📚 Loaded saved job IDs:', ids.size);
         setSavedJobIds(ids);
+        return ids;
       } else {
-        setSavedJobIds(new Set());
+        const emptySet = new Set<string>();
+        setSavedJobIds(emptySet);
+        return emptySet;
       }
     } catch (error) {
       console.error('Error loading saved job IDs:', error);
-      setSavedJobIds(new Set());
+      const emptySet = new Set<string>();
+      setSavedJobIds(emptySet);
+      return emptySet;
     }
   }, []);
 
@@ -64,16 +60,14 @@ export const HomeScreen = () => {
     setLoading(true);
     setError(null);
     try {
+      // Load saved IDs first
+      const savedIds = await loadSavedJobIds();
+
+      // Then load jobs
       const jobs = await fetchJobs();
-      console.log('Loaded jobs:', jobs.length);
-      if (jobs.length > 0) {
-        console.log('First job logo:', jobs[0].companyLogo || jobs[0].logo);
-      }
       setAllJobs(jobs);
       setDisplayedJobs(jobs);
       
-      // Load saved status AFTER jobs are loaded
-      await loadSavedJobIds();
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to load jobs';
       setError(errorMessage);
@@ -92,7 +86,6 @@ export const HomeScreen = () => {
   useEffect(() => {
     if (allJobs.length > 0) {
       const filtered = searchJobs(allJobs, searchQuery);
-      console.log('📝 Filtered jobs:', filtered.length);
       setDisplayedJobs(filtered);
     }
   }, [searchQuery, allJobs]);
@@ -104,20 +97,14 @@ export const HomeScreen = () => {
     }, [loadSavedJobIds])
   );
 
-  // Debug logging
-  useEffect(() => {
-    console.log('🔍 Search Query Changed:', searchQuery);
-    console.log('📊 Should show Featured?', !searchQuery && allJobs.length > 0);
-  }, [searchQuery, allJobs.length]);
-
   const handleRefresh = async () => {
     setRefreshing(true);
     setError(null);
     try {
+      await loadSavedJobIds();
       const jobs = await fetchJobs();
       setAllJobs(jobs);
       setDisplayedJobs(jobs);
-      await loadSavedJobIds(); // Refresh saved status
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to refresh jobs';
       Alert.alert('Error', errorMessage);
@@ -128,15 +115,12 @@ export const HomeScreen = () => {
 
   const handleSaveJob = async (jobId: string) => {
     try {
-      // Get current saved jobs
       const savedJobsJson = await AsyncStorage.getItem(SAVED_JOBS_KEY);
       let savedJobs: Job[] = savedJobsJson ? JSON.parse(savedJobsJson) : [];
 
-      // Find the job
       const job = allJobs.find(j => j.id === jobId);
       if (!job) return;
 
-      // Check if already saved
       const existingIndex = savedJobs.findIndex(j => j.id === jobId);
       
       if (existingIndex >= 0) {
@@ -145,19 +129,14 @@ export const HomeScreen = () => {
           'Remove from saved?',
           `Remove ${job.title} from your saved jobs?`,
           [
-            {
-              text: 'Cancel',
-              style: 'cancel'
-            },
+            { text: 'Cancel', style: 'cancel' },
             {
               text: 'Remove',
               style: 'destructive',
               onPress: async () => {
-                // Remove from saved
                 savedJobs.splice(existingIndex, 1);
                 await AsyncStorage.setItem(SAVED_JOBS_KEY, JSON.stringify(savedJobs));
                 
-                // Update state
                 setSavedJobIds(prev => {
                   const newSet = new Set(prev);
                   newSet.delete(jobId);
@@ -175,18 +154,13 @@ export const HomeScreen = () => {
           'Save this job?',
           `Save ${job.title} to your saved jobs?`,
           [
-            {
-              text: 'Cancel',
-              style: 'cancel'
-            },
+            { text: 'Cancel', style: 'cancel' },
             {
               text: 'Save',
               onPress: async () => {
-                // Add to saved
                 savedJobs.push({ ...job, isSaved: true, savedAt: new Date().toISOString() });
                 await AsyncStorage.setItem(SAVED_JOBS_KEY, JSON.stringify(savedJobs));
                 
-                // Update state
                 setSavedJobIds(prev => new Set(prev).add(jobId));
                 
                 Alert.alert('Saved!', 'Job added to your saved jobs');
@@ -202,7 +176,6 @@ export const HomeScreen = () => {
   };
 
   const handleApply = (jobId: string) => {
-    console.log('Apply for job:', jobId);
     Alert.alert('Coming Soon', 'Application form will be available soon!');
   };
 
@@ -210,29 +183,14 @@ export const HomeScreen = () => {
     navigation.navigate('JobDetails', { job });
   };
 
-  const handleSearchFocus = () => {
-    console.log('🎯 Search focused');
-    setIsSearchFocused(true);
-  };
-
-  const handleSearchBlur = () => {
-    console.log('🎯 Search blurred, query:', searchQuery);
-    if (!searchQuery) {
-      setIsSearchFocused(false);
-    }
-  };
-
+  const handleSearchFocus = () => setIsSearchFocused(true);
+  const handleSearchBlur = () => !searchQuery && setIsSearchFocused(false);
   const handleSearchCancel = () => {
-    console.log('❌ Search cancelled');
     setIsSearchFocused(false);
     setSearchQuery('');
     Keyboard.dismiss();
   };
-
-  const handleSearchChange = (text: string) => {
-    console.log('✏️ Search text changed to:', text);
-    setSearchQuery(text);
-  };
+  const handleSearchChange = (text: string) => setSearchQuery(text);
 
   const renderContent = () => {
     if (loading) {
@@ -251,7 +209,6 @@ export const HomeScreen = () => {
     }
 
     const showFeatured = !searchQuery && allJobs.length > 0;
-    console.log('🎨 Rendering - Show Featured:', showFeatured, 'Query:', searchQuery);
 
     return (
       <ScrollView
@@ -266,7 +223,6 @@ export const HomeScreen = () => {
           />
         }
       >
-        {/* Featured Section - Only show when NOT searching */}
         {showFeatured && (
           <View style={styles.featuredSection}>
             <Text style={styles.sectionTitle}>Featured</Text>
@@ -277,18 +233,20 @@ export const HomeScreen = () => {
           </View>
         )}
 
-        {/* All Jobs */}
         <View style={styles.allJobsSection}>
           {!searchQuery && <Text style={styles.sectionTitle}>All Jobs</Text>}
-          {displayedJobs.map((job) => (
-            <JobCard
-              key={job.id}
-              job={{ ...job, isSaved: savedJobIds.has(job.id) }}
-              onSave={handleSaveJob}
-              onApply={handleApply}
-              onPress={handleJobPress}
-            />
-          ))}
+          {displayedJobs.map((job) => {
+            const isJobSaved = savedJobIds.has(job.id);
+            return (
+              <JobCard
+                key={job.id}
+                job={{ ...job, isSaved: isJobSaved }}
+                onSave={handleSaveJob}
+                onApply={handleApply}
+                onPress={handleJobPress}
+              />
+            );
+          })}
         </View>
       </ScrollView>
     );
@@ -297,14 +255,12 @@ export const HomeScreen = () => {
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.container}>
-        {/* Header - Always visible */}
         <View style={styles.header}>
           <View style={styles.headerTop}>
             <Text style={styles.title}>Find Jobs</Text>
             <ThemeToggle />
           </View>
 
-          {/* Search Bar - iOS style */}
           <View style={styles.searchContainer}>
             <SearchBar
               value={searchQuery}
@@ -319,7 +275,6 @@ export const HomeScreen = () => {
           </View>
         </View>
 
-        {/* Content */}
         <View style={styles.contentContainer}>
           {renderContent()}
         </View>
