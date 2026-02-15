@@ -74,8 +74,12 @@ export const SavedJobsScreen: React.FC = () => {
     showComingSoonAlert();
   };
 
+  // UPDATED: Added fromSaved: true parameter
   const handleJobPress = (job: Job) => {
-    navigation.navigate('JobDetails', { job });
+    navigation.navigate('JobDetails', { 
+      job,
+      fromSaved: true  // ← This is the important addition!
+    });
   };
 
   return (

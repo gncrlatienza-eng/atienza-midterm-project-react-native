@@ -7,19 +7,21 @@ import { createJobDetailsStyles } from '../styles/JobDetailsScreen';
 import { JobDetailsHeader } from '../components/JobDetailsHeader';
 import { JobHeroSection } from '../components/JobHeroSection';
 import { JobContentSection } from '../components/JobContentSection';
-import {  showSaveJobModal,  showRemoveJobModal,  showApplyJobModal, showComingSoonAlert, showSuccessAlert, showErrorAlert } from '../components/ConfirmationModal';
+import { ApplicationForm } from '../components/ApplicationForm';
+import {  showSaveJobModal,  showRemoveJobModal, showSuccessAlert, showErrorAlert } from '../components/ConfirmationModal';
 import { JobDetailsScreenProps } from '../types/Navigation';
 import { Job } from '../types/Job';
 
 const SAVED_JOBS_KEY = '@saved_jobs';
 
 export const JobDetailsScreen: React.FC<JobDetailsScreenProps> = ({ route, navigation }) => {
-  const { job } = route.params;
+  const { job, fromSaved } = route.params;
   const { colors } = useTheme();
   const { width, height } = useWindowDimensions();
   const styles = createJobDetailsStyles(colors, width, height);
 
   const [isSaved, setIsSaved] = useState(false);
+  const [showApplicationForm, setShowApplicationForm] = useState(false);
 
   // Load saved status when screen focuses
   useFocusEffect(
@@ -44,9 +46,16 @@ export const JobDetailsScreen: React.FC<JobDetailsScreenProps> = ({ route, navig
   );
 
   const handleApply = () => {
-    showApplyJobModal(job.title, job.company, () => {
-      showComingSoonAlert();
-    });
+    setShowApplicationForm(true);
+  };
+
+  const handleApplicationSuccess = () => {
+    setShowApplicationForm(false);
+    
+    // If coming from saved jobs, navigate back to FindJobs screen
+    if (fromSaved) {
+      navigation.navigate('MainTabs', { screen: 'FindJobs' });
+    }
   };
 
   const handleSave = () => {
@@ -208,6 +217,15 @@ ${job.description ? job.description.substring(0, 200).replace(/<[^>]*>/g, '') + 
           {/* Bottom Spacing */}
           <View style={{ height: 20 }} />
         </ScrollView>
+
+        {/* Application Form Modal */}
+        <ApplicationForm
+          visible={showApplicationForm}
+          job={job}
+          fromSaved={fromSaved}
+          onClose={() => setShowApplicationForm(false)}
+          onSuccess={handleApplicationSuccess}
+        />
       </View>
     </SafeAreaView>
   );

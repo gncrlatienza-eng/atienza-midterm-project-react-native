@@ -6,8 +6,8 @@ import { Job } from './Job';
 // Root Stack Navigator
 export type RootStackParamList = {
   MainTabs: undefined;
-  JobDetails: { job: Job };  // CHANGED: from jobId to job
-  ApplicationForm: { job: Job; fromSaved?: boolean };  // CHANGED: from jobId to job
+  JobDetails: { job: Job; fromSaved?: boolean };
+  ApplicationForm: { job: Job; fromSaved?: boolean };
 };
 
 // Bottom Tab Navigator
@@ -23,7 +23,7 @@ export type RootStackScreenProps<T extends keyof RootStackParamList> =
 export type HomeTabScreenProps<T extends keyof BottomTabParamList> = 
   TabScreenProps<BottomTabParamList, T>;
 
-// ADDED: Specific screen props for easier use
+// Specific screen props for easier use
 export type JobDetailsScreenProps = RootStackScreenProps<'JobDetails'>;
 export type ApplicationFormScreenProps = RootStackScreenProps<'ApplicationForm'>;
 
