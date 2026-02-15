@@ -1,4 +1,4 @@
-import { StyleSheet } from 'react-native';
+import { StyleSheet, Platform } from 'react-native';
 import { ThemeColors } from '../types/Theme';
 
 export const createHomeStyles = (colors: ThemeColors, width: number, height: number) =>
@@ -52,8 +52,54 @@ export const createHomeStyles = (colors: ThemeColors, width: number, height: num
     },
     jobList: {
       paddingTop: height * 0.015,
-      paddingBottom: height * 0.02,
+      paddingBottom: 90, // Extra space for fixed search bar
     },
+    
+    // NEW: Fixed search bar at bottom (iOS App Library style)
+    searchBarFixed: {
+      position: 'absolute',
+      bottom: 0,
+      left: 0,
+      right: 0,
+      backgroundColor: colors.background,
+      paddingHorizontal: 0,
+      paddingVertical: 12,
+      paddingBottom: Platform.select({ ios: 24, android: 16 }), // Safe area
+      borderTopWidth: 1,
+      borderTopColor: colors.borderLight + '40', // Subtle border
+      ...Platform.select({
+        ios: {
+          backgroundColor: colors.background + 'F8', // 97% opacity for blur effect
+        },
+      }),
+    },
+    
+    // NEW: Search overlay (full screen when active)
+    searchOverlay: {
+      position: 'absolute',
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 80, // Above search bar
+      backgroundColor: colors.background,
+      zIndex: 100,
+      paddingHorizontal: width * 0.05,
+    },
+    
+    // NEW: Search header in overlay
+    searchHeader: {
+      paddingTop: height * 0.02,
+      paddingBottom: height * 0.015,
+    },
+    
+    // NEW: Search title
+    searchTitle: {
+      fontSize: width * 0.065,
+      fontWeight: '700',
+      color: colors.text,
+      letterSpacing: -0.5,
+    },
+    
     jobCard: {
       backgroundColor: colors.card,
       borderRadius: 16,
@@ -122,13 +168,13 @@ export const createHomeStyles = (colors: ThemeColors, width: number, height: num
       marginTop: 12,
     },
     detailBadge: {
-      flexDirection: 'row',        // UPDATED: Row layout for icon + text
-      alignItems: 'center',        // UPDATED: Center align icon and text
+      flexDirection: 'row',
+      alignItems: 'center',
       backgroundColor: colors.backgroundSecondary,
       paddingHorizontal: 10,
       paddingVertical: 6,
       borderRadius: 8,
-      gap: 6,                      // UPDATED: Space between icon and text
+      gap: 6,
     },
     detailText: {
       fontSize: width * 0.032,
@@ -151,7 +197,7 @@ export const createHomeStyles = (colors: ThemeColors, width: number, height: num
       backgroundColor: colors.success,
     },
     savedButtonText: {
-      color: '#FFFFFF',            // UPDATED: White text when saved
+      color: '#FFFFFF',
     },
     applyButton: {
       flex: 1,

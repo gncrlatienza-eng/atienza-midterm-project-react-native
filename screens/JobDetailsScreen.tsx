@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, ScrollView, SafeAreaView, useWindowDimensions } from 'react-native';
+import { View, ScrollView, SafeAreaView, useWindowDimensions, Share, Alert, Platform } from 'react-native';
 import { useTheme } from '../context/ThemedContext';
 import { createJobDetailsStyles } from '../styles/JobDetailsScreen';
 import { JobDetailsHeader } from '../components/JobDetailsHeader';
@@ -17,18 +17,77 @@ export const JobDetailsScreen: React.FC<JobDetailsScreenProps> = ({ route, navig
 
   const handleApply = () => {
     console.log('Apply for job:', job.id);
-    // TODO: Navigate to application form
-    // navigation.navigate('ApplicationForm', { job });
+    Alert.alert(
+      'Apply for this job?',
+      `You're about to apply for ${job.title} at ${job.company}`,
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Apply',
+          onPress: () => {
+            Alert.alert('Coming Soon', 'Application form will be available soon!');
+          }
+        }
+      ]
+    );
   };
 
   const handleSave = () => {
     setIsSaved(!isSaved);
-    // TODO: Update saved jobs in state/storage
+    const message = !isSaved ? 'Job saved!' : 'Job removed from saved';
+    Alert.alert('Success', message, [{ text: 'OK' }], { cancelable: true });
   };
 
-  const handleShare = () => {
-    console.log('Share job:', job.id);
-    // TODO: Implement share functionality
+  const handleShare = async () => {
+    try {
+      // Create formatted message
+      const shareMessage = `
+Check out this job opportunity!
+
+${job.title}
+${job.company}
+${job.location ? `📍 ${job.location}` : ''}
+${job.salary ? `💰 ${job.salary}` : ''}
+${job.type ? `⏰ ${job.type}` : ''}
+
+${job.description ? job.description.substring(0, 200).replace(/<[^>]*>/g, '') + '...' : ''}
+      `.trim();
+
+      const shareOptions = Platform.select({
+        ios: {
+          message: shareMessage,
+          // Adding a URL enables AirDrop and full iOS share experience
+          // You can use the job's actual URL if you have one
+          url: `https://empllo.com/jobs/${job.id}`, // Replace with your actual job URL
+          title: `${job.title} at ${job.company}`,
+        },
+        android: {
+          message: shareMessage,
+          title: `${job.title} at ${job.company}`,
+        },
+        default: {
+          message: shareMessage,
+        },
+      });
+
+      const result = await Share.share(shareOptions);
+
+      if (result.action === Share.sharedAction) {
+        if (result.activityType) {
+          // Shared via specific app (AirDrop, Messages, etc.)
+          console.log('Shared via:', result.activityType);
+        } else {
+          // Shared (Android)
+          console.log('Job shared successfully');
+        }
+      } else if (result.action === Share.dismissedAction) {
+        // User dismissed the share sheet
+        console.log('Share dismissed');
+      }
+    } catch (error) {
+      console.error('Error sharing:', error);
+      Alert.alert('Error', 'Failed to share job. Please try again.');
+    }
   };
 
   const handleBack = () => {
@@ -47,8 +106,8 @@ export const JobDetailsScreen: React.FC<JobDetailsScreenProps> = ({ route, navig
         />
 
         {/* Scrollable Content */}
-        <ScrollView 
-          style={styles.scrollView} 
+        <ScrollView
+          style={styles.scrollView}
           showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.scrollContent}
         >

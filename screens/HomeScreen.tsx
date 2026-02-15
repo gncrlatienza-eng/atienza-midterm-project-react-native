@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, ScrollView, SafeAreaView, useWindowDimensions, RefreshControl, Alert } from 'react-native';
+import { View, Text, ScrollView, SafeAreaView, useWindowDimensions, RefreshControl, Alert, Keyboard, Animated, Platform } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useTheme } from '../context/ThemedContext';
@@ -17,8 +17,6 @@ export const HomeScreen = () => {
   const { colors } = useTheme();
   const { width, height } = useWindowDimensions();
   const styles = createHomeStyles(colors, width, height);
-  
-  // Use the root stack navigation
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
 
   const [searchQuery, setSearchQuery] = useState('');
@@ -27,19 +25,30 @@ export const HomeScreen = () => {
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  
+  // Search overlay state
+  const [isSearchFocused, setIsSearchFocused] = useState(false);
+  const overlayOpacity = React.useRef(new Animated.Value(0)).current;
 
-  // Fetch jobs on mount
   useEffect(() => {
     loadJobs();
   }, []);
 
-  // Filter jobs when search query changes
   useEffect(() => {
     if (allJobs.length > 0) {
       const filtered = searchJobs(allJobs, searchQuery);
       setDisplayedJobs(filtered);
     }
   }, [searchQuery, allJobs]);
+
+  // Animate overlay
+  useEffect(() => {
+    Animated.timing(overlayOpacity, {
+      toValue: isSearchFocused ? 1 : 0,
+      duration: 250,
+      useNativeDriver: true,
+    }).start();
+  }, [isSearchFocused]);
 
   const loadJobs = async () => {
     setLoading(true);
@@ -91,11 +100,22 @@ export const HomeScreen = () => {
   };
 
   const handleJobPress = (job: Job) => {
-    // Navigate to JobDetails screen in the root stack
     navigation.navigate('JobDetails', { job });
+    if (isSearchFocused) {
+      handleSearchCancel();
+    }
   };
 
-  // Determine what to show
+  const handleSearchFocus = () => {
+    setIsSearchFocused(true);
+  };
+
+  const handleSearchCancel = () => {
+    setIsSearchFocused(false);
+    setSearchQuery('');
+    Keyboard.dismiss();
+  };
+
   const renderContent = () => {
     if (loading) {
       return <LoadingState message="Loading jobs..." />;
@@ -116,6 +136,7 @@ export const HomeScreen = () => {
       <ScrollView
         style={styles.jobList}
         showsVerticalScrollIndicator={false}
+        keyboardDismissMode="on-drag"
         refreshControl={
           <RefreshControl
             refreshing={refreshing}
@@ -140,26 +161,47 @@ export const HomeScreen = () => {
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.container}>
-        {/* Header */}
-        <View style={styles.header}>
-          <View style={styles.headerTop}>
-            <Text style={styles.title}>Find Jobs</Text>
-            <ThemeToggle />
+        {/* Header - Hide when search is focused */}
+        {!isSearchFocused && (
+          <View style={styles.header}>
+            <View style={styles.headerTop}>
+              <Text style={styles.title}>Find Jobs</Text>
+              <ThemeToggle />
+            </View>
           </View>
+        )}
 
-          <View style={styles.searchContainer}>
-            <SearchBar
-              value={searchQuery}
-              onChangeText={setSearchQuery}
-              placeholder="Search jobs..."
-            />
-          </View>
-        </View>
-
-        {/* Content */}
+        {/* Content Container */}
         <View style={styles.contentContainer}>
-          {renderContent()}
+          {!isSearchFocused && renderContent()}
         </View>
+
+        {/* Search Bar - Fixed at bottom */}
+        <View style={styles.searchBarFixed}>
+          <SearchBar
+            value={searchQuery}
+            onChangeText={setSearchQuery}
+            placeholder="Search jobs..."
+            onFocus={handleSearchFocus}
+            isFocused={isSearchFocused}
+            onCancel={handleSearchCancel}
+            showCancel={true}
+          />
+        </View>
+
+        {/* Search Overlay - Full screen when searching */}
+        {isSearchFocused && (
+          <Animated.View 
+            style={[styles.searchOverlay, { opacity: overlayOpacity }]}
+            pointerEvents={isSearchFocused ? 'auto' : 'none'}
+          >
+            <View style={styles.searchHeader}>
+              <Text style={styles.searchTitle}>Search Jobs</Text>
+            </View>
+            
+            {renderContent()}
+          </Animated.View>
+        )}
       </View>
     </SafeAreaView>
   );

@@ -3,6 +3,10 @@ import { ThemeColors } from '../types/Theme';
 
 export const createSearchBarStyles = (colors: ThemeColors, width: number) =>
   StyleSheet.create({
+    wrapper: {
+      flexDirection: 'row',
+      alignItems: 'center',
+    },
     container: {
       backgroundColor: colors.backgroundSecondary,
       borderRadius: 30, // Pill-shaped like iOS
@@ -39,5 +43,14 @@ export const createSearchBarStyles = (colors: ThemeColors, width: number) =>
       fontSize: 12,
       color: colors.background,
       fontWeight: '700',
+    },
+    // NEW: Cancel button styles
+    cancelContainer: {
+      marginLeft: 12,
+      justifyContent: 'center',
+    },
+    cancelText: {
+      fontSize: 16,
+      fontWeight: '600',
     },
   });

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, TextInput, TouchableOpacity, useWindowDimensions, } from 'react-native';
+import { View, TextInput, TouchableOpacity, useWindowDimensions, Animated, Text, Platform} from 'react-native';
 import { useTheme } from '../context/ThemedContext';
 import { createSearchBarStyles } from '../styles/SearchBar';
 import Svg, { Circle, Path } from 'react-native-svg';
@@ -8,6 +8,11 @@ interface SearchBarProps {
   value: string;
   onChangeText: (text: string) => void;
   placeholder?: string;
+  onFocus?: () => void;
+  onBlur?: () => void;
+  isFocused?: boolean;
+  onCancel?: () => void;
+  showCancel?: boolean;
 }
 
 // Minimalistic Search Icon Component
@@ -29,42 +34,106 @@ export const SearchBar: React.FC<SearchBarProps> = ({
   value,
   onChangeText,
   placeholder = 'Search...',
+  onFocus,
+  onBlur,
+  isFocused: externalIsFocused,
+  onCancel,
+  showCancel = false,
 }) => {
   const { colors } = useTheme();
   const { width } = useWindowDimensions();
   const styles = createSearchBarStyles(colors, width);
   
-  const [isFocused, setIsFocused] = useState(false);
+  const [internalIsFocused, setInternalIsFocused] = useState(false);
+  const isFocused = externalIsFocused !== undefined ? externalIsFocused : internalIsFocused;
+  
+  const animatedWidth = React.useRef(new Animated.Value(0)).current;
+  const cancelOpacity = React.useRef(new Animated.Value(0)).current;
+
+  React.useEffect(() => {
+    if (showCancel) {
+      Animated.parallel([
+        Animated.spring(animatedWidth, {
+          toValue: isFocused ? 1 : 0,
+          useNativeDriver: false,
+          tension: 70,
+          friction: 10,
+        }),
+        Animated.timing(cancelOpacity, {
+          toValue: isFocused ? 1 : 0,
+          duration: 200,
+          useNativeDriver: true,
+        }),
+      ]).start();
+    }
+  }, [isFocused, showCancel]);
+
+  const searchBarWidth = showCancel
+    ? animatedWidth.interpolate({
+        inputRange: [0, 1],
+        outputRange: [width - 40, width - 110], // Leave space for Cancel button
+      })
+    : width - 40;
 
   const handleClear = () => {
     onChangeText('');
   };
 
-  return (
-    <View style={[styles.container, isFocused && styles.focused]}>
-      <SearchIcon color={colors.textTertiary} />
-      
-      <TextInput
-        style={styles.input}
-        value={value}
-        onChangeText={onChangeText}
-        placeholder={placeholder}
-        placeholderTextColor={colors.textTertiary}
-        onFocus={() => setIsFocused(true)}
-        onBlur={() => setIsFocused(false)}
-        returnKeyType="search"
-        autoCapitalize="none"
-        autoCorrect={false}
-      />
+  const handleFocus = () => {
+    setInternalIsFocused(true);
+    onFocus?.();
+  };
 
-      {value.length > 0 && (
-        <TouchableOpacity
-          style={styles.clearButton}
-          onPress={handleClear}
-          activeOpacity={0.7}
-        >
-          <CloseIcon color={colors.background} />
-        </TouchableOpacity>
+  const handleBlur = () => {
+    setInternalIsFocused(false);
+    onBlur?.();
+  };
+
+  const handleCancel = () => {
+    onCancel?.();
+  };
+
+  return (
+    <View style={styles.wrapper}>
+      <Animated.View 
+        style={[
+          styles.container, 
+          isFocused && styles.focused,
+          showCancel && { width: searchBarWidth }
+        ]}
+      >
+        <SearchIcon color={colors.textTertiary} />
+        
+        <TextInput
+          style={styles.input}
+          value={value}
+          onChangeText={onChangeText}
+          placeholder={placeholder}
+          placeholderTextColor={colors.textTertiary}
+          onFocus={handleFocus}
+          onBlur={handleBlur}
+          returnKeyType="search"
+          autoCapitalize="none"
+          autoCorrect={false}
+        />
+
+        {value.length > 0 && (
+          <TouchableOpacity
+            style={styles.clearButton}
+            onPress={handleClear}
+            activeOpacity={0.7}
+          >
+            <CloseIcon color={colors.background} />
+          </TouchableOpacity>
+        )}
+      </Animated.View>
+
+      {showCancel && (
+        <Animated.View style={[styles.cancelContainer, { opacity: cancelOpacity }]}>
+          <TouchableOpacity onPress={handleCancel} activeOpacity={0.6}>
+            <Text style={[styles.cancelText, { color: colors.primary }]}>Cancel</Text>
+          </TouchableOpacity>
+        </Animated.View>
       )}
     </View>
   );
