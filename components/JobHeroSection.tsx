@@ -20,15 +20,24 @@ export const JobHeroSection: React.FC<JobHeroSectionProps> = ({
   onApply,
   onSave,
 }) => {
+  const [logoError, setLogoError] = React.useState(false);
+  
+  // ✅ Use companyLogo from API, fallback to logo for backwards compatibility
+  const logoUrl = job.companyLogo || job.logo;
+
   return (
     <View style={styles.heroSection}>
       {/* Company Logo */}
       <View style={styles.logoContainer}>
-        {job.logo ? (
+        {logoUrl && !logoError ? (
           <Image
-            source={{ uri: job.logo }}
+            source={{ uri: logoUrl }}
             style={styles.companyLogo}
             resizeMode="contain"
+            onError={() => {
+              console.log('Failed to load logo in JobHeroSection:', logoUrl);
+              setLogoError(true);
+            }}
           />
         ) : (
           <View style={styles.logoPlaceholder}>

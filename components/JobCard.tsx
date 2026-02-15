@@ -138,6 +138,9 @@ export const JobCard: React.FC<JobCardProps> = ({ job, onSave, onApply, onPress 
 
   const [logoError, setLogoError] = React.useState(false);
 
+  // ✅ Use companyLogo from API, fallback to logo for backwards compatibility
+  const logoUrl = job.companyLogo || job.logo;
+
   return (
     <TouchableOpacity
       style={styles.card}
@@ -146,11 +149,14 @@ export const JobCard: React.FC<JobCardProps> = ({ job, onSave, onApply, onPress 
     >
       <View style={styles.header}>
         <View style={styles.logoContainer}>
-          {job.logo && !logoError ? (
+          {logoUrl && !logoError ? (
             <Image
-              source={{ uri: job.logo }}
+              source={{ uri: logoUrl }}
               style={styles.logo}
-              onError={() => setLogoError(true)}
+              onError={() => {
+                console.log('Failed to load logo:', logoUrl);
+                setLogoError(true);
+              }}
             />
           ) : (
             <View style={styles.logoFallback}>
