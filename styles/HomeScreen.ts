@@ -1,28 +1,27 @@
-import { StyleSheet, Platform } from 'react-native';
+import { StyleSheet } from 'react-native';
 import { ThemeColors } from '../types/Theme';
 
 export const createHomeStyles = (colors: ThemeColors, width: number, height: number) =>
   StyleSheet.create({
-    safeArea: {
-      flex: 1,
-      backgroundColor: colors.background,
-    },
     container: {
       flex: 1,
       backgroundColor: colors.background,
     },
-    
-    // HEADER
+    safeArea: {
+      flex: 1,
+      backgroundColor: colors.background,
+    },
     header: {
       paddingHorizontal: width * 0.05,
       paddingTop: height * 0.01,
-      paddingBottom: height * 0.02,
+      paddingBottom: height * 0.01,
       backgroundColor: colors.background,
     },
     headerTop: {
       flexDirection: 'row',
       justifyContent: 'space-between',
       alignItems: 'center',
+      marginBottom: height * 0.02,
     },
     title: {
       fontSize: width * 0.08,
@@ -30,65 +29,32 @@ export const createHomeStyles = (colors: ThemeColors, width: number, height: num
       color: colors.text,
       letterSpacing: -0.5,
     },
-    
-    // SCROLL VIEW
-    scrollView: {
+    themeToggle: {
+      width: 44,
+      height: 44,
+      borderRadius: 22,
+      backgroundColor: colors.backgroundSecondary,
+      justifyContent: 'center',
+      alignItems: 'center',
+      borderWidth: 0, // No border for minimalist look
+    },
+    themeToggleText: {
+      fontSize: 20,
+      opacity: 0.8,
+    },
+    searchContainer: {
+      marginBottom: height * 0.01,
+      paddingHorizontal: width * 0.05,
+    },
+    contentContainer: {
       flex: 1,
-    },
-    scrollContent: {
       paddingHorizontal: width * 0.05,
-      paddingTop: 8,
-      paddingBottom: 100, // Space for search bar
-    },
-    
-    // FEATURED SECTION
-    featuredSection: {
-      paddingTop: 12,
-      paddingBottom: 20,
-    },
-    sectionTitle: {
-      fontSize: width * 0.055,
-      fontWeight: '700',
-      color: colors.text,
-      marginBottom: 16,
-      letterSpacing: -0.3,
-    },
-    
-    // SEARCH BAR CONTAINER
-    searchBarContainer: {
-      position: 'absolute',
-      bottom: 0,
-      left: 0,
-      right: 0,
       backgroundColor: colors.background,
-      paddingBottom: Platform.select({ ios: 20, android: 12 }),
-      borderTopWidth: 0.5,
-      borderTopColor: colors.borderLight + '40',
     },
-    
-    // SEARCH OVERLAY
-    searchOverlay: {
-      position: 'absolute',
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 80,
-      backgroundColor: colors.background,
-      zIndex: 10,
-    },
-    searchHeader: {
-      paddingHorizontal: width * 0.05,
-      paddingTop: height * 0.01,
+    jobList: {
+      paddingTop: height * 0.015,
       paddingBottom: height * 0.02,
     },
-    searchTitle: {
-      fontSize: width * 0.08,
-      fontWeight: '700',
-      color: colors.text,
-      letterSpacing: -0.5,
-    },
-    
-    // JOB CARD STYLES
     jobCard: {
       backgroundColor: colors.card,
       borderRadius: 16,
@@ -104,36 +70,13 @@ export const createHomeStyles = (colors: ThemeColors, width: number, height: num
     },
     jobHeader: {
       flexDirection: 'row',
-      alignItems: 'center',
+      justifyContent: 'space-between',
+      alignItems: 'flex-start',
       marginBottom: 12,
-    },
-    companyLogo: {
-      width: 52,
-      height: 52,
-      borderRadius: 12,
-      marginRight: 12,
-      backgroundColor: colors.backgroundSecondary,
-      borderWidth: 1,
-      borderColor: colors.borderLight,
-    },
-    logoPlaceholder: {
-      width: 52,
-      height: 52,
-      borderRadius: 12,
-      marginRight: 12,
-      backgroundColor: colors.primary + '15',
-      justifyContent: 'center',
-      alignItems: 'center',
-      borderWidth: 1,
-      borderColor: colors.primary + '25',
-    },
-    logoPlaceholderText: {
-      fontSize: 22,
-      fontWeight: '700',
-      color: colors.primary,
     },
     jobInfo: {
       flex: 1,
+      marginRight: 12,
     },
     jobTitle: {
       fontSize: width * 0.045,
@@ -145,22 +88,19 @@ export const createHomeStyles = (colors: ThemeColors, width: number, height: num
       fontSize: width * 0.038,
       color: colors.textSecondary,
       fontWeight: '600',
+      marginBottom: 8,
     },
     jobDetails: {
       flexDirection: 'row',
       flexWrap: 'wrap',
       gap: 8,
       marginBottom: 12,
-      marginTop: 12,
     },
     detailBadge: {
-      flexDirection: 'row',
-      alignItems: 'center',
       backgroundColor: colors.backgroundSecondary,
       paddingHorizontal: 10,
       paddingVertical: 6,
       borderRadius: 8,
-      gap: 6,
     },
     detailText: {
       fontSize: width * 0.032,
@@ -182,9 +122,6 @@ export const createHomeStyles = (colors: ThemeColors, width: number, height: num
     savedButton: {
       backgroundColor: colors.success,
     },
-    savedButtonText: {
-      color: '#FFFFFF',
-    },
     applyButton: {
       flex: 1,
       backgroundColor: colors.primary,
@@ -200,5 +137,24 @@ export const createHomeStyles = (colors: ThemeColors, width: number, height: num
     },
     applyButtonText: {
       color: '#FFFFFF',
+    },
+    emptyContainer: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+      paddingVertical: height * 0.1,
+      backgroundColor: colors.background,
+    },
+    emptyText: {
+      fontSize: width * 0.045,
+      color: colors.textTertiary,
+      fontWeight: '600',
+      textAlign: 'center',
+    },
+    loadingContainer: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+      backgroundColor: colors.background,
     },
   });

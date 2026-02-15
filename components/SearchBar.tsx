@@ -1,12 +1,10 @@
 import React, { useState } from 'react';
-import { 
-  View, 
-  TextInput, 
-  TouchableOpacity, 
-  useWindowDimensions,
-  Animated,
+import {
+  View,
+  TextInput,
+  TouchableOpacity,
   Text,
-  Platform
+  useWindowDimensions,
 } from 'react-native';
 import { useTheme } from '../context/ThemedContext';
 import { createSearchBarStyles } from '../styles/SearchBar';
@@ -23,7 +21,7 @@ interface SearchBarProps {
   showCancel?: boolean;
 }
 
-// Search Icon
+// Minimalistic Search Icon Component
 const SearchIcon: React.FC<{ color: string }> = ({ color }) => (
   <Svg width="18" height="18" viewBox="0 0 24 24" fill="none">
     <Circle cx="11" cy="11" r="7" stroke={color} strokeWidth="2" />
@@ -31,7 +29,7 @@ const SearchIcon: React.FC<{ color: string }> = ({ color }) => (
   </Svg>
 );
 
-// Clear Icon
+// Minimalistic X Icon Component
 const CloseIcon: React.FC<{ color: string }> = ({ color }) => (
   <Svg width="12" height="12" viewBox="0 0 24 24" fill="none">
     <Path d="M6 6L18 18M18 6L6 18" stroke={color} strokeWidth="3" strokeLinecap="round" />
@@ -54,32 +52,6 @@ export const SearchBar: React.FC<SearchBarProps> = ({
   
   const [internalIsFocused, setInternalIsFocused] = useState(false);
   const isFocused = externalIsFocused !== undefined ? externalIsFocused : internalIsFocused;
-  
-  const searchBarWidth = React.useRef(new Animated.Value(1)).current;
-  const cancelOpacity = React.useRef(new Animated.Value(0)).current;
-
-  React.useEffect(() => {
-    if (showCancel) {
-      Animated.parallel([
-        Animated.spring(searchBarWidth, {
-          toValue: isFocused ? 0.75 : 1, // Shrink to 75% when Cancel shows
-          useNativeDriver: false,
-          tension: 80,
-          friction: 10,
-        }),
-        Animated.timing(cancelOpacity, {
-          toValue: isFocused ? 1 : 0,
-          duration: 200,
-          useNativeDriver: true,
-        }),
-      ]).start();
-    }
-  }, [isFocused, showCancel]);
-
-  const animatedWidth = searchBarWidth.interpolate({
-    inputRange: [0, 1],
-    outputRange: [0, width - 40], // Full width minus padding
-  });
 
   const handleClear = () => {
     onChangeText('');
@@ -95,18 +67,9 @@ export const SearchBar: React.FC<SearchBarProps> = ({
     onBlur?.();
   };
 
-  const handleCancel = () => {
-    onCancel?.();
-  };
-
   return (
     <View style={styles.wrapper}>
-      <Animated.View 
-        style={[
-          styles.container,
-          showCancel && { width: animatedWidth }
-        ]}
-      >
+      <View style={[styles.container, isFocused && styles.focused]}>
         <SearchIcon color={colors.textTertiary} />
         
         <TextInput
@@ -131,16 +94,18 @@ export const SearchBar: React.FC<SearchBarProps> = ({
             <CloseIcon color={colors.background} />
           </TouchableOpacity>
         )}
-      </Animated.View>
+      </View>
 
       {showCancel && isFocused && (
-        <Animated.View style={[styles.cancelContainer, { opacity: cancelOpacity }]}>
-          <TouchableOpacity onPress={handleCancel} activeOpacity={0.6}>
-            <Text style={[styles.cancelText, { color: colors.primary }]}>
-              Cancel
-            </Text>
-          </TouchableOpacity>
-        </Animated.View>
+        <TouchableOpacity 
+          style={styles.cancelContainer}
+          onPress={onCancel}
+          activeOpacity={0.6}
+        >
+          <Text style={[styles.cancelText, { color: colors.primary }]}>
+            Cancel
+          </Text>
+        </TouchableOpacity>
       )}
     </View>
   );
