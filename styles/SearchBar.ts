@@ -6,29 +6,27 @@ export const createSearchBarStyles = (colors: ThemeColors, width: number) =>
     wrapper: {
       flexDirection: 'row',
       alignItems: 'center',
+      justifyContent: 'center', // Center everything
+      paddingHorizontal: 20,
     },
     container: {
       backgroundColor: colors.backgroundSecondary,
-      borderRadius: 30, // Pill-shaped like iOS
+      borderRadius: 30,
       flexDirection: 'row',
       alignItems: 'center',
       paddingHorizontal: 16,
       height: 48,
-      borderWidth: 0, // No border for iOS style
+      borderWidth: 0,
     },
     focused: {
-      backgroundColor: colors.backgroundSecondary, // Keep same background when focused
-    },
-    icon: {
-      fontSize: 18,
-      marginRight: 8,
-      opacity: 0.6,
+      backgroundColor: colors.backgroundSecondary,
     },
     input: {
       flex: 1,
       fontSize: width * 0.04,
       color: colors.text,
       fontWeight: '400',
+      marginLeft: 8,
     },
     clearButton: {
       padding: 4,
@@ -38,13 +36,8 @@ export const createSearchBarStyles = (colors: ThemeColors, width: number) =>
       backgroundColor: colors.textTertiary,
       justifyContent: 'center',
       alignItems: 'center',
+      marginLeft: 8,
     },
-    clearIcon: {
-      fontSize: 12,
-      color: colors.background,
-      fontWeight: '700',
-    },
-    // NEW: Cancel button styles
     cancelContainer: {
       marginLeft: 12,
       justifyContent: 'center',

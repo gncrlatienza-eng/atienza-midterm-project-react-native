@@ -3,17 +3,19 @@ import { ThemeColors } from '../types/Theme';
 
 export const createHomeStyles = (colors: ThemeColors, width: number, height: number) =>
   StyleSheet.create({
-    container: {
-      flex: 1,
-      backgroundColor: colors.background,
-    },
     safeArea: {
       flex: 1,
       backgroundColor: colors.background,
     },
+    container: {
+      flex: 1,
+      backgroundColor: colors.background,
+    },
+    
+    // HEADER
     header: {
       paddingHorizontal: width * 0.05,
-      paddingTop: height * 0.02,
+      paddingTop: height * 0.01,
       paddingBottom: height * 0.015,
       backgroundColor: colors.background,
     },
@@ -21,7 +23,6 @@ export const createHomeStyles = (colors: ThemeColors, width: number, height: num
       flexDirection: 'row',
       justifyContent: 'space-between',
       alignItems: 'center',
-      marginBottom: height * 0.02,
     },
     title: {
       fontSize: width * 0.08,
@@ -29,77 +30,75 @@ export const createHomeStyles = (colors: ThemeColors, width: number, height: num
       color: colors.text,
       letterSpacing: -0.5,
     },
-    themeToggle: {
-      width: 44,
-      height: 44,
-      borderRadius: 22,
-      backgroundColor: colors.backgroundSecondary,
-      justifyContent: 'center',
-      alignItems: 'center',
-      borderWidth: 0,
-    },
-    themeToggleText: {
-      fontSize: 20,
-      opacity: 0.8,
-    },
-    searchContainer: {
-      marginBottom: height * 0.01,
-    },
+    
+    // CONTENT CONTAINER
     contentContainer: {
       flex: 1,
-      paddingHorizontal: width * 0.05,
-      backgroundColor: colors.background,
-    },
-    jobList: {
-      paddingTop: height * 0.015,
-      paddingBottom: 90, // Extra space for fixed search bar
     },
     
-    // NEW: Fixed search bar at bottom (iOS App Library style)
-    searchBarFixed: {
+    // SCROLL VIEW
+    scrollView: {
+      flex: 1,
+    },
+    scrollContent: {
+      paddingHorizontal: width * 0.05,
+      paddingBottom: 100, // Space for search bar
+    },
+    
+    // FEATURED SECTION
+    featuredSection: {
+      paddingTop: 20,
+      paddingBottom: 12,
+    },
+    sectionTitle: {
+      fontSize: width * 0.055,
+      fontWeight: '700',
+      color: colors.text,
+      marginBottom: 16,
+      letterSpacing: -0.3,
+    },
+    
+    // JOBS SECTION
+    jobsSection: {
+      paddingTop: 12,
+    },
+    
+    // SEARCH BAR CONTAINER - Transparent overlay at bottom
+    searchBarContainer: {
       position: 'absolute',
       bottom: 0,
       left: 0,
       right: 0,
-      backgroundColor: colors.background,
       paddingHorizontal: 0,
-      paddingVertical: 12,
-      paddingBottom: Platform.select({ ios: 24, android: 16 }), // Safe area
-      borderTopWidth: 1,
-      borderTopColor: colors.borderLight + '40', // Subtle border
-      ...Platform.select({
-        ios: {
-          backgroundColor: colors.background + 'F8', // 97% opacity for blur effect
-        },
-      }),
+      paddingVertical: 8,
+      paddingBottom: Platform.select({ ios: 20, android: 12 }),
+      backgroundColor: 'transparent', // Transparent!
+      zIndex: 1000,
     },
     
-    // NEW: Search overlay (full screen when active)
+    // SEARCH OVERLAY - Full screen when searching
     searchOverlay: {
       position: 'absolute',
       top: 0,
       left: 0,
       right: 0,
-      bottom: 80, // Above search bar
+      bottom: 0,
       backgroundColor: colors.background,
-      zIndex: 100,
-      paddingHorizontal: width * 0.05,
+      zIndex: 999,
     },
-    
-    // NEW: Search header in overlay
     searchHeader: {
-      paddingTop: height * 0.02,
-      paddingBottom: height * 0.015,
+      paddingHorizontal: width * 0.05,
+      paddingTop: height * 0.01,
+      paddingBottom: height * 0.01,
     },
-    
-    // NEW: Search title
     searchTitle: {
-      fontSize: width * 0.065,
+      fontSize: width * 0.08,
       fontWeight: '700',
       color: colors.text,
       letterSpacing: -0.5,
     },
     
+    // JOB CARD STYLES
     jobCard: {
       backgroundColor: colors.card,
       borderRadius: 16,
@@ -118,7 +117,6 @@ export const createHomeStyles = (colors: ThemeColors, width: number, height: num
       alignItems: 'center',
       marginBottom: 12,
     },
-    // Company logo styles
     companyLogo: {
       width: 52,
       height: 52,
@@ -220,18 +218,10 @@ export const createHomeStyles = (colors: ThemeColors, width: number, height: num
       justifyContent: 'center',
       alignItems: 'center',
       paddingVertical: height * 0.1,
-      backgroundColor: colors.background,
-    },
-    emptyText: {
-      fontSize: width * 0.045,
-      color: colors.textTertiary,
-      fontWeight: '600',
-      textAlign: 'center',
     },
     loadingContainer: {
       flex: 1,
       justifyContent: 'center',
       alignItems: 'center',
-      backgroundColor: colors.background,
     },
   });

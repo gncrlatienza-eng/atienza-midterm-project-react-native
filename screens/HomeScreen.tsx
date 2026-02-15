@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, ScrollView, SafeAreaView, useWindowDimensions, RefreshControl, Alert, Keyboard, Animated, Platform } from 'react-native';
+import { View, Text, ScrollView, SafeAreaView, useWindowDimensions, RefreshControl, Alert, Keyboard, Animated, KeyboardAvoidingView, Platform, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useTheme } from '../context/ThemedContext';
@@ -7,6 +7,7 @@ import { createHomeStyles } from '../styles/HomeScreen';
 import { SearchBar } from '../components/SearchBar';
 import { ThemeToggle } from '../components/ThemeToggle';
 import { JobCard } from '../components/JobCard';
+import { FeaturedJobCard } from '../components/FeaturedJobCard';
 import { EmptyState } from '../components/EmptyState';
 import { LoadingState } from '../components/LoadingState';
 import { fetchJobs, searchJobs } from '../api/Api';
@@ -25,9 +26,8 @@ export const HomeScreen = () => {
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  
-  // Search overlay state
   const [isSearchFocused, setIsSearchFocused] = useState(false);
+  
   const overlayOpacity = React.useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
@@ -41,11 +41,10 @@ export const HomeScreen = () => {
     }
   }, [searchQuery, allJobs]);
 
-  // Animate overlay
   useEffect(() => {
     Animated.timing(overlayOpacity, {
       toValue: isSearchFocused ? 1 : 0,
-      duration: 250,
+      duration: 200,
       useNativeDriver: true,
     }).start();
   }, [isSearchFocused]);
@@ -116,7 +115,10 @@ export const HomeScreen = () => {
     Keyboard.dismiss();
   };
 
-  const renderContent = () => {
+  const featuredJobs = displayedJobs.slice(0, 3);
+  const regularJobs = displayedJobs.slice(3);
+
+  const renderMainContent = () => {
     if (loading) {
       return <LoadingState message="Loading jobs..." />;
     }
@@ -126,17 +128,16 @@ export const HomeScreen = () => {
     }
 
     if (displayedJobs.length === 0) {
-      const message = searchQuery 
-        ? 'No jobs match your search.' 
-        : 'No jobs found.\nPull down to refresh!';
-      return <EmptyState message={message} />;
+      return <EmptyState message="No jobs found.\nPull down to refresh!" />;
     }
 
     return (
       <ScrollView
-        style={styles.jobList}
+        style={styles.scrollView}
+        contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
         keyboardDismissMode="on-drag"
+        keyboardShouldPersistTaps="handled"
         refreshControl={
           <RefreshControl
             refreshing={refreshing}
@@ -145,23 +146,49 @@ export const HomeScreen = () => {
           />
         }
       >
-        {displayedJobs.map((job) => (
-          <JobCard
-            key={job.id}
-            job={job}
-            onSave={handleSaveJob}
-            onApply={handleApply}
-            onPress={handleJobPress}
-          />
-        ))}
+        {/* Featured Jobs - Big Cards */}
+        {!isSearchFocused && !searchQuery && featuredJobs.length > 0 && (
+          <View style={styles.featuredSection}>
+            <Text style={styles.sectionTitle}>Featured</Text>
+            {featuredJobs.map((job) => (
+              <FeaturedJobCard
+                key={job.id}
+                job={job}
+                onPress={handleJobPress}
+              />
+            ))}
+          </View>
+        )}
+
+        {/* Regular Jobs */}
+        <View style={styles.jobsSection}>
+          {(isSearchFocused || searchQuery) && (
+            <Text style={styles.sectionTitle}>
+              {searchQuery ? `Results for "${searchQuery}"` : 'All Jobs'}
+            </Text>
+          )}
+          {displayedJobs.map((job) => (
+            <JobCard
+              key={job.id}
+              job={job}
+              onSave={handleSaveJob}
+              onApply={handleApply}
+              onPress={handleJobPress}
+            />
+          ))}
+        </View>
       </ScrollView>
     );
   };
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      <View style={styles.container}>
-        {/* Header - Hide when search is focused */}
+      <KeyboardAvoidingView 
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        style={styles.container}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
+      >
+        {/* Header - Hide when searching */}
         {!isSearchFocused && (
           <View style={styles.header}>
             <View style={styles.headerTop}>
@@ -171,13 +198,27 @@ export const HomeScreen = () => {
           </View>
         )}
 
-        {/* Content Container */}
-        <View style={styles.contentContainer}>
-          {!isSearchFocused && renderContent()}
-        </View>
+        {/* Search Overlay - Full screen when active */}
+        {isSearchFocused && (
+          <Animated.View 
+            style={[styles.searchOverlay, { opacity: overlayOpacity }]}
+          >
+            <View style={styles.searchHeader}>
+              <Text style={styles.searchTitle}>Search Jobs</Text>
+            </View>
+            {renderMainContent()}
+          </Animated.View>
+        )}
 
-        {/* Search Bar - Fixed at bottom */}
-        <View style={styles.searchBarFixed}>
+        {/* Main Content - Hide when searching */}
+        {!isSearchFocused && (
+          <View style={styles.contentContainer}>
+            {renderMainContent()}
+          </View>
+        )}
+
+        {/* Search Bar - Fixed at bottom, transparent overlay */}
+        <View style={styles.searchBarContainer}>
           <SearchBar
             value={searchQuery}
             onChangeText={setSearchQuery}
@@ -185,24 +226,10 @@ export const HomeScreen = () => {
             onFocus={handleSearchFocus}
             isFocused={isSearchFocused}
             onCancel={handleSearchCancel}
-            showCancel={true}
+            showCancel={isSearchFocused}
           />
         </View>
-
-        {/* Search Overlay - Full screen when searching */}
-        {isSearchFocused && (
-          <Animated.View 
-            style={[styles.searchOverlay, { opacity: overlayOpacity }]}
-            pointerEvents={isSearchFocused ? 'auto' : 'none'}
-          >
-            <View style={styles.searchHeader}>
-              <Text style={styles.searchTitle}>Search Jobs</Text>
-            </View>
-            
-            {renderContent()}
-          </Animated.View>
-        )}
-      </View>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 };

@@ -15,7 +15,7 @@ interface SearchBarProps {
   showCancel?: boolean;
 }
 
-// Minimalistic Search Icon Component
+// Search Icon
 const SearchIcon: React.FC<{ color: string }> = ({ color }) => (
   <Svg width="18" height="18" viewBox="0 0 24 24" fill="none">
     <Circle cx="11" cy="11" r="7" stroke={color} strokeWidth="2" />
@@ -23,7 +23,7 @@ const SearchIcon: React.FC<{ color: string }> = ({ color }) => (
   </Svg>
 );
 
-// Minimalistic X Icon Component
+// Clear Icon
 const CloseIcon: React.FC<{ color: string }> = ({ color }) => (
   <Svg width="12" height="12" viewBox="0 0 24 24" fill="none">
     <Path d="M6 6L18 18M18 6L6 18" stroke={color} strokeWidth="3" strokeLinecap="round" />
@@ -47,16 +47,16 @@ export const SearchBar: React.FC<SearchBarProps> = ({
   const [internalIsFocused, setInternalIsFocused] = useState(false);
   const isFocused = externalIsFocused !== undefined ? externalIsFocused : internalIsFocused;
   
-  const animatedWidth = React.useRef(new Animated.Value(0)).current;
+  const searchBarWidth = React.useRef(new Animated.Value(1)).current;
   const cancelOpacity = React.useRef(new Animated.Value(0)).current;
 
   React.useEffect(() => {
     if (showCancel) {
       Animated.parallel([
-        Animated.spring(animatedWidth, {
-          toValue: isFocused ? 1 : 0,
+        Animated.spring(searchBarWidth, {
+          toValue: isFocused ? 0.75 : 1, // Shrink to 75% when Cancel shows
           useNativeDriver: false,
-          tension: 70,
+          tension: 80,
           friction: 10,
         }),
         Animated.timing(cancelOpacity, {
@@ -68,12 +68,10 @@ export const SearchBar: React.FC<SearchBarProps> = ({
     }
   }, [isFocused, showCancel]);
 
-  const searchBarWidth = showCancel
-    ? animatedWidth.interpolate({
-        inputRange: [0, 1],
-        outputRange: [width - 40, width - 110], // Leave space for Cancel button
-      })
-    : width - 40;
+  const animatedWidth = searchBarWidth.interpolate({
+    inputRange: [0, 1],
+    outputRange: [0, width - 40], // Full width minus padding
+  });
 
   const handleClear = () => {
     onChangeText('');
@@ -97,9 +95,8 @@ export const SearchBar: React.FC<SearchBarProps> = ({
     <View style={styles.wrapper}>
       <Animated.View 
         style={[
-          styles.container, 
-          isFocused && styles.focused,
-          showCancel && { width: searchBarWidth }
+          styles.container,
+          showCancel && { width: animatedWidth }
         ]}
       >
         <SearchIcon color={colors.textTertiary} />
@@ -128,10 +125,12 @@ export const SearchBar: React.FC<SearchBarProps> = ({
         )}
       </Animated.View>
 
-      {showCancel && (
+      {showCancel && isFocused && (
         <Animated.View style={[styles.cancelContainer, { opacity: cancelOpacity }]}>
           <TouchableOpacity onPress={handleCancel} activeOpacity={0.6}>
-            <Text style={[styles.cancelText, { color: colors.primary }]}>Cancel</Text>
+            <Text style={[styles.cancelText, { color: colors.primary }]}>
+              Cancel
+            </Text>
           </TouchableOpacity>
         </Animated.View>
       )}
