@@ -23,22 +23,24 @@ export const JobDetailsScreen: React.FC<JobDetailsScreenProps> = ({ route, navig
   // Load saved status when screen focuses
   useFocusEffect(
     useCallback(() => {
+      const checkIfSaved = async () => {
+        try {
+          const savedJobsJson = await AsyncStorage.getItem(SAVED_JOBS_KEY);
+          if (savedJobsJson) {
+            const savedJobs: Job[] = JSON.parse(savedJobsJson);
+            const isJobSaved = savedJobs.some(savedJob => savedJob.id === job.id);
+            setIsSaved(isJobSaved);
+          } else {
+            setIsSaved(false);
+          }
+        } catch (error) {
+          console.error('Error checking if job is saved:', error);
+        }
+      };
+
       checkIfSaved();
     }, [job.id])
   );
-
-  const checkIfSaved = async () => {
-    try {
-      const savedJobsJson = await AsyncStorage.getItem(SAVED_JOBS_KEY);
-      if (savedJobsJson) {
-        const savedJobs: Job[] = JSON.parse(savedJobsJson);
-        const isJobSaved = savedJobs.some(savedJob => savedJob.id === job.id);
-        setIsSaved(isJobSaved);
-      }
-    } catch (error) {
-      console.error('Error checking if job is saved:', error);
-    }
-  };
 
   const handleApply = () => {
     Alert.alert(

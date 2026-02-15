@@ -1,14 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import {
-  View,
-  Text,
-  ScrollView,
-  SafeAreaView,
-  useWindowDimensions,
-  RefreshControl,
-  Alert,
-  Keyboard,
-} from 'react-native';
+import { View, Text, ScrollView, SafeAreaView, useWindowDimensions, RefreshControl, Alert, Keyboard, } from 'react-native';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -65,7 +56,7 @@ export const HomeScreen = () => {
       console.log('📝 Filtered jobs:', filtered.length);
       setDisplayedJobs(filtered);
     }
-  }, [searchQuery, allJobs]);
+  }, [searchQuery, allJobs, allJobs.length]);
 
   // Load saved job IDs from AsyncStorage
   const loadSavedJobIds = async () => {
