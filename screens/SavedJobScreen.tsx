@@ -8,7 +8,8 @@ import { createSavedJobsStyles } from '../styles/SavedJobScreen';
 import { ThemeToggle } from '../components/ThemeToggle';
 import { JobCard } from '../components/JobCard';
 import { EmptyState } from '../components/EmptyState';
-import {  showRemoveJobModal,  showComingSoonAlert, showSuccessAlert, showErrorAlert } from '../components/ConfirmationModal';
+import { ApplicationFormScreen } from './ApplicationFormScreen';
+import {  showRemoveJobModal, showSuccessAlert, showErrorAlert } from '../components/ConfirmationModal';
 import { Job } from '../types/Job';
 import { RootStackParamList } from '../types/Navigation';
 
@@ -23,6 +24,8 @@ export const SavedJobsScreen: React.FC = () => {
   const [savedJobs, setSavedJobs] = useState<Job[]>([]);
   const [refreshing, setRefreshing] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [showApplicationForm, setShowApplicationForm] = useState(false);
+  const [selectedJob, setSelectedJob] = useState<Job | null>(null);
 
   // Load saved jobs from AsyncStorage
   const loadSavedJobs = async () => {
@@ -71,14 +74,24 @@ export const SavedJobsScreen: React.FC = () => {
   };
 
   const handleApply = (jobId: string) => {
-    showComingSoonAlert();
+    const job = savedJobs.find(j => j.id === jobId);
+    if (job) {
+      setSelectedJob(job);
+      setShowApplicationForm(true);
+    }
   };
 
-  // UPDATED: Added fromSaved: true parameter
+  const handleApplicationSuccess = () => {
+    setShowApplicationForm(false);
+    setSelectedJob(null);
+    // Navigate to FindJobs tab
+    navigation.navigate('MainTabs');
+  };
+
   const handleJobPress = (job: Job) => {
     navigation.navigate('JobDetails', { 
       job,
-      fromSaved: true  // ← This is the important addition!
+      fromSaved: true 
     });
   };
 
@@ -135,6 +148,20 @@ export const SavedJobsScreen: React.FC = () => {
             {/* Bottom spacing for tab bar */}
             <View style={{ height: 100 }} />
           </ScrollView>
+        )}
+
+        {/* Application Form Modal */}
+        {selectedJob && (
+          <ApplicationFormScreen
+            visible={showApplicationForm}
+            job={selectedJob}
+            fromSaved={true}
+            onClose={() => {
+              setShowApplicationForm(false);
+              setSelectedJob(null);
+            }}
+            onSuccess={handleApplicationSuccess}
+          />
         )}
       </View>
     </SafeAreaView>

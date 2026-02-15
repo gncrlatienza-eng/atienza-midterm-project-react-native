@@ -7,7 +7,7 @@ import { createJobDetailsStyles } from '../styles/JobDetailsScreen';
 import { JobDetailsHeader } from '../components/JobDetailsHeader';
 import { JobHeroSection } from '../components/JobHeroSection';
 import { JobContentSection } from '../components/JobContentSection';
-import { ApplicationForm } from '../components/ApplicationForm';
+import { ApplicationFormScreen } from './ApplicationFormScreen';
 import {  showSaveJobModal,  showRemoveJobModal, showSuccessAlert, showErrorAlert } from '../components/ConfirmationModal';
 import { JobDetailsScreenProps } from '../types/Navigation';
 import { Job } from '../types/Job';
@@ -219,7 +219,7 @@ ${job.description ? job.description.substring(0, 200).replace(/<[^>]*>/g, '') + 
         </ScrollView>
 
         {/* Application Form Modal */}
-        <ApplicationForm
+        <ApplicationFormScreen
           visible={showApplicationForm}
           job={job}
           fromSaved={fromSaved}

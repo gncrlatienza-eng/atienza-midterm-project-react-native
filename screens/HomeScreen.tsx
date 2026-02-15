@@ -11,7 +11,8 @@ import { JobCard } from '../components/JobCard';
 import { FeaturedCarousel } from '../components/FeaturedCarousel';
 import { EmptyState } from '../components/EmptyState';
 import { LoadingState } from '../components/LoadingState';
-import {  showSaveJobModal, showRemoveJobModal,  showComingSoonAlert, showSuccessAlert, showErrorAlert } from '../components/ConfirmationModal';
+import { ApplicationFormScreen } from './ApplicationFormScreen';
+import {  showSaveJobModal, showRemoveJobModal, showSuccessAlert, showErrorAlert } from '../components/ConfirmationModal';
 import { fetchJobs, searchJobs } from '../api/Api';
 import { Job } from '../types/Job';
 import { RootStackParamList } from '../types/Navigation';
@@ -32,6 +33,10 @@ export const HomeScreen = () => {
   const [error, setError] = useState<string | null>(null);
   const [isSearchFocused, setIsSearchFocused] = useState(false);
   const [savedJobIds, setSavedJobIds] = useState<Set<string>>(new Set());
+  
+  // NEW: Application form modal state
+  const [showApplicationForm, setShowApplicationForm] = useState(false);
+  const [selectedJob, setSelectedJob] = useState<Job | null>(null);
 
   // Load saved job IDs from AsyncStorage
   const loadSavedJobIds = useCallback(async (): Promise<Set<string>> => {
@@ -151,8 +156,20 @@ export const HomeScreen = () => {
     }
   };
 
+  // UPDATED: Open application form instead of "Coming Soon"
   const handleApply = (jobId: string) => {
-    showComingSoonAlert();
+    const job = allJobs.find(j => j.id === jobId);
+    if (job) {
+      setSelectedJob(job);
+      setShowApplicationForm(true);
+    }
+  };
+
+  // NEW: Handle successful application
+  const handleApplicationSuccess = () => {
+    setShowApplicationForm(false);
+    setSelectedJob(null);
+    // Stay on HomeScreen - don't navigate
   };
 
   const handleJobPress = (job: Job) => {
@@ -254,6 +271,20 @@ export const HomeScreen = () => {
         <View style={styles.contentContainer}>
           {renderContent()}
         </View>
+
+        {/* NEW: Application Form Modal */}
+        {selectedJob && (
+          <ApplicationFormScreen
+            visible={showApplicationForm}
+            job={selectedJob}
+            fromSaved={false}
+            onClose={() => {
+              setShowApplicationForm(false);
+              setSelectedJob(null);
+            }}
+            onSuccess={handleApplicationSuccess}
+          />
+        )}
       </View>
     </SafeAreaView>
   );
