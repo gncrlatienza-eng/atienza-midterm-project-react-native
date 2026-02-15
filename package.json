@@ -2,7 +2,7 @@
   "name": "atienza-job-finder",
   "license": "0BSD",
   "version": "1.0.0",
-  "main": "App.tsx",
+  "main": "index.ts",
   "scripts": {
     "start": "expo start",
     "android": "expo start --android",
