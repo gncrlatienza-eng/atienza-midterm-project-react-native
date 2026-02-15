@@ -65,6 +65,11 @@ export const createJobDetailsStyles = (colors: ThemeColors, width: number, heigh
       paddingVertical: 8,
       borderRadius: 20,
     },
+    badgeContent: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 6,
+    },
     badgeText: {
       fontSize: width * 0.035,
       color: colors.textSecondary,
