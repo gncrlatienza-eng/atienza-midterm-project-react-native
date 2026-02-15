@@ -5,7 +5,7 @@ import { Job } from './Job';
 
 // Root Stack Navigator
 export type RootStackParamList = {
-  MainTabs: undefined;
+    MainTabs: { screen?: 'FindJobs' | 'SavedJobs' } | undefined; 
   JobDetails: { job: Job; fromSaved?: boolean };
   ApplicationForm: { job: Job; fromSaved?: boolean };
 };

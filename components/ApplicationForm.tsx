@@ -144,11 +144,11 @@ export const ApplicationForm: React.FC<ApplicationFormProps> = ({
       // Show success message
       showSuccessAlert(
         'Application Submitted!',
-        `Your application for ${job.title} at ${job.company} has been submitted successfully.`,
-        () => {
-          onSuccess();
-        }
+        `Your application for ${job.title} at ${job.company} has been submitted successfully.`
       );
+      
+      // Call onSuccess after showing the alert
+      onSuccess();
     } catch (error) {
       console.error('Error submitting application:', error);
       setIsSubmitting(false);
