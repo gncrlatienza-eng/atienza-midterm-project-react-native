@@ -1,5 +1,7 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { Platform } from 'react-native';
+import { BlurView } from '@react-native-community/blur';
 import { useTheme } from '../context/ThemedContext';
 import { HomeScreen } from '../screens/HomeScreen';
 import { SavedJobsScreen } from '../screens/SavedJobScreen';
@@ -30,7 +32,7 @@ const BookmarkTabIcon: React.FC<{ focused: boolean; color: string }> = ({ focuse
 );
 
 export const NavigationBar: React.FC = () => {
-  const { colors } = useTheme();
+  const { colors, isDark } = useTheme();
 
   return (
     <Tab.Navigator
@@ -39,15 +41,33 @@ export const NavigationBar: React.FC = () => {
         tabBarActiveTintColor: colors.primary,
         tabBarInactiveTintColor: colors.textTertiary,
         tabBarStyle: {
-          backgroundColor: colors.tabBarBackground,
-          borderTopWidth: 0.5,
-          borderTopColor: colors.border,
+          position: 'absolute',
+          backgroundColor: 'transparent',
+          borderTopWidth: 0,
+          elevation: 0,
           height: 90,
           paddingTop: 8,
           paddingBottom: 28,
-          elevation: 0,
-          shadowOpacity: 0,
         },
+        tabBarBackground: () => (
+          <BlurView
+            style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              bottom: 0,
+              right: 0,
+              backgroundColor: isDark
+                ? 'rgba(28, 28, 30, 0.85)' 
+                : 'rgba(255, 255, 255, 0.85)',
+              borderTopWidth: 0.5,
+              borderTopColor: isDark ? 'rgba(84, 84, 88, 0.3)' : 'rgba(0, 0, 0, 0.1)',
+            }}
+            blurType={isDark ? 'dark' : 'light'}
+            blurAmount={20}
+            reducedTransparencyFallbackColor={colors.tabBarBackground}
+          />
+        ),
         tabBarLabelStyle: {
           fontSize: 11,
           fontWeight: '500',
