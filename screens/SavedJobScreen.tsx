@@ -1,13 +1,5 @@
 import React, { useState, useCallback } from 'react';
-import {
-  View,
-  Text,
-  ScrollView,
-  SafeAreaView,
-  useWindowDimensions,
-  RefreshControl,
-  Alert,
-} from 'react-native';
+import { View, Text, ScrollView, SafeAreaView, useWindowDimensions, RefreshControl, Alert, } from 'react-native';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -62,14 +54,35 @@ export const SavedJobsScreen: React.FC = () => {
 
   const handleUnsaveJob = async (jobId: string) => {
     try {
-      // Remove from state
-      const updatedJobs = savedJobs.filter(job => job.id !== jobId);
-      setSavedJobs(updatedJobs);
+      // Find the job
+      const job = savedJobs.find(j => j.id === jobId);
+      if (!job) return;
 
-      // Update AsyncStorage
-      await AsyncStorage.setItem(SAVED_JOBS_KEY, JSON.stringify(updatedJobs));
+      // Show confirmation
+      Alert.alert(
+        'Remove from saved?',
+        `Remove ${job.title} from your saved jobs?`,
+        [
+          {
+            text: 'Cancel',
+            style: 'cancel'
+          },
+          {
+            text: 'Remove',
+            style: 'destructive',
+            onPress: async () => {
+              // Remove from state
+              const updatedJobs = savedJobs.filter(j => j.id !== jobId);
+              setSavedJobs(updatedJobs);
 
-      Alert.alert('Removed', 'Job removed from saved jobs');
+              // Update AsyncStorage
+              await AsyncStorage.setItem(SAVED_JOBS_KEY, JSON.stringify(updatedJobs));
+
+              Alert.alert('Removed', 'Job removed from saved jobs');
+            }
+          }
+        ]
+      );
     } catch (error) {
       console.error('Error removing job:', error);
       Alert.alert('Error', 'Failed to remove job');

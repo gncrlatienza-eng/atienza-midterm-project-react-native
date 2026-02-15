@@ -1,11 +1,16 @@
-import React from 'react';
+import React, { useState, useCallback } from 'react';
 import { View, ScrollView, SafeAreaView, useWindowDimensions, Share, Alert, Platform } from 'react-native';
 import { useTheme } from '../context/ThemedContext';
+import { useFocusEffect } from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createJobDetailsStyles } from '../styles/JobDetailsScreen';
 import { JobDetailsHeader } from '../components/JobDetailsHeader';
 import { JobHeroSection } from '../components/JobHeroSection';
 import { JobContentSection } from '../components/JobContentSection';
 import { JobDetailsScreenProps } from '../types/Navigation';
+import { Job } from '../types/Job';
+
+const SAVED_JOBS_KEY = '@saved_jobs';
 
 export const JobDetailsScreen: React.FC<JobDetailsScreenProps> = ({ route, navigation }) => {
   const { job } = route.params;
@@ -13,15 +18,37 @@ export const JobDetailsScreen: React.FC<JobDetailsScreenProps> = ({ route, navig
   const { width, height } = useWindowDimensions();
   const styles = createJobDetailsStyles(colors, width, height);
 
-  const [isSaved, setIsSaved] = React.useState(job.isSaved || false);
+  const [isSaved, setIsSaved] = useState(false);
+
+  // Load saved status when screen focuses
+  useFocusEffect(
+    useCallback(() => {
+      checkIfSaved();
+    }, [job.id])
+  );
+
+  const checkIfSaved = async () => {
+    try {
+      const savedJobsJson = await AsyncStorage.getItem(SAVED_JOBS_KEY);
+      if (savedJobsJson) {
+        const savedJobs: Job[] = JSON.parse(savedJobsJson);
+        const isJobSaved = savedJobs.some(savedJob => savedJob.id === job.id);
+        setIsSaved(isJobSaved);
+      }
+    } catch (error) {
+      console.error('Error checking if job is saved:', error);
+    }
+  };
 
   const handleApply = () => {
-    console.log('Apply for job:', job.id);
     Alert.alert(
       'Apply for this job?',
       `You're about to apply for ${job.title} at ${job.company}`,
       [
-        { text: 'Cancel', style: 'cancel' },
+        { 
+          text: 'Cancel', 
+          style: 'cancel' 
+        },
         {
           text: 'Apply',
           onPress: () => {
@@ -33,14 +60,88 @@ export const JobDetailsScreen: React.FC<JobDetailsScreenProps> = ({ route, navig
   };
 
   const handleSave = () => {
-    setIsSaved(!isSaved);
-    const message = !isSaved ? 'Job saved!' : 'Job removed from saved';
-    Alert.alert('Success', message, [{ text: 'OK' }], { cancelable: true });
+    if (isSaved) {
+      // Show confirmation for removing
+      Alert.alert(
+        'Remove from saved?',
+        `Remove ${job.title} from your saved jobs?`,
+        [
+          {
+            text: 'Cancel',
+            style: 'cancel'
+          },
+          {
+            text: 'Remove',
+            style: 'destructive',
+            onPress: async () => {
+              await removeJob();
+            }
+          }
+        ]
+      );
+    } else {
+      // Show confirmation for saving
+      Alert.alert(
+        'Save this job?',
+        `Save ${job.title} to your saved jobs?`,
+        [
+          {
+            text: 'Cancel',
+            style: 'cancel'
+          },
+          {
+            text: 'Save',
+            onPress: async () => {
+              await saveJob();
+            }
+          }
+        ]
+      );
+    }
+  };
+
+  const saveJob = async () => {
+    try {
+      const savedJobsJson = await AsyncStorage.getItem(SAVED_JOBS_KEY);
+      let savedJobs: Job[] = savedJobsJson ? JSON.parse(savedJobsJson) : [];
+
+      // Add job to saved
+      savedJobs.push({ 
+        ...job, 
+        isSaved: true, 
+        savedAt: new Date().toISOString() 
+      });
+
+      await AsyncStorage.setItem(SAVED_JOBS_KEY, JSON.stringify(savedJobs));
+      setIsSaved(true);
+      Alert.alert('Saved!', 'Job added to your saved jobs');
+    } catch (error) {
+      console.error('Error saving job:', error);
+      Alert.alert('Error', 'Failed to save job');
+    }
+  };
+
+  const removeJob = async () => {
+    try {
+      const savedJobsJson = await AsyncStorage.getItem(SAVED_JOBS_KEY);
+      if (savedJobsJson) {
+        let savedJobs: Job[] = JSON.parse(savedJobsJson);
+        
+        // Remove job from saved
+        savedJobs = savedJobs.filter(savedJob => savedJob.id !== job.id);
+        
+        await AsyncStorage.setItem(SAVED_JOBS_KEY, JSON.stringify(savedJobs));
+        setIsSaved(false);
+        Alert.alert('Removed', 'Job removed from saved jobs');
+      }
+    } catch (error) {
+      console.error('Error removing job:', error);
+      Alert.alert('Error', 'Failed to remove job');
+    }
   };
 
   const handleShare = async () => {
     try {
-      // Create formatted message without emojis
       const shareMessage = `
 Check out this job opportunity!
 
@@ -106,7 +207,7 @@ ${job.description ? job.description.substring(0, 200).replace(/<[^>]*>/g, '') + 
           showsVerticalScrollIndicator={false}
           contentContainerStyle={[
             styles.scrollContent,
-            { paddingBottom: 120 } // Extra padding for tab bar
+            { paddingBottom: 120 }
           ]}
         >
           {/* Hero Section */}

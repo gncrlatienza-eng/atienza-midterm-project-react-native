@@ -115,23 +115,55 @@ export const HomeScreen = () => {
       const existingIndex = savedJobs.findIndex(j => j.id === jobId);
       
       if (existingIndex >= 0) {
-        // Remove from saved
-        savedJobs.splice(existingIndex, 1);
-        setSavedJobIds(prev => {
-          const newSet = new Set(prev);
-          newSet.delete(jobId);
-          return newSet;
-        });
-        Alert.alert('Removed', 'Job removed from saved jobs');
+        // Show confirmation for removing
+        Alert.alert(
+          'Remove from saved?',
+          `Remove ${job.title} from your saved jobs?`,
+          [
+            {
+              text: 'Cancel',
+              style: 'cancel'
+            },
+            {
+              text: 'Remove',
+              style: 'destructive',
+              onPress: async () => {
+                // Remove from saved
+                savedJobs.splice(existingIndex, 1);
+                setSavedJobIds(prev => {
+                  const newSet = new Set(prev);
+                  newSet.delete(jobId);
+                  return newSet;
+                });
+                await AsyncStorage.setItem(SAVED_JOBS_KEY, JSON.stringify(savedJobs));
+                Alert.alert('Removed', 'Job removed from saved jobs');
+              }
+            }
+          ]
+        );
       } else {
-        // Add to saved
-        savedJobs.push({ ...job, isSaved: true, savedAt: new Date().toISOString() });
-        setSavedJobIds(prev => new Set(prev).add(jobId));
-        Alert.alert('Saved', 'Job saved successfully!');
+        // Show confirmation for saving
+        Alert.alert(
+          'Save this job?',
+          `Save ${job.title} to your saved jobs?`,
+          [
+            {
+              text: 'Cancel',
+              style: 'cancel'
+            },
+            {
+              text: 'Save',
+              onPress: async () => {
+                // Add to saved
+                savedJobs.push({ ...job, isSaved: true, savedAt: new Date().toISOString() });
+                setSavedJobIds(prev => new Set(prev).add(jobId));
+                await AsyncStorage.setItem(SAVED_JOBS_KEY, JSON.stringify(savedJobs));
+                Alert.alert('Saved!', 'Job added to your saved jobs');
+              }
+            }
+          ]
+        );
       }
-
-      // Save to AsyncStorage
-      await AsyncStorage.setItem(SAVED_JOBS_KEY, JSON.stringify(savedJobs));
     } catch (error) {
       console.error('Error saving job:', error);
       Alert.alert('Error', 'Failed to save job');
