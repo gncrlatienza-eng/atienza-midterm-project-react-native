@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, ScrollView, SafeAreaView, useWindowDimensions, RefreshControl, Alert,} from 'react-native';
+import { View, Text, ScrollView, SafeAreaView, useWindowDimensions, RefreshControl, Alert } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useTheme } from '../context/ThemedContext';
 import { createHomeStyles } from '../styles/HomeScreen';
 import { SearchBar } from '../components/SearchBar';
@@ -9,11 +11,15 @@ import { EmptyState } from '../components/EmptyState';
 import { LoadingState } from '../components/LoadingState';
 import { fetchJobs, searchJobs } from '../api/Api';
 import { Job } from '../types/Job';
+import { RootStackParamList } from '../types/Navigation';
 
-export const HomeScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
+export const HomeScreen = () => {
   const { colors } = useTheme();
   const { width, height } = useWindowDimensions();
   const styles = createHomeStyles(colors, width, height);
+  
+  // Use the root stack navigation
+  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
 
   const [searchQuery, setSearchQuery] = useState('');
   const [allJobs, setAllJobs] = useState<Job[]>([]);
@@ -85,6 +91,7 @@ export const HomeScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
   };
 
   const handleJobPress = (job: Job) => {
+    // Navigate to JobDetails screen in the root stack
     navigation.navigate('JobDetails', { job });
   };
 

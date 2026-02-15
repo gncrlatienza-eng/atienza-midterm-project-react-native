@@ -6,8 +6,9 @@ import { ThemedStatusBar } from './globalstyles/ThemedStatusBar';
 import { LoadingScreen } from './screens/LoadingScreen';
 import { NavigationBar } from './components/NavigationBar';
 import { JobDetailsScreen } from './screens/JobDetailsScreen';
+import { RootStackParamList } from './types/Navigation';
 
-const Stack = createNativeStackNavigator();
+const Stack = createNativeStackNavigator<RootStackParamList>();
 
 // App Root
 const AppContent = () => {

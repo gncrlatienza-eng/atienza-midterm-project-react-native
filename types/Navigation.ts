@@ -1,12 +1,13 @@
 // Navigation types for React Navigation
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { BottomTabScreenProps as TabScreenProps } from '@react-navigation/bottom-tabs';
+import { Job } from './Job';
 
 // Root Stack Navigator
 export type RootStackParamList = {
   MainTabs: undefined;
-  JobDetails: { jobId: string };
-  ApplicationForm: { jobId: string; fromSaved?: boolean };
+  JobDetails: { job: Job };  // CHANGED: from jobId to job
+  ApplicationForm: { job: Job; fromSaved?: boolean };  // CHANGED: from jobId to job
 };
 
 // Bottom Tab Navigator
@@ -21,6 +22,10 @@ export type RootStackScreenProps<T extends keyof RootStackParamList> =
 
 export type HomeTabScreenProps<T extends keyof BottomTabParamList> = 
   TabScreenProps<BottomTabParamList, T>;
+
+// ADDED: Specific screen props for easier use
+export type JobDetailsScreenProps = RootStackScreenProps<'JobDetails'>;
+export type ApplicationFormScreenProps = RootStackScreenProps<'ApplicationForm'>;
 
 declare global {
   namespace ReactNavigation {
