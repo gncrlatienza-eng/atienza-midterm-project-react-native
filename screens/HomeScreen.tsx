@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, ScrollView, SafeAreaView, useWindowDimensions, RefreshControl, Alert, } from 'react-native';
+import { View, Text, ScrollView, SafeAreaView, useWindowDimensions, RefreshControl, Alert,} from 'react-native';
 import { useTheme } from '../context/ThemedContext';
 import { createHomeStyles } from '../styles/HomeScreen';
 import { SearchBar } from '../components/SearchBar';
@@ -10,7 +10,7 @@ import { LoadingState } from '../components/LoadingState';
 import { fetchJobs, searchJobs } from '../api/Api';
 import { Job } from '../types/Job';
 
-export const HomeScreen: React.FC = () => {
+export const HomeScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
   const { colors } = useTheme();
   const { width, height } = useWindowDimensions();
   const styles = createHomeStyles(colors, width, height);
@@ -84,6 +84,10 @@ export const HomeScreen: React.FC = () => {
     Alert.alert('Coming Soon', 'Application form will be available soon!');
   };
 
+  const handleJobPress = (job: Job) => {
+    navigation.navigate('JobDetails', { job });
+  };
+
   // Determine what to show
   const renderContent = () => {
     if (loading) {
@@ -119,6 +123,7 @@ export const HomeScreen: React.FC = () => {
             job={job}
             onSave={handleSaveJob}
             onApply={handleApply}
+            onPress={handleJobPress}
           />
         ))}
       </ScrollView>

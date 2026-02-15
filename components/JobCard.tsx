@@ -8,15 +8,20 @@ interface JobCardProps {
   job: Job;
   onSave: (jobId: string) => void;
   onApply: (jobId: string) => void;
+  onPress: (job: Job) => void;
 }
 
-export const JobCard: React.FC<JobCardProps> = ({ job, onSave, onApply }) => {
+export const JobCard: React.FC<JobCardProps> = ({ job, onSave, onApply, onPress }) => {
   const { colors } = useTheme();
   const { width, height } = useWindowDimensions();
   const styles = createHomeStyles(colors, width, height);
 
   return (
-    <View style={styles.jobCard}>
+    <TouchableOpacity
+      style={styles.jobCard}
+      onPress={() => onPress(job)}
+      activeOpacity={0.7}
+    >
       <View style={styles.jobHeader}>
         <View style={styles.jobInfo}>
           <Text style={styles.jobTitle}>{job.title}</Text>
@@ -45,7 +50,10 @@ export const JobCard: React.FC<JobCardProps> = ({ job, onSave, onApply }) => {
       <View style={styles.actionButtons}>
         <TouchableOpacity
           style={[styles.saveButton, job.isSaved && styles.savedButton]}
-          onPress={() => onSave(job.id)}
+          onPress={(e) => {
+            e.stopPropagation(); // Prevent card tap when clicking save
+            onSave(job.id);
+          }}
           activeOpacity={0.7}
         >
           <Text style={[styles.buttonText, job.isSaved && { color: '#FFFFFF' }]}>
@@ -55,7 +63,10 @@ export const JobCard: React.FC<JobCardProps> = ({ job, onSave, onApply }) => {
 
         <TouchableOpacity
           style={styles.applyButton}
-          onPress={() => onApply(job.id)}
+          onPress={(e) => {
+            e.stopPropagation(); // Prevent card tap when clicking apply
+            onApply(job.id);
+          }}
           activeOpacity={0.7}
         >
           <Text style={[styles.buttonText, styles.applyButtonText]}>
@@ -63,6 +74,6 @@ export const JobCard: React.FC<JobCardProps> = ({ job, onSave, onApply }) => {
           </Text>
         </TouchableOpacity>
       </View>
-    </View>
+    </TouchableOpacity>
   );
 };

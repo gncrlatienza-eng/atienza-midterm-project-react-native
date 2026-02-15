@@ -5,34 +5,38 @@ import { ThemeProvider } from './context/ThemedContext';
 import { ThemedStatusBar } from './globalstyles/ThemedStatusBar';
 import { LoadingScreen } from './screens/LoadingScreen';
 import { NavigationBar } from './components/NavigationBar';
+import { JobDetailsScreen } from './screens/JobDetailsScreen';
 
 const Stack = createNativeStackNavigator();
 
-export default function App() {
+// App Root
+const AppContent = () => {
   const [isLoading, setIsLoading] = useState(true);
 
   if (isLoading) {
-    return (
-      <ThemeProvider>
-        <ThemedStatusBar />
-        <LoadingScreen onFinish={() => setIsLoading(false)} />
-      </ThemeProvider>
-    );
+    return <LoadingScreen onFinish={() => setIsLoading(false)} />;
   }
 
   return (
+    <NavigationContainer>
+      <Stack.Navigator
+        screenOptions={{
+          headerShown: false,
+          animation: 'slide_from_right',
+        }}
+      >
+        <Stack.Screen name="MainTabs" component={NavigationBar} />
+        <Stack.Screen name="JobDetails" component={JobDetailsScreen} />
+      </Stack.Navigator>
+    </NavigationContainer>
+  );
+};
+
+export default function App() {
+  return (
     <ThemeProvider>
       <ThemedStatusBar />
-      <NavigationContainer>
-        <Stack.Navigator
-          screenOptions={{
-            headerShown: false,
-            animation: 'slide_from_right',
-          }}
-        >
-          <Stack.Screen name="MainTabs" component={NavigationBar} />
-        </Stack.Navigator>
-      </NavigationContainer>
+      <AppContent />
     </ThemeProvider>
   );
 }

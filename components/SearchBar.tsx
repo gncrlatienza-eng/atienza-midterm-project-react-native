@@ -1,10 +1,5 @@
 import React, { useState } from 'react';
-import {
-  View,
-  TextInput,
-  TouchableOpacity,
-  useWindowDimensions,
-} from 'react-native';
+import { View, TextInput, TouchableOpacity, useWindowDimensions, } from 'react-native';
 import { useTheme } from '../context/ThemedContext';
 import { createSearchBarStyles } from '../styles/SearchBar';
 import Svg, { Circle, Path } from 'react-native-svg';
