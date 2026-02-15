@@ -1,5 +1,14 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { View, Text, ScrollView, SafeAreaView, useWindowDimensions, RefreshControl, Alert, Keyboard, } from 'react-native';
+import {
+  View,
+  Text,
+  ScrollView,
+  SafeAreaView,
+  useWindowDimensions,
+  RefreshControl,
+  Alert,
+  Keyboard,
+} from 'react-native';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -32,46 +41,26 @@ export const HomeScreen = () => {
   const [isSearchFocused, setIsSearchFocused] = useState(false);
   const [savedJobIds, setSavedJobIds] = useState<Set<string>>(new Set());
 
-  // Debug logging
-  useEffect(() => {
-    console.log('🔍 Search Query Changed:', searchQuery);
-    console.log('📊 Should show Featured?', !searchQuery && allJobs.length > 0);
-  }, [searchQuery]);
-
-  useEffect(() => {
-    loadJobs(); // This now also loads saved IDs
-  }, []);
-
-  // Refresh saved job IDs when screen comes into focus
-  useFocusEffect(
-    useCallback(() => {
-      loadSavedJobIds();
-    }, [])
-  );
-
-  useEffect(() => {
-    if (allJobs.length > 0) {
-      const filtered = searchJobs(allJobs, searchQuery);
-      console.log('📝 Filtered jobs:', filtered.length);
-      setDisplayedJobs(filtered);
-    }
-  }, [searchQuery, allJobs, allJobs.length]);
-
   // Load saved job IDs from AsyncStorage
-  const loadSavedJobIds = async () => {
+  const loadSavedJobIds = useCallback(async () => {
     try {
       const savedJobsJson = await AsyncStorage.getItem(SAVED_JOBS_KEY);
       if (savedJobsJson) {
         const savedJobs: Job[] = JSON.parse(savedJobsJson);
         const ids = new Set(savedJobs.map(job => job.id));
+        console.log('📚 Loaded saved job IDs:', ids.size);
         setSavedJobIds(ids);
+      } else {
+        setSavedJobIds(new Set());
       }
     } catch (error) {
       console.error('Error loading saved job IDs:', error);
+      setSavedJobIds(new Set());
     }
-  };
+  }, []);
 
-  const loadJobs = async () => {
+  // Load jobs from API
+  const loadJobs = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
@@ -92,7 +81,34 @@ export const HomeScreen = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [loadSavedJobIds]);
+
+  // Initial load
+  useEffect(() => {
+    loadJobs();
+  }, [loadJobs]);
+
+  // Filter jobs when search query changes
+  useEffect(() => {
+    if (allJobs.length > 0) {
+      const filtered = searchJobs(allJobs, searchQuery);
+      console.log('📝 Filtered jobs:', filtered.length);
+      setDisplayedJobs(filtered);
+    }
+  }, [searchQuery, allJobs]);
+
+  // Refresh saved job IDs when screen comes into focus
+  useFocusEffect(
+    useCallback(() => {
+      loadSavedJobIds();
+    }, [loadSavedJobIds])
+  );
+
+  // Debug logging
+  useEffect(() => {
+    console.log('🔍 Search Query Changed:', searchQuery);
+    console.log('📊 Should show Featured?', !searchQuery && allJobs.length > 0);
+  }, [searchQuery, allJobs.length]);
 
   const handleRefresh = async () => {
     setRefreshing(true);
@@ -139,12 +155,15 @@ export const HomeScreen = () => {
               onPress: async () => {
                 // Remove from saved
                 savedJobs.splice(existingIndex, 1);
+                await AsyncStorage.setItem(SAVED_JOBS_KEY, JSON.stringify(savedJobs));
+                
+                // Update state
                 setSavedJobIds(prev => {
                   const newSet = new Set(prev);
                   newSet.delete(jobId);
                   return newSet;
                 });
-                await AsyncStorage.setItem(SAVED_JOBS_KEY, JSON.stringify(savedJobs));
+                
                 Alert.alert('Removed', 'Job removed from saved jobs');
               }
             }
@@ -165,8 +184,11 @@ export const HomeScreen = () => {
               onPress: async () => {
                 // Add to saved
                 savedJobs.push({ ...job, isSaved: true, savedAt: new Date().toISOString() });
-                setSavedJobIds(prev => new Set(prev).add(jobId));
                 await AsyncStorage.setItem(SAVED_JOBS_KEY, JSON.stringify(savedJobs));
+                
+                // Update state
+                setSavedJobIds(prev => new Set(prev).add(jobId));
+                
                 Alert.alert('Saved!', 'Job added to your saved jobs');
               }
             }
