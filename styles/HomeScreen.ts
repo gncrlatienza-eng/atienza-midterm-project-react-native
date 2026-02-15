@@ -16,7 +16,7 @@ export const createHomeStyles = (colors: ThemeColors, width: number, height: num
     header: {
       paddingHorizontal: width * 0.05,
       paddingTop: height * 0.01,
-      paddingBottom: height * 0.015,
+      paddingBottom: height * 0.02,
       backgroundColor: colors.background,
     },
     headerTop: {
@@ -31,24 +31,20 @@ export const createHomeStyles = (colors: ThemeColors, width: number, height: num
       letterSpacing: -0.5,
     },
     
-    // CONTENT CONTAINER
-    contentContainer: {
-      flex: 1,
-    },
-    
     // SCROLL VIEW
     scrollView: {
       flex: 1,
     },
     scrollContent: {
       paddingHorizontal: width * 0.05,
+      paddingTop: 8,
       paddingBottom: 100, // Space for search bar
     },
     
     // FEATURED SECTION
     featuredSection: {
-      paddingTop: 20,
-      paddingBottom: 12,
+      paddingTop: 12,
+      paddingBottom: 20,
     },
     sectionTitle: {
       fontSize: width * 0.055,
@@ -58,38 +54,32 @@ export const createHomeStyles = (colors: ThemeColors, width: number, height: num
       letterSpacing: -0.3,
     },
     
-    // JOBS SECTION
-    jobsSection: {
-      paddingTop: 12,
-    },
-    
-    // SEARCH BAR CONTAINER - Transparent overlay at bottom
+    // SEARCH BAR CONTAINER
     searchBarContainer: {
       position: 'absolute',
       bottom: 0,
       left: 0,
       right: 0,
-      paddingHorizontal: 0,
-      paddingVertical: 8,
+      backgroundColor: colors.background,
       paddingBottom: Platform.select({ ios: 20, android: 12 }),
-      backgroundColor: 'transparent', // Transparent!
-      zIndex: 1000,
+      borderTopWidth: 0.5,
+      borderTopColor: colors.borderLight + '40',
     },
     
-    // SEARCH OVERLAY - Full screen when searching
+    // SEARCH OVERLAY
     searchOverlay: {
       position: 'absolute',
       top: 0,
       left: 0,
       right: 0,
-      bottom: 0,
+      bottom: 80,
       backgroundColor: colors.background,
-      zIndex: 999,
+      zIndex: 10,
     },
     searchHeader: {
       paddingHorizontal: width * 0.05,
       paddingTop: height * 0.01,
-      paddingBottom: height * 0.01,
+      paddingBottom: height * 0.02,
     },
     searchTitle: {
       fontSize: width * 0.08,
@@ -144,7 +134,6 @@ export const createHomeStyles = (colors: ThemeColors, width: number, height: num
     },
     jobInfo: {
       flex: 1,
-      marginRight: 0,
     },
     jobTitle: {
       fontSize: width * 0.045,
@@ -156,7 +145,6 @@ export const createHomeStyles = (colors: ThemeColors, width: number, height: num
       fontSize: width * 0.038,
       color: colors.textSecondary,
       fontWeight: '600',
-      marginBottom: 0,
     },
     jobDetails: {
       flexDirection: 'row',
@@ -212,16 +200,5 @@ export const createHomeStyles = (colors: ThemeColors, width: number, height: num
     },
     applyButtonText: {
       color: '#FFFFFF',
-    },
-    emptyContainer: {
-      flex: 1,
-      justifyContent: 'center',
-      alignItems: 'center',
-      paddingVertical: height * 0.1,
-    },
-    loadingContainer: {
-      flex: 1,
-      justifyContent: 'center',
-      alignItems: 'center',
     },
   });
