@@ -10,6 +10,7 @@ interface JobCardProps {
   onSave: (jobId: string) => void;
   onApply: (jobId: string) => void;
   onPress: (job: Job) => void;
+  showRemove?: boolean; // New prop to show "Remove" instead of "Save"
 }
 
 // Location Pin Icon
@@ -28,9 +29,24 @@ const ClockIcon: React.FC<{ color: string }> = ({ color }) => (
   </Svg>
 );
 
-export const JobCard: React.FC<JobCardProps> = ({ job, onSave, onApply, onPress }) => {
+// Check Icon for "Saved" button
+const CheckIcon: React.FC<{ color: string }> = ({ color }) => (
+  <Svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+    <Path 
+      d="M20 6L9 17L4 12" 
+      stroke={color} 
+      strokeWidth="2.5" 
+      strokeLinecap="round" 
+      strokeLinejoin="round"
+    />
+  </Svg>
+);
+
+export const JobCard: React.FC<JobCardProps> = ({ job, onSave, onApply, onPress, showRemove = false }) => {
   const { colors } = useTheme();
   const { width: screenWidth } = useWindowDimensions();
+
+  const isSaved = job.isSaved || false;
 
   const styles = StyleSheet.create({
     card: {
@@ -113,14 +129,35 @@ export const JobCard: React.FC<JobCardProps> = ({ job, onSave, onApply, onPress 
       paddingVertical: 12,
       borderRadius: 12,
       alignItems: 'center',
+      justifyContent: 'center',
+      flexDirection: 'row',
+      gap: 6,
       backgroundColor: colors.backgroundSecondary,
       borderWidth: 1,
       borderColor: colors.borderLight,
+    },
+    savedButton: {
+      backgroundColor: '#34C759', // iOS green
+      borderColor: '#34C759',
+    },
+    removeButton: {
+      backgroundColor: '#FF3B30', // iOS red
+      borderColor: '#FF3B30',
     },
     saveButtonText: {
       fontSize: 15,
       fontWeight: '600',
       color: colors.text,
+    },
+    savedButtonText: {
+      fontSize: 15,
+      fontWeight: '600',
+      color: '#FFFFFF',
+    },
+    removeButtonText: {
+      fontSize: 15,
+      fontWeight: '600',
+      color: '#FFFFFF',
     },
     applyButton: {
       flex: 1,
@@ -138,8 +175,30 @@ export const JobCard: React.FC<JobCardProps> = ({ job, onSave, onApply, onPress 
 
   const [logoError, setLogoError] = React.useState(false);
 
-  // ✅ Use companyLogo from API, fallback to logo for backwards compatibility
+  // Use companyLogo from API, fallback to logo for backwards compatibility
   const logoUrl = job.companyLogo || job.logo;
+
+  // Determine button style and text
+  const getSaveButtonStyle = () => {
+    if (showRemove) {
+      return styles.removeButton;
+    }
+    return isSaved ? styles.savedButton : styles.saveButton;
+  };
+
+  const getSaveButtonText = () => {
+    if (showRemove) {
+      return 'Remove';
+    }
+    return isSaved ? 'Saved' : 'Save';
+  };
+
+  const getSaveButtonTextStyle = () => {
+    if (showRemove) {
+      return styles.removeButtonText;
+    }
+    return isSaved ? styles.savedButtonText : styles.saveButtonText;
+  };
 
   return (
     <TouchableOpacity
@@ -194,14 +253,19 @@ export const JobCard: React.FC<JobCardProps> = ({ job, onSave, onApply, onPress 
 
       <View style={styles.actions}>
         <TouchableOpacity
-          style={styles.saveButton}
+          style={[styles.saveButton, getSaveButtonStyle()]}
           onPress={(e) => {
             e.stopPropagation();
             onSave(job.id);
           }}
           activeOpacity={0.7}
         >
-          <Text style={styles.saveButtonText}>Save</Text>
+          {isSaved && !showRemove && (
+            <CheckIcon color="#FFFFFF" />
+          )}
+          <Text style={getSaveButtonTextStyle()}>
+            {getSaveButtonText()}
+          </Text>
         </TouchableOpacity>
 
         <TouchableOpacity

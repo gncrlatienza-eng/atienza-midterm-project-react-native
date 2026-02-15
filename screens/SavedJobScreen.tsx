@@ -1,5 +1,13 @@
 import React, { useState, useCallback } from 'react';
-import { View, Text, ScrollView, SafeAreaView, useWindowDimensions, RefreshControl, Alert,} from 'react-native';
+import {
+  View,
+  Text,
+  ScrollView,
+  SafeAreaView,
+  useWindowDimensions,
+  RefreshControl,
+  Alert,
+} from 'react-native';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -123,6 +131,7 @@ export const SavedJobsScreen: React.FC = () => {
                 onSave={handleUnsaveJob}
                 onApply={handleApply}
                 onPress={handleJobPress}
+                showRemove={true}
               />
             ))}
             
