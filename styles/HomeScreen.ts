@@ -55,6 +55,19 @@ export const createHomeStyles = (colors: ThemeColors, width: number, height: num
       paddingTop: height * 0.015,
       paddingBottom: height * 0.02,
     },
+    featuredSection: {
+      paddingHorizontal: width * 0.05,
+      marginBottom: 24,
+    },
+    allJobsSection: {
+      paddingHorizontal: width * 0.05,
+    },
+    sectionTitle: {
+      fontSize: width * 0.055,
+      fontWeight: '700',
+      color: colors.text,
+      marginBottom: 12,
+    },
     jobCard: {
       backgroundColor: colors.card,
       borderRadius: 16,
@@ -70,7 +83,6 @@ export const createHomeStyles = (colors: ThemeColors, width: number, height: num
     },
     jobHeader: {
       flexDirection: 'row',
-      justifyContent: 'space-between',
       alignItems: 'flex-start',
       marginBottom: 12,
     },

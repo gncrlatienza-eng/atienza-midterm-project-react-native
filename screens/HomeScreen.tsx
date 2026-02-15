@@ -16,6 +16,7 @@ import { createHomeStyles } from '../styles/HomeScreen';
 import { SearchBar } from '../components/SearchBar';
 import { ThemeToggle } from '../components/ThemeToggle';
 import { JobCard } from '../components/JobCard';
+import { FeaturedJobCard } from '../components/FeaturedJobCard';
 import { EmptyState } from '../components/EmptyState';
 import { LoadingState } from '../components/LoadingState';
 import { fetchJobs, searchJobs } from '../api/Api';
@@ -132,6 +133,8 @@ export const HomeScreen = () => {
       return <EmptyState message={message} />;
     }
 
+    const featuredJobs = searchQuery ? [] : allJobs.slice(0, 3);
+
     return (
       <ScrollView
         style={styles.jobList}
@@ -144,15 +147,33 @@ export const HomeScreen = () => {
           />
         }
       >
-        {displayedJobs.map((job) => (
-          <JobCard
-            key={job.id}
-            job={job}
-            onSave={handleSaveJob}
-            onApply={handleApply}
-            onPress={handleJobPress}
-          />
-        ))}
+        {/* Featured Section */}
+        {featuredJobs.length > 0 && (
+          <View style={styles.featuredSection}>
+            <Text style={styles.sectionTitle}>Featured</Text>
+            {featuredJobs.map((job) => (
+              <FeaturedJobCard
+                key={job.id}
+                job={job}
+                onPress={handleJobPress}
+              />
+            ))}
+          </View>
+        )}
+
+        {/* All Jobs */}
+        <View style={styles.allJobsSection}>
+          {!searchQuery && <Text style={styles.sectionTitle}>All Jobs</Text>}
+          {displayedJobs.map((job) => (
+            <JobCard
+              key={job.id}
+              job={job}
+              onSave={handleSaveJob}
+              onApply={handleApply}
+              onPress={handleJobPress}
+            />
+          ))}
+        </View>
       </ScrollView>
     );
   };
