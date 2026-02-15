@@ -1,6 +1,15 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, ScrollView, SafeAreaView, useWindowDimensions, RefreshControl, Alert, Keyboard, } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import React, { useState, useEffect, useCallback } from 'react';
+import {
+  View,
+  Text,
+  ScrollView,
+  SafeAreaView,
+  useWindowDimensions,
+  RefreshControl,
+  Alert,
+  Keyboard,
+} from 'react-native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useTheme } from '../context/ThemedContext';
@@ -42,6 +51,13 @@ export const HomeScreen = () => {
     loadJobs();
     loadSavedJobIds();
   }, []);
+
+  // Refresh saved job IDs when screen comes into focus
+  useFocusEffect(
+    useCallback(() => {
+      loadSavedJobIds();
+    }, [])
+  );
 
   useEffect(() => {
     if (allJobs.length > 0) {
