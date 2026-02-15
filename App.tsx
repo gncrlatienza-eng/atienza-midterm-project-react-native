@@ -4,7 +4,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { ThemeProvider } from './context/ThemedContext';
 import { ThemedStatusBar } from './globalstyles/ThemedStatusBar';
 import { LoadingScreen } from './screens/LoadingScreen';
-import { HomeScreen } from './screens/HomeScreen';
+import { NavigationBar } from './components/NavigationBar';
 
 const Stack = createNativeStackNavigator();
 
@@ -30,7 +30,7 @@ export default function App() {
             animation: 'slide_from_right',
           }}
         >
-          <Stack.Screen name="Home" component={HomeScreen} />
+          <Stack.Screen name="MainTabs" component={NavigationBar} />
         </Stack.Navigator>
       </NavigationContainer>
     </ThemeProvider>
