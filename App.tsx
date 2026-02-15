@@ -1,20 +1,38 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import React, { useState } from 'react';
+import { NavigationContainer } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { ThemeProvider } from './context/ThemedContext';
+import { ThemedStatusBar } from './globalstyles/ThemedStatusBar';
+import { LoadingScreen } from './screens/LoadingScreen';
+import { HomeScreen } from './screens/HomeScreen';
+
+const Stack = createNativeStackNavigator();
 
 export default function App() {
+  const [isLoading, setIsLoading] = useState(true);
+
+  if (isLoading) {
+    return (
+      <ThemeProvider>
+        <ThemedStatusBar />
+        <LoadingScreen onFinish={() => setIsLoading(false)} />
+      </ThemeProvider>
+    );
+  }
+
   return (
-    <View style={styles.container}>
-      <Text>Open up App.tsx to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
+    <ThemeProvider>
+      <ThemedStatusBar />
+      <NavigationContainer>
+        <Stack.Navigator
+          screenOptions={{
+            headerShown: false,
+            animation: 'slide_from_right',
+          }}
+        >
+          <Stack.Screen name="Home" component={HomeScreen} />
+        </Stack.Navigator>
+      </NavigationContainer>
+    </ThemeProvider>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
