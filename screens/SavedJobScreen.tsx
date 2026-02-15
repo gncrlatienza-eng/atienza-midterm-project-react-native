@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from 'react';
-import { View, Text, ScrollView, SafeAreaView, useWindowDimensions, RefreshControl, Alert, } from 'react-native';
+import { View, Text, ScrollView, SafeAreaView, useWindowDimensions, RefreshControl, } from 'react-native';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -8,6 +8,7 @@ import { createSavedJobsStyles } from '../styles/SavedJobScreen';
 import { ThemeToggle } from '../components/ThemeToggle';
 import { JobCard } from '../components/JobCard';
 import { EmptyState } from '../components/EmptyState';
+import {  showRemoveJobModal,  showComingSoonAlert, showSuccessAlert, showErrorAlert } from '../components/ConfirmationModal';
 import { Job } from '../types/Job';
 import { RootStackParamList } from '../types/Navigation';
 
@@ -33,7 +34,7 @@ export const SavedJobsScreen: React.FC = () => {
       }
     } catch (error) {
       console.error('Error loading saved jobs:', error);
-      Alert.alert('Error', 'Failed to load saved jobs');
+      showErrorAlert('Failed to load saved jobs');
     } finally {
       setLoading(false);
     }
@@ -54,44 +55,23 @@ export const SavedJobsScreen: React.FC = () => {
 
   const handleUnsaveJob = async (jobId: string) => {
     try {
-      // Find the job
       const job = savedJobs.find(j => j.id === jobId);
       if (!job) return;
 
-      // Show confirmation
-      Alert.alert(
-        'Remove from saved?',
-        `Remove ${job.title} from your saved jobs?`,
-        [
-          {
-            text: 'Cancel',
-            style: 'cancel'
-          },
-          {
-            text: 'Remove',
-            style: 'destructive',
-            onPress: async () => {
-              // Remove from state
-              const updatedJobs = savedJobs.filter(j => j.id !== jobId);
-              setSavedJobs(updatedJobs);
-
-              // Update AsyncStorage
-              await AsyncStorage.setItem(SAVED_JOBS_KEY, JSON.stringify(updatedJobs));
-
-              Alert.alert('Removed', 'Job removed from saved jobs');
-            }
-          }
-        ]
-      );
+      showRemoveJobModal(job.title, async () => {
+        const updatedJobs = savedJobs.filter(j => j.id !== jobId);
+        setSavedJobs(updatedJobs);
+        await AsyncStorage.setItem(SAVED_JOBS_KEY, JSON.stringify(updatedJobs));
+        showSuccessAlert('Removed', 'Job removed from saved jobs');
+      });
     } catch (error) {
       console.error('Error removing job:', error);
-      Alert.alert('Error', 'Failed to remove job');
+      showErrorAlert('Failed to remove job');
     }
   };
 
   const handleApply = (jobId: string) => {
-    console.log('Apply for job:', jobId);
-    Alert.alert('Coming Soon', 'Application form will be available soon!');
+    showComingSoonAlert();
   };
 
   const handleJobPress = (job: Job) => {
@@ -122,7 +102,7 @@ export const SavedJobsScreen: React.FC = () => {
           </View>
         ) : savedJobs.length === 0 ? (
           <EmptyState 
-            message="No saved jobs yet." 
+            message="No saved jobs yet.{'\n'}Start saving jobs you're interested in!" 
           />
         ) : (
           <ScrollView

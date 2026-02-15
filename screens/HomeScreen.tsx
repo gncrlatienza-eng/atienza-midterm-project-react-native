@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { View, Text, ScrollView, SafeAreaView, useWindowDimensions, RefreshControl, Alert, Keyboard, } from 'react-native';
+import { View, Text, ScrollView, SafeAreaView, useWindowDimensions, RefreshControl, Keyboard, } from 'react-native';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -11,6 +11,7 @@ import { JobCard } from '../components/JobCard';
 import { FeaturedCarousel } from '../components/FeaturedCarousel';
 import { EmptyState } from '../components/EmptyState';
 import { LoadingState } from '../components/LoadingState';
+import {  showSaveJobModal, showRemoveJobModal,  showComingSoonAlert, showSuccessAlert, showErrorAlert } from '../components/ConfirmationModal';
 import { fetchJobs, searchJobs } from '../api/Api';
 import { Job } from '../types/Job';
 import { RootStackParamList } from '../types/Navigation';
@@ -60,18 +61,14 @@ export const HomeScreen = () => {
     setLoading(true);
     setError(null);
     try {
-      // Load saved IDs first
-      const savedIds = await loadSavedJobIds();
-
-      // Then load jobs
+      await loadSavedJobIds();
       const jobs = await fetchJobs();
       setAllJobs(jobs);
       setDisplayedJobs(jobs);
-      
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to load jobs';
       setError(errorMessage);
-      Alert.alert('Error', errorMessage);
+      showErrorAlert(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -107,7 +104,7 @@ export const HomeScreen = () => {
       setDisplayedJobs(jobs);
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to refresh jobs';
-      Alert.alert('Error', errorMessage);
+      showErrorAlert(errorMessage);
     } finally {
       setRefreshing(false);
     }
@@ -124,59 +121,38 @@ export const HomeScreen = () => {
       const existingIndex = savedJobs.findIndex(j => j.id === jobId);
       
       if (existingIndex >= 0) {
-        // Show confirmation for removing
-        Alert.alert(
-          'Remove from saved?',
-          `Remove ${job.title} from your saved jobs?`,
-          [
-            { text: 'Cancel', style: 'cancel' },
-            {
-              text: 'Remove',
-              style: 'destructive',
-              onPress: async () => {
-                savedJobs.splice(existingIndex, 1);
-                await AsyncStorage.setItem(SAVED_JOBS_KEY, JSON.stringify(savedJobs));
-                
-                setSavedJobIds(prev => {
-                  const newSet = new Set(prev);
-                  newSet.delete(jobId);
-                  return newSet;
-                });
-                
-                Alert.alert('Removed', 'Job removed from saved jobs');
-              }
-            }
-          ]
-        );
+        // Show remove confirmation
+        showRemoveJobModal(job.title, async () => {
+          savedJobs.splice(existingIndex, 1);
+          await AsyncStorage.setItem(SAVED_JOBS_KEY, JSON.stringify(savedJobs));
+          
+          setSavedJobIds(prev => {
+            const newSet = new Set(prev);
+            newSet.delete(jobId);
+            return newSet;
+          });
+          
+          showSuccessAlert('Removed', 'Job removed from saved jobs');
+        });
       } else {
-        // Show confirmation for saving
-        Alert.alert(
-          'Save this job?',
-          `Save ${job.title} to your saved jobs?`,
-          [
-            { text: 'Cancel', style: 'cancel' },
-            {
-              text: 'Save',
-              onPress: async () => {
-                savedJobs.push({ ...job, isSaved: true, savedAt: new Date().toISOString() });
-                await AsyncStorage.setItem(SAVED_JOBS_KEY, JSON.stringify(savedJobs));
-                
-                setSavedJobIds(prev => new Set(prev).add(jobId));
-                
-                Alert.alert('Saved!', 'Job added to your saved jobs');
-              }
-            }
-          ]
-        );
+        // Show save confirmation
+        showSaveJobModal(job.title, async () => {
+          savedJobs.push({ ...job, isSaved: true, savedAt: new Date().toISOString() });
+          await AsyncStorage.setItem(SAVED_JOBS_KEY, JSON.stringify(savedJobs));
+          
+          setSavedJobIds(prev => new Set(prev).add(jobId));
+          
+          showSuccessAlert('Saved!', 'Job added to your saved jobs');
+        });
       }
     } catch (error) {
       console.error('Error saving job:', error);
-      Alert.alert('Error', 'Failed to save job');
+      showErrorAlert('Failed to save job');
     }
   };
 
   const handleApply = (jobId: string) => {
-    Alert.alert('Coming Soon', 'Application form will be available soon!');
+    showComingSoonAlert();
   };
 
   const handleJobPress = (job: Job) => {

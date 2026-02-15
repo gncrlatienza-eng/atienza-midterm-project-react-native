@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from 'react';
-import { View, ScrollView, SafeAreaView, useWindowDimensions, Share, Alert, Platform } from 'react-native';
+import { View, ScrollView, SafeAreaView, useWindowDimensions, Share, Platform } from 'react-native';
 import { useTheme } from '../context/ThemedContext';
 import { useFocusEffect } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -7,6 +7,7 @@ import { createJobDetailsStyles } from '../styles/JobDetailsScreen';
 import { JobDetailsHeader } from '../components/JobDetailsHeader';
 import { JobHeroSection } from '../components/JobHeroSection';
 import { JobContentSection } from '../components/JobContentSection';
+import {  showSaveJobModal,  showRemoveJobModal,  showApplyJobModal, showComingSoonAlert, showSuccessAlert, showErrorAlert } from '../components/ConfirmationModal';
 import { JobDetailsScreenProps } from '../types/Navigation';
 import { Job } from '../types/Job';
 
@@ -43,62 +44,20 @@ export const JobDetailsScreen: React.FC<JobDetailsScreenProps> = ({ route, navig
   );
 
   const handleApply = () => {
-    Alert.alert(
-      'Apply for this job?',
-      `You're about to apply for ${job.title} at ${job.company}`,
-      [
-        { 
-          text: 'Cancel', 
-          style: 'cancel' 
-        },
-        {
-          text: 'Apply',
-          onPress: () => {
-            Alert.alert('Coming Soon', 'Application form will be available soon!');
-          }
-        }
-      ]
-    );
+    showApplyJobModal(job.title, job.company, () => {
+      showComingSoonAlert();
+    });
   };
 
   const handleSave = () => {
     if (isSaved) {
-      // Show confirmation for removing
-      Alert.alert(
-        'Remove from saved?',
-        `Remove ${job.title} from your saved jobs?`,
-        [
-          {
-            text: 'Cancel',
-            style: 'cancel'
-          },
-          {
-            text: 'Remove',
-            style: 'destructive',
-            onPress: async () => {
-              await removeJob();
-            }
-          }
-        ]
-      );
+      showRemoveJobModal(job.title, async () => {
+        await removeJob();
+      });
     } else {
-      // Show confirmation for saving
-      Alert.alert(
-        'Save this job?',
-        `Save ${job.title} to your saved jobs?`,
-        [
-          {
-            text: 'Cancel',
-            style: 'cancel'
-          },
-          {
-            text: 'Save',
-            onPress: async () => {
-              await saveJob();
-            }
-          }
-        ]
-      );
+      showSaveJobModal(job.title, async () => {
+        await saveJob();
+      });
     }
   };
 
@@ -107,7 +66,6 @@ export const JobDetailsScreen: React.FC<JobDetailsScreenProps> = ({ route, navig
       const savedJobsJson = await AsyncStorage.getItem(SAVED_JOBS_KEY);
       let savedJobs: Job[] = savedJobsJson ? JSON.parse(savedJobsJson) : [];
 
-      // Add job to saved
       savedJobs.push({ 
         ...job, 
         isSaved: true, 
@@ -116,10 +74,10 @@ export const JobDetailsScreen: React.FC<JobDetailsScreenProps> = ({ route, navig
 
       await AsyncStorage.setItem(SAVED_JOBS_KEY, JSON.stringify(savedJobs));
       setIsSaved(true);
-      Alert.alert('Saved!', 'Job added to your saved jobs');
+      showSuccessAlert('Saved!', 'Job added to your saved jobs');
     } catch (error) {
       console.error('Error saving job:', error);
-      Alert.alert('Error', 'Failed to save job');
+      showErrorAlert('Failed to save job');
     }
   };
 
@@ -128,17 +86,15 @@ export const JobDetailsScreen: React.FC<JobDetailsScreenProps> = ({ route, navig
       const savedJobsJson = await AsyncStorage.getItem(SAVED_JOBS_KEY);
       if (savedJobsJson) {
         let savedJobs: Job[] = JSON.parse(savedJobsJson);
-        
-        // Remove job from saved
         savedJobs = savedJobs.filter(savedJob => savedJob.id !== job.id);
         
         await AsyncStorage.setItem(SAVED_JOBS_KEY, JSON.stringify(savedJobs));
         setIsSaved(false);
-        Alert.alert('Removed', 'Job removed from saved jobs');
+        showSuccessAlert('Removed', 'Job removed from saved jobs');
       }
     } catch (error) {
       console.error('Error removing job:', error);
-      Alert.alert('Error', 'Failed to remove job');
+      showErrorAlert('Failed to remove job');
     }
   };
 
@@ -184,7 +140,7 @@ ${job.description ? job.description.substring(0, 200).replace(/<[^>]*>/g, '') + 
       }
     } catch (error) {
       console.error('Error sharing:', error);
-      Alert.alert('Error', 'Failed to share job. Please try again.');
+      showErrorAlert('Failed to share job. Please try again.');
     }
   };
 
