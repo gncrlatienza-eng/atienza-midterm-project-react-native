@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { View, Animated, TouchableOpacity } from 'react-native';
+import { View, Animated, TouchableOpacity, PanResponder } from 'react-native';
 import { FeaturedJobCard } from './FeaturedJobCard';
 import { Job } from '../types/Job';
 import { createFeaturedCarouselStyles } from '../styles/FeaturedCarousel';
@@ -16,79 +16,73 @@ export const FeaturedCarousel: React.FC<FeaturedCarouselProps> = ({ jobs, onJobP
   const fadeAnim = useRef(new Animated.Value(1)).current;
   const slideAnim = useRef(new Animated.Value(0)).current;
 
-  // Memoize the switch animation to avoid recreating it
   const switchToNext = useCallback(() => {
     if (jobs.length <= 1) return;
-
-    // Fade out and slide
     Animated.parallel([
-      Animated.timing(fadeAnim, {
-        toValue: 0,
-        duration: 300,
-        useNativeDriver: true,
-      }),
-      Animated.timing(slideAnim, {
-        toValue: -20,
-        duration: 300,
-        useNativeDriver: true,
-      }),
+      Animated.timing(fadeAnim, { toValue: 0, duration: 300, useNativeDriver: true }),
+      Animated.timing(slideAnim, { toValue: -20, duration: 300, useNativeDriver: true }),
     ]).start(() => {
-      // Switch to next job
       setCurrentIndex((prevIndex) => (prevIndex + 1) % jobs.length);
-      
-      // Reset position and fade in
       slideAnim.setValue(20);
       Animated.parallel([
-        Animated.timing(fadeAnim, {
-          toValue: 1,
-          duration: 300,
-          useNativeDriver: true,
-        }),
-        Animated.timing(slideAnim, {
-          toValue: 0,
-          duration: 300,
-          useNativeDriver: true,
-        }),
+        Animated.timing(fadeAnim, { toValue: 1, duration: 300, useNativeDriver: true }),
+        Animated.timing(slideAnim, { toValue: 0, duration: 300, useNativeDriver: true }),
       ]).start();
     });
   }, [jobs.length, fadeAnim, slideAnim]);
 
-  // Auto-switch every 6 seconds
+  // Switch to previous
+  const switchToPrev = useCallback(() => {
+    if (jobs.length <= 1) return;
+    Animated.parallel([
+      Animated.timing(fadeAnim, { toValue: 0, duration: 300, useNativeDriver: true }),
+      Animated.timing(slideAnim, { toValue: 20, duration: 300, useNativeDriver: true }),
+    ]).start(() => {
+      setCurrentIndex((prevIndex) => (prevIndex - 1 + jobs.length) % jobs.length);
+      slideAnim.setValue(-20);
+      Animated.parallel([
+        Animated.timing(fadeAnim, { toValue: 1, duration: 300, useNativeDriver: true }),
+        Animated.timing(slideAnim, { toValue: 0, duration: 300, useNativeDriver: true }),
+      ]).start();
+    });
+  }, [jobs.length, fadeAnim, slideAnim]);
+
+  // PanResponder for swipe detection
+  const panResponder = useRef(
+    PanResponder.create({
+      onMoveShouldSetPanResponder: (_, gestureState) => {
+        return Math.abs(gestureState.dx) > 10 && Math.abs(gestureState.dy) < 20;
+      },
+      onPanResponderRelease: (_, gestureState) => {
+        if (gestureState.dx < -50) {
+          switchToNext();
+        } else if (gestureState.dx > 50) {
+          switchToPrev();
+        }
+      },
+    })
+  ).current;
+
   useEffect(() => {
     if (jobs.length <= 1) return;
-
-    const interval = setInterval(() => {
-      switchToNext();
-    }, 6000); // 6 seconds
-
+    const interval = setInterval(() => { switchToNext(); }, 6000);
     return () => clearInterval(interval);
   }, [jobs.length, switchToNext]);
 
-  // Reset animations when jobs change
   useEffect(() => {
     fadeAnim.setValue(1);
     slideAnim.setValue(0);
     setCurrentIndex(0);
   }, [jobs, fadeAnim, slideAnim]);
 
-  // Manual switch handler
   const handleDotPress = useCallback((index: number) => {
     if (index === currentIndex) return;
-
     fadeAnim.setValue(0);
     slideAnim.setValue(20);
     setCurrentIndex(index);
     Animated.parallel([
-      Animated.timing(fadeAnim, {
-        toValue: 1,
-        duration: 300,
-        useNativeDriver: true,
-      }),
-      Animated.timing(slideAnim, {
-        toValue: 0,
-        duration: 300,
-        useNativeDriver: true,
-      }),
+      Animated.timing(fadeAnim, { toValue: 1, duration: 300, useNativeDriver: true }),
+      Animated.timing(slideAnim, { toValue: 0, duration: 300, useNativeDriver: true }),
     ]).start();
   }, [currentIndex, fadeAnim, slideAnim]);
 
@@ -98,19 +92,14 @@ export const FeaturedCarousel: React.FC<FeaturedCarouselProps> = ({ jobs, onJobP
 
   return (
     <View style={styles.container}>
+      {/* Attach panResponder to the animated view */}
       <Animated.View
-        style={{
-          opacity: fadeAnim,
-          transform: [{ translateX: slideAnim }],
-        }}
+        style={{ opacity: fadeAnim, transform: [{ translateX: slideAnim }] }}
+        {...panResponder.panHandlers}
       >
-        <FeaturedJobCard
-          job={currentJob}
-          onPress={onJobPress}
-        />
+        <FeaturedJobCard job={currentJob} onPress={onJobPress} />
       </Animated.View>
 
-      {/* Pagination Dots */}
       {jobs.length > 1 && (
         <View style={styles.paginationContainer}>
           {jobs.map((_, index) => (
