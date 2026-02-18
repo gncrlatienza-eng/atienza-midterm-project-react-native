@@ -8,10 +8,10 @@ import { JobDetailsHeader } from '../components/JobDetailsHeader';
 import { JobHeroSection } from '../components/JobHeroSection';
 import { JobContentSection } from '../components/JobContentSection';
 import { ApplicationFormScreen } from './ApplicationFormScreen';
-import { showSaveJobModal, showRemoveJobModal, showApplyJobModal, showSuccessAlert, showErrorAlert } from '../components/ConfirmationModal';
+import { showSaveJobModal, showRemoveJobModal, showApplyJobModal, showCancelApplicationModal, showSuccessAlert, showErrorAlert } from '../components/ConfirmationModal';
 import { JobDetailsScreenProps } from '../types/Navigation';
 import { Job } from '../types/Job';
-import { hasAppliedForJob } from '../utils/applicationUtils';
+import { hasAppliedForJob, cancelApplication } from '../utils/applicationUtils';
 
 const SAVED_JOBS_KEY = '@saved_jobs';
 
@@ -81,9 +81,16 @@ export const JobDetailsScreen: React.FC<JobDetailsScreenProps> = ({ route, navig
     }
   };
 
-  // Cancel application handler
   const handleCancelApplication = () => {
-    setIsApplied(false);
+    showCancelApplicationModal(job.title, async () => {
+      const success = await cancelApplication(job.id);
+      if (success) {
+        setIsApplied(false);
+        showSuccessAlert('Cancelled', 'Your application has been cancelled');
+      } else {
+        showErrorAlert('Failed to cancel application');
+      }
+    });
   };
 
   const handleSave = () => {

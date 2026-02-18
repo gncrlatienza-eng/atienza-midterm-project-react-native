@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { View, Text, ScrollView, SafeAreaView, useWindowDimensions, RefreshControl, Keyboard, Alert, } from 'react-native';
+import { View, Text, ScrollView, SafeAreaView, useWindowDimensions, RefreshControl, Keyboard } from 'react-native';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -12,7 +12,7 @@ import { FeaturedCarousel } from '../components/FeaturedCarousel';
 import { EmptyState } from '../components/EmptyState';
 import { LoadingState } from '../components/LoadingState';
 import { ApplicationFormScreen } from './ApplicationFormScreen';
-import {  showSaveJobModal, showRemoveJobModal, showApplyJobModal, showSuccessAlert, showErrorAlert } from '../components/ConfirmationModal';
+import { showSaveJobModal, showRemoveJobModal, showApplyJobModal, showCancelApplicationModal, showSuccessAlert, showErrorAlert } from '../components/ConfirmationModal';
 import { fetchJobs, searchJobs } from '../api/Api';
 import { Job } from '../types/Job';
 import { RootStackParamList } from '../types/Navigation';
@@ -35,14 +35,13 @@ export const HomeScreen = () => {
   const [isSearchFocused, setIsSearchFocused] = useState(false);
   const [savedJobIds, setSavedJobIds] = useState<Set<string>>(new Set());
   const [appliedJobIds, setAppliedJobIds] = useState<Set<string>>(new Set());
-  
+
   const [showApplicationForm, setShowApplicationForm] = useState(false);
   const [selectedJob, setSelectedJob] = useState<Job | null>(null);
 
   const loadSavedJobIds = useCallback(async (): Promise<Set<string>> => {
     try {
       const savedJobsJson = await AsyncStorage.getItem(SAVED_JOBS_KEY);
-      
       if (savedJobsJson) {
         const savedJobs: Job[] = JSON.parse(savedJobsJson);
         const ids = new Set(savedJobs.map(job => job.id));
@@ -128,27 +127,27 @@ export const HomeScreen = () => {
       if (!job) return;
 
       const existingIndex = savedJobs.findIndex(j => j.id === jobId);
-      
+
       if (existingIndex >= 0) {
         showRemoveJobModal(job.title, async () => {
           savedJobs.splice(existingIndex, 1);
           await AsyncStorage.setItem(SAVED_JOBS_KEY, JSON.stringify(savedJobs));
-          
+
           setSavedJobIds(prev => {
             const newSet = new Set(prev);
             newSet.delete(jobId);
             return newSet;
           });
-          
+
           showSuccessAlert('Removed', 'Job removed from saved jobs');
         });
       } else {
         showSaveJobModal(job.title, async () => {
           savedJobs.push({ ...job, isSaved: true, savedAt: new Date().toISOString() });
           await AsyncStorage.setItem(SAVED_JOBS_KEY, JSON.stringify(savedJobs));
-          
+
           setSavedJobIds(prev => new Set(prev).add(jobId));
-          
+
           showSuccessAlert('Saved!', 'Job added to your saved jobs');
         });
       }
@@ -170,52 +169,34 @@ export const HomeScreen = () => {
 
   const handleCancelApplication = (jobId: string) => {
     const job = allJobs.find(j => j.id === jobId);
-    if (job) {
-      Alert.alert(
-        'Cancel Application',
-        `Are you sure you want to cancel your application for ${job.title}?`,
-        [
-          {
-            text: 'No',
-            style: 'cancel',
-          },
-          {
-            text: 'Yes, Cancel',
-            style: 'destructive',
-            onPress: async () => {
-              const success = await cancelApplication(jobId);
-              if (success) {
-                // Just remove from applied IDs - don't add to saved
-                setAppliedJobIds(prev => {
-                  const newSet = new Set(prev);
-                  newSet.delete(jobId);
-                  return newSet;
-                });
-                showSuccessAlert('Cancelled', 'Your application has been cancelled');
-              } else {
-                showErrorAlert('Failed to cancel application');
-              }
-            },
-          },
-        ],
-        { cancelable: true }
-      );
-    }
+    if (!job) return;
+
+    showCancelApplicationModal(job.title, async () => {
+      const success = await cancelApplication(jobId);
+      if (success) {
+        setAppliedJobIds(prev => {
+          const newSet = new Set(prev);
+          newSet.delete(jobId);
+          return newSet;
+        });
+        showSuccessAlert('Cancelled', 'Your application has been cancelled');
+      } else {
+        showErrorAlert('Failed to cancel application');
+      }
+    });
   };
 
   const handleApplicationSuccess = async () => {
     setShowApplicationForm(false);
     if (selectedJob) {
-      // Add to applied jobs
       setAppliedJobIds(prev => new Set(prev).add(selectedJob.id));
-      
+
       setSavedJobIds(prev => {
         const newSet = new Set(prev);
         newSet.delete(selectedJob.id);
         return newSet;
       });
-      
-      // Remove from AsyncStorage saved jobs
+
       try {
         const savedJobsJson = await AsyncStorage.getItem(SAVED_JOBS_KEY);
         if (savedJobsJson) {
@@ -253,8 +234,8 @@ export const HomeScreen = () => {
     }
 
     if (displayedJobs.length === 0) {
-      const message = searchQuery 
-        ? 'No jobs match your search.' 
+      const message = searchQuery
+        ? 'No jobs match your search.'
         : 'No jobs found.\nPull down to refresh!';
       return <EmptyState message={message} />;
     }

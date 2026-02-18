@@ -37,7 +37,6 @@ export const showConfirmationModal = ({
   );
 };
 
-// Specific modal functions for common use cases
 export const showSaveJobModal = (jobTitle: string, onConfirm: () => void) => {
   showConfirmationModal({
     title: 'Save this job?',
@@ -62,6 +61,17 @@ export const showApplyJobModal = (jobTitle: string, companyName: string, onConfi
     title: 'Apply for this job?',
     message: `You're about to apply for ${jobTitle} at ${companyName}`,
     confirmText: 'Apply',
+    onConfirm,
+  });
+};
+
+export const showCancelApplicationModal = (jobTitle: string, onConfirm: () => void) => {
+  showConfirmationModal({
+    title: 'Cancel Application',
+    message: `Are you sure you want to cancel your application for ${jobTitle}?`,
+    confirmText: 'Yes, Cancel',
+    cancelText: 'No',
+    destructive: true,
     onConfirm,
   });
 };
