@@ -3,14 +3,15 @@ import { View, Text, TouchableOpacity, Image } from 'react-native';
 import { LocationIcon, ClockIcon, MoneyIcon, BookmarkIcon } from './JobDetailIcons';
 import { Job } from '../types/Job';
 import Svg, { Path } from 'react-native-svg';
+import { createJobHeroStyles } from '../styles/JobHeroSection';
 
 const CheckIcon: React.FC<{ color: string }> = ({ color }) => (
   <Svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-    <Path 
-      d="M20 6L9 17L4 12" 
-      stroke={color} 
-      strokeWidth="2.5" 
-      strokeLinecap="round" 
+    <Path
+      d="M20 6L9 17L4 12"
+      stroke={color}
+      strokeWidth="2.5"
+      strokeLinecap="round"
       strokeLinejoin="round"
     />
   </Svg>
@@ -24,6 +25,7 @@ interface JobHeroSectionProps {
   isApplied?: boolean;
   onApply: () => void;
   onSave: () => void;
+  onCancelApplication?: () => void;
 }
 
 export const JobHeroSection: React.FC<JobHeroSectionProps> = ({
@@ -34,9 +36,11 @@ export const JobHeroSection: React.FC<JobHeroSectionProps> = ({
   isApplied = false,
   onApply,
   onSave,
+  onCancelApplication,
 }) => {
   const [logoError, setLogoError] = React.useState(false);
-  
+  const heroStyles = createJobHeroStyles();
+
   const logoUrl = job.companyLogo || job.logo;
 
   return (
@@ -87,16 +91,12 @@ export const JobHeroSection: React.FC<JobHeroSectionProps> = ({
 
       <View style={styles.actionRow}>
         <TouchableOpacity
-          style={[
-            styles.applyButton,
-            isApplied && styles.appliedButton
-          ]}
+          style={[styles.applyButton, isApplied && styles.appliedButton]}
           onPress={onApply}
           disabled={isApplied}
           activeOpacity={isApplied ? 1 : 0.8}
         >
-          {/* flexDirection row + alignItems center keeps text and check on same line */}
-          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
+          <View style={heroStyles.applyButtonInner}>
             <Text style={styles.applyButtonText}>
               {isApplied ? 'Applied' : 'Apply Now'}
             </Text>
@@ -104,12 +104,12 @@ export const JobHeroSection: React.FC<JobHeroSectionProps> = ({
           </View>
         </TouchableOpacity>
 
-        {/* disabled + opacity 0.3 when applied */}
         <TouchableOpacity
           style={[
             styles.saveButton,
             isSaved && styles.saveButtonActive,
-            isApplied && { opacity: 0.3 }
+            isApplied && { opacity: 0.3 },
+            { alignSelf: 'center' },
           ]}
           onPress={isApplied ? undefined : onSave}
           disabled={isApplied}
@@ -118,6 +118,14 @@ export const JobHeroSection: React.FC<JobHeroSectionProps> = ({
           <BookmarkIcon color={isSaved ? '#FFFFFF' : colors.primary} filled={isSaved} />
         </TouchableOpacity>
       </View>
+
+      {isApplied && onCancelApplication && (
+        <TouchableOpacity onPress={onCancelApplication} activeOpacity={0.7}>
+          <Text style={heroStyles.cancelText}>
+            Cancel Application
+          </Text>
+        </TouchableOpacity>
+      )}
     </View>
   );
 };

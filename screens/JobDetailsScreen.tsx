@@ -8,7 +8,7 @@ import { JobDetailsHeader } from '../components/JobDetailsHeader';
 import { JobHeroSection } from '../components/JobHeroSection';
 import { JobContentSection } from '../components/JobContentSection';
 import { ApplicationFormScreen } from './ApplicationFormScreen';
-import {  showSaveJobModal,  showRemoveJobModal, showApplyJobModal, showSuccessAlert, showErrorAlert } from '../components/ConfirmationModal';
+import { showSaveJobModal, showRemoveJobModal, showApplyJobModal, showSuccessAlert, showErrorAlert } from '../components/ConfirmationModal';
 import { JobDetailsScreenProps } from '../types/Navigation';
 import { Job } from '../types/Job';
 import { hasAppliedForJob } from '../utils/applicationUtils';
@@ -22,15 +22,13 @@ export const JobDetailsScreen: React.FC<JobDetailsScreenProps> = ({ route, navig
   const styles = createJobDetailsStyles(colors, width, height);
 
   const [isSaved, setIsSaved] = useState(false);
-  const [isApplied, setIsApplied] = useState(false); // NEW: Track applied status
+  const [isApplied, setIsApplied] = useState(false);
   const [showApplicationForm, setShowApplicationForm] = useState(false);
 
-  // Load saved and applied status when screen focuses
   useFocusEffect(
     useCallback(() => {
       const checkStatus = async () => {
         try {
-          // Check if saved
           const savedJobsJson = await AsyncStorage.getItem(SAVED_JOBS_KEY);
           if (savedJobsJson) {
             const savedJobs: Job[] = JSON.parse(savedJobsJson);
@@ -40,7 +38,6 @@ export const JobDetailsScreen: React.FC<JobDetailsScreenProps> = ({ route, navig
             setIsSaved(false);
           }
 
-          // NEW: Check if applied
           const applied = await hasAppliedForJob(job.id);
           setIsApplied(applied);
         } catch (error) {
@@ -52,7 +49,6 @@ export const JobDetailsScreen: React.FC<JobDetailsScreenProps> = ({ route, navig
     }, [job.id])
   );
 
-  // UPDATED: Use showApplyJobModal and check if already applied
   const handleApply = () => {
     if (isApplied) {
       showErrorAlert('You have already applied for this job');
@@ -66,9 +62,8 @@ export const JobDetailsScreen: React.FC<JobDetailsScreenProps> = ({ route, navig
 
   const handleApplicationSuccess = async () => {
     setShowApplicationForm(false);
-    setIsApplied(true); // NEW: Update applied status
-    
-    // Remove from saved jobs when applying
+    setIsApplied(true);
+
     setIsSaved(false);
     try {
       const savedJobsJson = await AsyncStorage.getItem(SAVED_JOBS_KEY);
@@ -80,11 +75,15 @@ export const JobDetailsScreen: React.FC<JobDetailsScreenProps> = ({ route, navig
     } catch (error) {
       console.error('Error removing from saved jobs:', error);
     }
-    
-    // If coming from saved jobs, navigate back to FindJobs screen
+
     if (fromSaved) {
       navigation.navigate('MainTabs', { screen: 'FindJobs' });
     }
+  };
+
+  // Cancel application handler
+  const handleCancelApplication = () => {
+    setIsApplied(false);
   };
 
   const handleSave = () => {
@@ -104,10 +103,10 @@ export const JobDetailsScreen: React.FC<JobDetailsScreenProps> = ({ route, navig
       const savedJobsJson = await AsyncStorage.getItem(SAVED_JOBS_KEY);
       let savedJobs: Job[] = savedJobsJson ? JSON.parse(savedJobsJson) : [];
 
-      savedJobs.push({ 
-        ...job, 
-        isSaved: true, 
-        savedAt: new Date().toISOString() 
+      savedJobs.push({
+        ...job,
+        isSaved: true,
+        savedAt: new Date().toISOString()
       });
 
       await AsyncStorage.setItem(SAVED_JOBS_KEY, JSON.stringify(savedJobs));
@@ -125,7 +124,7 @@ export const JobDetailsScreen: React.FC<JobDetailsScreenProps> = ({ route, navig
       if (savedJobsJson) {
         let savedJobs: Job[] = JSON.parse(savedJobsJson);
         savedJobs = savedJobs.filter(savedJob => savedJob.id !== job.id);
-        
+
         await AsyncStorage.setItem(SAVED_JOBS_KEY, JSON.stringify(savedJobs));
         setIsSaved(false);
         showSuccessAlert('Removed', 'Job removed from saved jobs');
@@ -189,7 +188,6 @@ ${job.description ? job.description.substring(0, 200).replace(/<[^>]*>/g, '') + 
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.container}>
-        {/* Header */}
         <JobDetailsHeader
           styles={styles}
           colors={colors}
@@ -197,7 +195,6 @@ ${job.description ? job.description.substring(0, 200).replace(/<[^>]*>/g, '') + 
           onShare={handleShare}
         />
 
-        {/* Scrollable Content */}
         <ScrollView
           style={styles.scrollView}
           showsVerticalScrollIndicator={false}
@@ -206,7 +203,6 @@ ${job.description ? job.description.substring(0, 200).replace(/<[^>]*>/g, '') + 
             { paddingBottom: 120 }
           ]}
         >
-          {/* Hero Section - UPDATED: Pass isApplied prop */}
           <JobHeroSection
             job={job}
             styles={styles}
@@ -215,12 +211,11 @@ ${job.description ? job.description.substring(0, 200).replace(/<[^>]*>/g, '') + 
             isApplied={isApplied}
             onApply={handleApply}
             onSave={handleSave}
+            onCancelApplication={handleCancelApplication}
           />
 
-          {/* Spacer */}
           <View style={{ height: 32 }} />
 
-          {/* About the Role */}
           <JobContentSection
             title="About the Role"
             content={job.description}
@@ -228,7 +223,6 @@ ${job.description ? job.description.substring(0, 200).replace(/<[^>]*>/g, '') + 
             colors={colors}
           />
 
-          {/* Requirements */}
           <JobContentSection
             title="Requirements"
             listItems={job.requirements}
@@ -236,7 +230,6 @@ ${job.description ? job.description.substring(0, 200).replace(/<[^>]*>/g, '') + 
             colors={colors}
           />
 
-          {/* Benefits & Perks */}
           <JobContentSection
             title="Benefits & Perks"
             listItems={job.benefits}
@@ -244,11 +237,9 @@ ${job.description ? job.description.substring(0, 200).replace(/<[^>]*>/g, '') + 
             colors={colors}
           />
 
-          {/* Bottom Spacing */}
           <View style={{ height: 20 }} />
         </ScrollView>
 
-        {/* Application Form Modal */}
         <ApplicationFormScreen
           visible={showApplicationForm}
           job={job}
