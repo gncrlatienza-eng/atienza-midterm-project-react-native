@@ -4,7 +4,6 @@ import { LocationIcon, ClockIcon, MoneyIcon, BookmarkIcon } from './JobDetailIco
 import { Job } from '../types/Job';
 import Svg, { Path } from 'react-native-svg';
 
-// Check Icon for Applied button
 const CheckIcon: React.FC<{ color: string }> = ({ color }) => (
   <Svg width="16" height="16" viewBox="0 0 24 24" fill="none">
     <Path 
@@ -22,7 +21,7 @@ interface JobHeroSectionProps {
   styles: any;
   colors: any;
   isSaved: boolean;
-  isApplied?: boolean; // NEW: Track if user already applied
+  isApplied?: boolean;
   onApply: () => void;
   onSave: () => void;
 }
@@ -32,18 +31,16 @@ export const JobHeroSection: React.FC<JobHeroSectionProps> = ({
   styles,
   colors,
   isSaved,
-  isApplied = false, // NEW: Default to false
+  isApplied = false,
   onApply,
   onSave,
 }) => {
   const [logoError, setLogoError] = React.useState(false);
   
-  // ✅ Use companyLogo from API, fallback to logo for backwards compatibility
   const logoUrl = job.companyLogo || job.logo;
 
   return (
     <View style={styles.heroSection}>
-      {/* Company Logo */}
       <View style={styles.logoContainer}>
         {logoUrl && !logoError ? (
           <Image
@@ -64,11 +61,9 @@ export const JobHeroSection: React.FC<JobHeroSectionProps> = ({
         )}
       </View>
 
-      {/* Job Title & Company */}
       <Text style={styles.jobTitle}>{job.title}</Text>
       <Text style={styles.company}>{job.company}</Text>
 
-      {/* Quick Info Tags */}
       <View style={styles.quickInfo}>
         {job.location && (
           <View style={styles.infoTag}>
@@ -90,26 +85,34 @@ export const JobHeroSection: React.FC<JobHeroSectionProps> = ({
         )}
       </View>
 
-      {/* Action Buttons - UPDATED: Show different button when applied */}
       <View style={styles.actionRow}>
         <TouchableOpacity
           style={[
             styles.applyButton,
-            isApplied && styles.appliedButton // NEW: Add applied style
+            isApplied && styles.appliedButton
           ]}
           onPress={onApply}
-          disabled={isApplied} // NEW: Disable when already applied
+          disabled={isApplied}
           activeOpacity={isApplied ? 1 : 0.8}
         >
-          {isApplied && <CheckIcon color="#FFFFFF" />}
-          <Text style={styles.applyButtonText}>
-            {isApplied ? 'Applied' : 'Apply Now'}
-          </Text>
+          {/* flexDirection row + alignItems center keeps text and check on same line */}
+          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
+            <Text style={styles.applyButtonText}>
+              {isApplied ? 'Applied' : 'Apply Now'}
+            </Text>
+            {isApplied && <CheckIcon color="#FFFFFF" />}
+          </View>
         </TouchableOpacity>
-        
+
+        {/* disabled + opacity 0.3 when applied */}
         <TouchableOpacity
-          style={[styles.saveButton, isSaved && styles.saveButtonActive]}
-          onPress={onSave}
+          style={[
+            styles.saveButton,
+            isSaved && styles.saveButtonActive,
+            isApplied && { opacity: 0.3 }
+          ]}
+          onPress={isApplied ? undefined : onSave}
+          disabled={isApplied}
           activeOpacity={0.8}
         >
           <BookmarkIcon color={isSaved ? '#FFFFFF' : colors.primary} filled={isSaved} />
