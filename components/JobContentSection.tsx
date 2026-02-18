@@ -1,13 +1,15 @@
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text } from 'react-native';
+import { useTheme } from '../context/ThemedContext';
+import { createJobContentSectionStyles } from '../styles/JobContentSection';
 import Svg, { Circle, Path } from 'react-native-svg';
 
 interface JobContentSectionProps {
   title: string;
   content?: string;
   listItems?: string[];
-  styles: any;
-  colors?: any;
+  styles?: any; // For backward compatibility, but not used anymore
+  colors?: any; // For backward compatibility, but not used anymore
 }
 
 // Check icon for requirements
@@ -64,9 +66,10 @@ export const JobContentSection: React.FC<JobContentSectionProps> = ({
   title,
   content,
   listItems,
-  styles,
-  colors,
 }) => {
+  const { colors } = useTheme();
+  const styles = createJobContentSectionStyles(colors);
+
   // Don't render if no content
   if (!content && (!listItems || listItems.length === 0)) {
     return null;
@@ -76,61 +79,17 @@ export const JobContentSection: React.FC<JobContentSectionProps> = ({
   const isBenefitsSection = title.toLowerCase().includes('benefit') || 
                             title.toLowerCase().includes('perk');
   
-  const iconColor = colors?.primary || '#007AFF';
+  const iconColor = colors.primary;
   const benefitColor = '#FF9500'; // Orange/gold for benefits
 
-  const enhancedStyles = StyleSheet.create({
-    section: {
-      marginBottom: 32,
-      paddingHorizontal: 20,
-    },
-    sectionTitle: {
-      fontSize: 22,
-      fontWeight: '700',
-      color: colors?.text || '#000',
-      marginBottom: 16,
-      letterSpacing: 0.35,
-    },
-    contentCard: {
-      backgroundColor: colors?.backgroundSecondary || '#F2F2F7',
-      borderRadius: 16,
-      padding: 18,
-      marginBottom: 8,
-    },
-    descriptionText: {
-      fontSize: 15,
-      lineHeight: 22,
-      color: colors?.text || '#000',
-      fontWeight: '400',
-    },
-    listContainer: {
-      gap: 14,
-    },
-    listItem: {
-      flexDirection: 'row',
-      alignItems: 'flex-start',
-      gap: 12,
-    },
-    iconContainer: {
-      marginTop: 1,
-    },
-    listText: {
-      flex: 1,
-      fontSize: 15,
-      lineHeight: 22,
-      color: colors?.text || '#000',
-      fontWeight: '400',
-    },
-  });
-
   return (
-    <View style={enhancedStyles.section}>
-      <Text style={enhancedStyles.sectionTitle}>{title}</Text>
+    <View style={styles.section}>
+      <Text style={styles.sectionTitle}>{title}</Text>
       
       {/* Render text content in a card if provided */}
       {content && (
-        <View style={enhancedStyles.contentCard}>
-          <Text style={enhancedStyles.descriptionText}>
+        <View style={styles.contentCard}>
+          <Text style={styles.descriptionText}>
             {cleanHTMLText(content)}
           </Text>
         </View>
@@ -138,17 +97,17 @@ export const JobContentSection: React.FC<JobContentSectionProps> = ({
       
       {/* Render list items with SVG icons if provided */}
       {listItems && listItems.length > 0 && (
-        <View style={enhancedStyles.listContainer}>
+        <View style={styles.listContainer}>
           {listItems.map((item, index) => (
-            <View key={index} style={enhancedStyles.listItem}>
-              <View style={enhancedStyles.iconContainer}>
+            <View key={index} style={styles.listItem}>
+              <View style={styles.iconContainer}>
                 {isBenefitsSection ? (
                   <StarIcon color={benefitColor} />
                 ) : (
                   <CheckIcon color={iconColor} />
                 )}
               </View>
-              <Text style={enhancedStyles.listText}>
+              <Text style={styles.listText}>
                 {cleanHTMLText(item)}
               </Text>
             </View>

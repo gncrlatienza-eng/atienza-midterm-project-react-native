@@ -168,7 +168,6 @@ export const HomeScreen = () => {
     }
   };
 
-  // FIXED: When cancelling, just remove from applied - don't auto-save
   const handleCancelApplication = (jobId: string) => {
     const job = allJobs.find(j => j.id === jobId);
     if (job) {
@@ -210,7 +209,6 @@ export const HomeScreen = () => {
       // Add to applied jobs
       setAppliedJobIds(prev => new Set(prev).add(selectedJob.id));
       
-      // FIXED: Remove from saved jobs when applying (whether it was saved or not)
       setSavedJobIds(prev => {
         const newSet = new Set(prev);
         newSet.delete(selectedJob.id);

@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { View, Animated, TouchableOpacity } from 'react-native';
 import { FeaturedJobCard } from './FeaturedJobCard';
 import { Job } from '../types/Job';
+import { createFeaturedCarouselStyles } from '../styles/FeaturedCarousel';
 
 interface FeaturedCarouselProps {
   jobs: Job[];
@@ -9,6 +10,8 @@ interface FeaturedCarouselProps {
 }
 
 export const FeaturedCarousel: React.FC<FeaturedCarouselProps> = ({ jobs, onJobPress }) => {
+  const styles = createFeaturedCarouselStyles();
+  
   const [currentIndex, setCurrentIndex] = useState(0);
   const fadeAnim = useRef(new Animated.Value(1)).current;
   const slideAnim = useRef(new Animated.Value(0)).current;
@@ -94,7 +97,7 @@ export const FeaturedCarousel: React.FC<FeaturedCarouselProps> = ({ jobs, onJobP
   const currentJob = jobs[currentIndex];
 
   return (
-    <View style={{ position: 'relative' }}>
+    <View style={styles.container}>
       <Animated.View
         style={{
           opacity: fadeAnim,
@@ -109,26 +112,15 @@ export const FeaturedCarousel: React.FC<FeaturedCarouselProps> = ({ jobs, onJobP
 
       {/* Pagination Dots */}
       {jobs.length > 1 && (
-        <View
-          style={{
-            flexDirection: 'row',
-            justifyContent: 'center',
-            alignItems: 'center',
-            marginTop: 12,
-            gap: 6,
-          }}
-        >
+        <View style={styles.paginationContainer}>
           {jobs.map((_, index) => (
             <TouchableOpacity
               key={index}
               onPress={() => handleDotPress(index)}
-              style={{
-                width: index === currentIndex ? 24 : 6,
-                height: 6,
-                borderRadius: 3,
-                backgroundColor: index === currentIndex ? '#007AFF' : '#D1D1D6',
-                opacity: index === currentIndex ? 1 : 0.4,
-              }}
+              style={[
+                styles.dot,
+                index === currentIndex ? styles.dotActive : styles.dotInactive,
+              ]}
             />
           ))}
         </View>

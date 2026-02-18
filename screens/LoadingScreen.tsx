@@ -20,7 +20,7 @@ export const LoadingScreen: React.FC<LoadingScreenProps> = ({ onFinish }) => {
   const dot3Opacity = useRef(new Animated.Value(0.3)).current;
 
   useEffect(() => {
-    // Magnifying glass animation - moves in a search pattern
+    // Magnifying glass animation
     const magnifyAnimation = Animated.loop(
       Animated.sequence([
         // Move right

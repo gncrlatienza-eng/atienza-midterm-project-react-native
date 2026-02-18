@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from 'react';
-import { View, ScrollView, SafeAreaView, useWindowDimensions, Share, Platform, Alert } from 'react-native';
+import { View, ScrollView, SafeAreaView, useWindowDimensions, Share, Platform } from 'react-native';
 import { useTheme } from '../context/ThemedContext';
 import { useFocusEffect } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -8,9 +8,10 @@ import { JobDetailsHeader } from '../components/JobDetailsHeader';
 import { JobHeroSection } from '../components/JobHeroSection';
 import { JobContentSection } from '../components/JobContentSection';
 import { ApplicationFormScreen } from './ApplicationFormScreen';
-import {  showSaveJobModal,  showRemoveJobModal, showSuccessAlert, showErrorAlert } from '../components/ConfirmationModal';
+import {  showSaveJobModal,  showRemoveJobModal, showApplyJobModal, showSuccessAlert, showErrorAlert } from '../components/ConfirmationModal';
 import { JobDetailsScreenProps } from '../types/Navigation';
 import { Job } from '../types/Job';
+import { hasAppliedForJob } from '../utils/applicationUtils';
 
 const SAVED_JOBS_KEY = '@saved_jobs';
 
@@ -21,13 +22,15 @@ export const JobDetailsScreen: React.FC<JobDetailsScreenProps> = ({ route, navig
   const styles = createJobDetailsStyles(colors, width, height);
 
   const [isSaved, setIsSaved] = useState(false);
+  const [isApplied, setIsApplied] = useState(false); // NEW: Track applied status
   const [showApplicationForm, setShowApplicationForm] = useState(false);
 
-  // Load saved status when screen focuses
+  // Load saved and applied status when screen focuses
   useFocusEffect(
     useCallback(() => {
-      const checkIfSaved = async () => {
+      const checkStatus = async () => {
         try {
+          // Check if saved
           const savedJobsJson = await AsyncStorage.getItem(SAVED_JOBS_KEY);
           if (savedJobsJson) {
             const savedJobs: Job[] = JSON.parse(savedJobsJson);
@@ -36,39 +39,47 @@ export const JobDetailsScreen: React.FC<JobDetailsScreenProps> = ({ route, navig
           } else {
             setIsSaved(false);
           }
+
+          // NEW: Check if applied
+          const applied = await hasAppliedForJob(job.id);
+          setIsApplied(applied);
         } catch (error) {
-          console.error('Error checking if job is saved:', error);
+          console.error('Error checking job status:', error);
         }
       };
 
-      checkIfSaved();
+      checkStatus();
     }, [job.id])
   );
 
-  // UPDATED: Show confirmation before opening form
+  // UPDATED: Use showApplyJobModal and check if already applied
   const handleApply = () => {
-    Alert.alert(
-      'Apply for Job',
-      `Are you sure you want to apply for ${job.title} at ${job.company}?`,
-      [
-        {
-          text: 'Cancel',
-          style: 'cancel',
-        },
-        {
-          text: 'Apply',
-          style: 'default',
-          onPress: () => {
-            setShowApplicationForm(true);
-          },
-        },
-      ],
-      { cancelable: true }
-    );
+    if (isApplied) {
+      showErrorAlert('You have already applied for this job');
+      return;
+    }
+
+    showApplyJobModal(job.title, job.company, () => {
+      setShowApplicationForm(true);
+    });
   };
 
-  const handleApplicationSuccess = () => {
+  const handleApplicationSuccess = async () => {
     setShowApplicationForm(false);
+    setIsApplied(true); // NEW: Update applied status
+    
+    // Remove from saved jobs when applying
+    setIsSaved(false);
+    try {
+      const savedJobsJson = await AsyncStorage.getItem(SAVED_JOBS_KEY);
+      if (savedJobsJson) {
+        let savedJobs: Job[] = JSON.parse(savedJobsJson);
+        savedJobs = savedJobs.filter(savedJob => savedJob.id !== job.id);
+        await AsyncStorage.setItem(SAVED_JOBS_KEY, JSON.stringify(savedJobs));
+      }
+    } catch (error) {
+      console.error('Error removing from saved jobs:', error);
+    }
     
     // If coming from saved jobs, navigate back to FindJobs screen
     if (fromSaved) {
@@ -195,12 +206,13 @@ ${job.description ? job.description.substring(0, 200).replace(/<[^>]*>/g, '') + 
             { paddingBottom: 120 }
           ]}
         >
-          {/* Hero Section */}
+          {/* Hero Section - UPDATED: Pass isApplied prop */}
           <JobHeroSection
             job={job}
             styles={styles}
             colors={colors}
             isSaved={isSaved}
+            isApplied={isApplied}
             onApply={handleApply}
             onSave={handleSave}
           />

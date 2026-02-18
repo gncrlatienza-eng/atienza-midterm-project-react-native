@@ -51,17 +51,12 @@ export const ApplicationFormScreen: React.FC<ApplicationFormScreenProps> = ({
     return emailRegex.test(email);
   };
 
-  // UPDATED: More flexible Philippine phone validation
   const validatePhone = (phone: string): boolean => {
     // Remove all non-digit characters
     const digitsOnly = phone.replace(/\D/g, '');
     
     // Accept these formats:
-    // 10 digits starting with 9: 9171234567
-    // 11 digits starting with 09: 09171234567
-    // 12 digits starting with 639: 639171234567
-    // 13 digits starting with +639: +639171234567
-    
+  
     // 10 digits (9XXXXXXXXX)
     if (digitsOnly.length === 10 && digitsOnly.startsWith('9')) {
       return true;

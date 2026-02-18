@@ -1,9 +1,9 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { Platform } from 'react-native';
 import { useTheme } from '../context/ThemedContext';
 import { HomeScreen } from '../screens/HomeScreen';
 import { SavedJobsScreen } from '../screens/SavedJobScreen';
+import { createTabBarStyles } from '../styles/NavigationBar';
 import Svg, { Path, Circle } from 'react-native-svg';
 
 const Tab = createBottomTabNavigator();
@@ -33,42 +33,14 @@ const BookmarkTabIcon: React.FC<{ focused: boolean; color: string }> = ({ focuse
 export const NavigationBar: React.FC = () => {
   const { colors, theme } = useTheme();
   const isDarkMode = theme === 'dark';
+  
+  const tabBarStyles = createTabBarStyles({ colors, isDarkMode });
 
   return (
     <Tab.Navigator
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: colors.primary,
-        tabBarInactiveTintColor: colors.textTertiary,
-        tabBarStyle: {
-          position: 'absolute',
-          backgroundColor: isDarkMode 
-            ? 'rgba(28, 28, 30, 0.90)' // Dark mode: slightly transparent
-            : 'rgba(255, 255, 255, 0.90)', // Light mode: slightly transparent
-          borderTopWidth: 0.5,
-          borderTopColor: isDarkMode 
-            ? 'rgba(84, 84, 88, 0.3)' 
-            : 'rgba(0, 0, 0, 0.1)',
-          height: 90,
-          paddingTop: 8,
-          paddingBottom: 28,
-          elevation: 0,
-          shadowColor: '#000',
-          shadowOffset: {
-            width: 0,
-            height: -2,
-          },
-          shadowOpacity: isDarkMode ? 0.3 : 0.1,
-          shadowRadius: 8,
-        },
-        tabBarLabelStyle: {
-          fontSize: 11,
-          fontWeight: '500',
-          marginTop: 4,
-        },
-        tabBarIconStyle: {
-          marginTop: 4,
-        },
+        ...tabBarStyles,
       }}
     >
       <Tab.Screen

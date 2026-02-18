@@ -27,18 +27,18 @@ export const SavedJobsScreen: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [showApplicationForm, setShowApplicationForm] = useState(false);
   const [selectedJob, setSelectedJob] = useState<Job | null>(null);
-  const [appliedJobIds, setAppliedJobIds] = useState<Set<string>>(new Set()); // NEW
+  const [appliedJobIds, setAppliedJobIds] = useState<Set<string>>(new Set()); 
 
   // Load saved jobs from AsyncStorage
   const loadSavedJobs = async () => {
     try {
       const savedJobsJson = await AsyncStorage.getItem(SAVED_JOBS_KEY);
-      const appliedIds = await getAppliedJobIds(); // NEW
-      setAppliedJobIds(appliedIds); // NEW
+      const appliedIds = await getAppliedJobIds(); 
+      setAppliedJobIds(appliedIds); 
       
       if (savedJobsJson) {
         const jobs: Job[] = JSON.parse(savedJobsJson);
-        // UPDATED: Filter out jobs that have been applied to
+
         const unappliedJobs = jobs.filter(job => !appliedIds.has(job.id));
         setSavedJobs(unappliedJobs);
       } else {
@@ -90,7 +90,6 @@ export const SavedJobsScreen: React.FC = () => {
     }
   };
 
-  // UPDATED: Show confirmation before opening form
   const handleApply = (jobId: string) => {
     const job = savedJobs.find(j => j.id === jobId);
     if (job) {
