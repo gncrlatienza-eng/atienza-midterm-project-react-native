@@ -82,15 +82,41 @@ export const JobContentSection: React.FC<JobContentSectionProps> = ({
   const iconColor = colors.primary;
   const benefitColor = '#FF9500'; // Orange/gold for benefits
 
+  const cleanedContent = content ? cleanHTMLText(content) : '';
+  const contentLines = cleanedContent
+    ? cleanedContent.split('\n').map(l => l.trim()).filter(Boolean)
+    : [];
+  const bulletLines = contentLines
+    .filter(l => l.startsWith('•') || l.startsWith('-') || l.startsWith('*'))
+    .map(l => l.replace(/^(•|\-|\*)\s*/, '').trim())
+    .filter(Boolean);
+  const nonBulletText = contentLines
+    .filter(l => !(l.startsWith('•') || l.startsWith('-') || l.startsWith('*')))
+    .join('\n\n')
+    .trim();
+
   return (
     <View style={styles.section}>
       <Text style={styles.sectionTitle}>{title}</Text>
       
       {content && (
         <View style={styles.contentCard}>
-          <Text style={styles.descriptionText}>
-            {cleanHTMLText(content)}
-          </Text>
+          <Text style={styles.contentLabel}>Description</Text>
+
+          {bulletLines.length > 0 ? (
+            <View style={styles.contentBullets}>
+              {bulletLines.map((line, index) => (
+                <View key={index} style={styles.bulletRow}>
+                  <View style={styles.bulletDot} />
+                  <Text style={styles.bulletText}>{line}</Text>
+                </View>
+              ))}
+            </View>
+          ) : (
+            <Text style={styles.descriptionText}>
+              {nonBulletText || cleanedContent}
+            </Text>
+          )}
         </View>
       )}
       

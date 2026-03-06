@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useCallback } from 'react';
 import { Modal, SafeAreaView, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
 import { useTheme } from '../context/ThemedContext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -209,6 +209,23 @@ export const ApplicationFormScreen: React.FC<ApplicationFormScreenProps> = ({
     setErrors({ ...errors, [field]: '' });
   };
 
+  const scrollViewRef = useRef<ScrollView>(null);
+  const fieldLayouts = useRef<Record<number, number>>({});
+
+  const scrollToFocusedField = useCallback((index: number) => {
+    const y = fieldLayouts.current[index];
+    if (y != null && scrollViewRef.current) {
+      scrollViewRef.current.scrollTo({
+        y: Math.max(0, y - 80),
+        animated: true,
+      });
+    }
+  }, []);
+
+  const handleFieldLayout = useCallback((index: number, y: number) => {
+    fieldLayouts.current[index] = y;
+  }, []);
+
   return (
     <Modal
       visible={visible}
@@ -220,7 +237,7 @@ export const ApplicationFormScreen: React.FC<ApplicationFormScreenProps> = ({
         <KeyboardAvoidingView
           style={styles.container}
           behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-          keyboardVerticalOffset={0}
+          keyboardVerticalOffset={Platform.OS === 'ios' ? 24 : 0}
         >
           {/* Header */}
           <ApplicationFormHeader styles={styles} onClose={handleClose} />
@@ -230,10 +247,12 @@ export const ApplicationFormScreen: React.FC<ApplicationFormScreenProps> = ({
 
           {/* Form Fields */}
           <ScrollView
+            ref={scrollViewRef}
             style={styles.scrollView}
-            contentContainerStyle={styles.scrollContent}
+            contentContainerStyle={[styles.scrollContent, { paddingBottom: 120 }]}
             showsVerticalScrollIndicator={false}
             keyboardShouldPersistTaps="handled"
+            keyboardDismissMode="on-drag"
           >
             <ApplicationFormFields
               formData={formData}
@@ -243,6 +262,8 @@ export const ApplicationFormScreen: React.FC<ApplicationFormScreenProps> = ({
               styles={styles}
               onFormDataChange={handleFormDataChange}
               onErrorClear={handleErrorClear}
+              onFocusField={scrollToFocusedField}
+              onFieldLayout={handleFieldLayout}
             />
           </ScrollView>
 

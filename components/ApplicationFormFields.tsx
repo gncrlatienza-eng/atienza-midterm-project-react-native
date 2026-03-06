@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, TextInput } from 'react-native';
+import { View, Text, TextInput, LayoutChangeEvent } from 'react-native';
 
 interface FormData {
   name: string;
@@ -23,6 +23,8 @@ interface ApplicationFormFieldsProps {
   styles: any;
   onFormDataChange: (field: keyof FormData, value: string) => void;
   onErrorClear: (field: keyof FormErrors) => void;
+  onFocusField?: (index: number) => void;
+  onFieldLayout?: (index: number, y: number) => void;
 }
 
 export const ApplicationFormFields: React.FC<ApplicationFormFieldsProps> = ({
@@ -33,11 +35,21 @@ export const ApplicationFormFields: React.FC<ApplicationFormFieldsProps> = ({
   styles,
   onFormDataChange,
   onErrorClear,
+  onFocusField,
+  onFieldLayout,
 }) => {
+  const handleLayout = (index: number) => (e: LayoutChangeEvent) => {
+    const { layout } = e.nativeEvent;
+    onFieldLayout?.(index, layout.y);
+  };
+
   return (
     <>
       {/* Name Field */}
-      <View style={styles.fieldContainer}>
+      <View
+        style={styles.fieldContainer}
+        onLayout={handleLayout(0)}
+      >
         <Text style={styles.label}>Full Name *</Text>
         <TextInput
           style={[styles.input, errors.name ? styles.inputError : null]}
@@ -48,6 +60,7 @@ export const ApplicationFormFields: React.FC<ApplicationFormFieldsProps> = ({
             onFormDataChange('name', text);
             if (errors.name) onErrorClear('name');
           }}
+          onFocus={() => onFocusField?.(0)}
           autoCapitalize="words"
           editable={!isSubmitting}
         />
@@ -55,7 +68,10 @@ export const ApplicationFormFields: React.FC<ApplicationFormFieldsProps> = ({
       </View>
 
       {/* Email Field */}
-      <View style={styles.fieldContainer}>
+      <View
+        style={styles.fieldContainer}
+        onLayout={handleLayout(1)}
+      >
         <Text style={styles.label}>Email Address *</Text>
         <TextInput
           style={[styles.input, errors.email ? styles.inputError : null]}
@@ -66,6 +82,7 @@ export const ApplicationFormFields: React.FC<ApplicationFormFieldsProps> = ({
             onFormDataChange('email', text);
             if (errors.email) onErrorClear('email');
           }}
+          onFocus={() => onFocusField?.(1)}
           keyboardType="email-address"
           autoCapitalize="none"
           autoCorrect={false}
@@ -75,7 +92,10 @@ export const ApplicationFormFields: React.FC<ApplicationFormFieldsProps> = ({
       </View>
 
       {/* Phone Field - Philippine Format */}
-      <View style={styles.fieldContainer}>
+      <View
+        style={styles.fieldContainer}
+        onLayout={handleLayout(2)}
+      >
         <Text style={styles.label}>Contact Number *</Text>
         <TextInput
           style={[styles.input, errors.phone ? styles.inputError : null]}
@@ -86,6 +106,7 @@ export const ApplicationFormFields: React.FC<ApplicationFormFieldsProps> = ({
             onFormDataChange('phone', text);
             if (errors.phone) onErrorClear('phone');
           }}
+          onFocus={() => onFocusField?.(2)}
           keyboardType="phone-pad"
           editable={!isSubmitting}
         />
@@ -94,7 +115,10 @@ export const ApplicationFormFields: React.FC<ApplicationFormFieldsProps> = ({
       </View>
 
       {/* Why Hire You Field */}
-      <View style={styles.fieldContainer}>
+      <View
+        style={styles.fieldContainer}
+        onLayout={handleLayout(3)}
+      >
         <Text style={styles.label}>Why should we hire you? *</Text>
         <TextInput
           style={[
@@ -109,6 +133,7 @@ export const ApplicationFormFields: React.FC<ApplicationFormFieldsProps> = ({
             onFormDataChange('whyHireYou', text);
             if (errors.whyHireYou) onErrorClear('whyHireYou');
           }}
+          onFocus={() => onFocusField?.(3)}
           multiline
           numberOfLines={6}
           textAlignVertical="top"

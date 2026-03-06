@@ -23,7 +23,37 @@ export const createJobContentSectionStyles = (colors: ThemeColors) =>
       borderWidth: 0.5,
       borderColor: colors.borderLight,
     },
+    contentLabel: {
+      fontSize: 14,
+      fontWeight: '600',
+      color: colors.textSecondary,
+      marginBottom: 10,
+      letterSpacing: 0.2,
+    },
     descriptionText: {
+      fontSize: 16,
+      lineHeight: 24,
+      color: colors.textSecondary,
+      fontWeight: '400',
+    },
+    contentBullets: {
+      gap: 10,
+    },
+    bulletRow: {
+      flexDirection: 'row',
+      alignItems: 'flex-start',
+      gap: 10,
+    },
+    bulletDot: {
+      width: 6,
+      height: 6,
+      borderRadius: 3,
+      backgroundColor: colors.textSecondary,
+      marginTop: 9,
+      opacity: 0.7,
+    },
+    bulletText: {
+      flex: 1,
       fontSize: 16,
       lineHeight: 24,
       color: colors.textSecondary,
