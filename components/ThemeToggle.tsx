@@ -4,18 +4,23 @@ import { useTheme } from '../context/ThemedContext';
 import { createHomeStyles } from '../styles/HomeScreen';
 import Svg, { Circle, Path } from 'react-native-svg';
 
-// Minimalistic Sun Icon (Light Mode)
+// Simplified Sun Icon (Light Mode)
 const SunIcon: React.FC<{ color: string }> = ({ color }) => (
   <Svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-    <Circle cx="12" cy="12" r="4" stroke={color} strokeWidth="2" />
-    <Path d="M12 2V4M12 20V22M22 12H20M4 12H2M19.07 4.93L17.66 6.34M6.34 17.66L4.93 19.07M19.07 19.07L17.66 17.66M6.34 6.34L4.93 4.93" stroke={color} strokeWidth="2" strokeLinecap="round" />
+    <Circle cx="12" cy="12" r="5" stroke={color} strokeWidth="1.8" />
   </Svg>
 );
 
-// Minimalistic Moon Icon (Dark Mode)
+// Simplified Moon Icon (Dark Mode)
 const MoonIcon: React.FC<{ color: string }> = ({ color }) => (
   <Svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-    <Path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+    <Path
+      d="M18 13.5C17.5 13.7 16.96 13.8 16.4 13.8C13.97 13.8 12 11.83 12 9.4C12 8.04 12.52 6.81 13.4 5.9C11.4 6.3 10 7.9 10 9.9C10 12.6 12.2 14.8 14.9 14.8C16.15 14.8 17.28 14.3 18 13.5Z"
+      stroke={color}
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
   </Svg>
 );
 

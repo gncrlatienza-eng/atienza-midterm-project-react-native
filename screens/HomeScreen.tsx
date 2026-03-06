@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { View, Text, ScrollView, SafeAreaView, useWindowDimensions, RefreshControl, Keyboard } from 'react-native';
+import { View, Text, ScrollView, SafeAreaView, useWindowDimensions, RefreshControl, Keyboard, DeviceEventEmitter, TouchableOpacity } from 'react-native';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -35,6 +35,29 @@ export const HomeScreen = () => {
   const [isSearchFocused, setIsSearchFocused] = useState(false);
   const [savedJobIds, setSavedJobIds] = useState<Set<string>>(new Set());
   const [appliedJobIds, setAppliedJobIds] = useState<Set<string>>(new Set());
+  const [sortOption, setSortOption] = useState<'recent' | 'oldest' | 'title'>('recent');
+
+  const sortJobs = useCallback(
+    (jobs: Job[]): Job[] => {
+      const jobsCopy = [...jobs];
+      if (sortOption === 'title') {
+        return jobsCopy.sort((a, b) => a.title.localeCompare(b.title));
+      }
+
+      const parseDate = (value?: string) => (value ? Date.parse(value) || 0 : 0);
+
+      return jobsCopy.sort((a, b) => {
+        const aDate = parseDate(a.posted);
+        const bDate = parseDate(b.posted);
+        if (sortOption === 'recent') {
+          return bDate - aDate;
+        }
+        // oldest
+        return aDate - bDate;
+      });
+    },
+    [sortOption]
+  );
 
   const [showApplicationForm, setShowApplicationForm] = useState(false);
   const [selectedJob, setSelectedJob] = useState<Job | null>(null);
@@ -73,7 +96,8 @@ export const HomeScreen = () => {
       await loadAppliedJobIds();
       const jobs = await fetchJobs();
       setAllJobs(jobs);
-      setDisplayedJobs(jobs);
+      const filtered = searchJobs(jobs, searchQuery);
+      setDisplayedJobs(sortJobs(filtered));
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to load jobs';
       setError(errorMessage);
@@ -81,7 +105,7 @@ export const HomeScreen = () => {
     } finally {
       setLoading(false);
     }
-  }, [loadSavedJobIds, loadAppliedJobIds]);
+  }, [loadSavedJobIds, loadAppliedJobIds, searchQuery, sortJobs]);
 
   useEffect(() => {
     loadJobs();
@@ -90,9 +114,9 @@ export const HomeScreen = () => {
   useEffect(() => {
     if (allJobs.length > 0) {
       const filtered = searchJobs(allJobs, searchQuery);
-      setDisplayedJobs(filtered);
+      setDisplayedJobs(sortJobs(filtered));
     }
-  }, [searchQuery, allJobs]);
+  }, [searchQuery, allJobs, sortJobs]);
 
   useFocusEffect(
     useCallback(() => {
@@ -109,7 +133,8 @@ export const HomeScreen = () => {
       await loadAppliedJobIds();
       const jobs = await fetchJobs();
       setAllJobs(jobs);
-      setDisplayedJobs(jobs);
+      const filtered = searchJobs(jobs, searchQuery);
+      setDisplayedJobs(sortJobs(filtered));
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to refresh jobs';
       showErrorAlert(errorMessage);
@@ -138,6 +163,7 @@ export const HomeScreen = () => {
             newSet.delete(jobId);
             return newSet;
           });
+          DeviceEventEmitter.emit('savedJobsUpdated');
 
           showSuccessAlert('Removed', 'Job removed from saved jobs');
         });
@@ -147,6 +173,7 @@ export const HomeScreen = () => {
           await AsyncStorage.setItem(SAVED_JOBS_KEY, JSON.stringify(savedJobs));
 
           setSavedJobIds(prev => new Set(prev).add(jobId));
+          DeviceEventEmitter.emit('savedJobsUpdated');
 
           showSuccessAlert('Saved!', 'Job added to your saved jobs');
         });
@@ -207,6 +234,7 @@ export const HomeScreen = () => {
       } catch (error) {
         console.error('Error removing from saved jobs:', error);
       }
+      DeviceEventEmitter.emit('savedJobsUpdated');
     }
     setSelectedJob(null);
   };
@@ -267,6 +295,63 @@ export const HomeScreen = () => {
 
         <View style={styles.allJobsSection}>
           {!searchQuery && <Text style={styles.sectionTitle}>All Jobs</Text>}
+
+          <View style={styles.sortRow}>
+            <Text style={styles.sortLabel}>Sort by</Text>
+            <View style={styles.sortButtons}>
+              <TouchableOpacity
+                style={[
+                  styles.sortButton,
+                  sortOption === 'recent' && styles.sortButtonActive,
+                ]}
+                onPress={() => setSortOption('recent')}
+              >
+                <Text
+                  style={[
+                    styles.sortButtonText,
+                    sortOption === 'recent' && styles.sortButtonTextActive,
+                  ]}
+                >
+                  Recent
+                </Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={[
+                  styles.sortButton,
+                  sortOption === 'oldest' && styles.sortButtonActive,
+                ]}
+                onPress={() => setSortOption('oldest')}
+              >
+                <Text
+                  style={[
+                    styles.sortButtonText,
+                    sortOption === 'oldest' && styles.sortButtonTextActive,
+                  ]}
+                >
+                  Oldest
+                </Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={[
+                  styles.sortButton,
+                  sortOption === 'title' && styles.sortButtonActive,
+                ]}
+                onPress={() => setSortOption('title')}
+              >
+                <Text
+                  style={[
+                    styles.sortButtonText,
+                    sortOption === 'title' && styles.sortButtonTextActive,
+                  ]}
+                >
+                  A–Z
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+
           {displayedJobs.map((job) => {
             const isJobSaved = savedJobIds.has(job.id);
             const isJobApplied = appliedJobIds.has(job.id);
@@ -292,7 +377,7 @@ export const HomeScreen = () => {
       <View style={styles.container}>
         <View style={styles.header}>
           <View style={styles.headerTop}>
-            <Text style={styles.title}>Find Jobs</Text>
+            <Text style={styles.title}>Jobs</Text>
             <ThemeToggle />
           </View>
 

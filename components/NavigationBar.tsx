@@ -1,12 +1,17 @@
-import React from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { useTheme } from '../context/ThemedContext';
 import { HomeScreen } from '../screens/HomeScreen';
 import { SavedJobsScreen } from '../screens/SavedJobScreen';
 import { createTabBarStyles } from '../styles/NavigationBar';
 import Svg, { Path, Circle } from 'react-native-svg';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { DeviceEventEmitter } from 'react-native';
+import { Job } from '../types/Job';
 
 const Tab = createBottomTabNavigator();
+
+const SAVED_JOBS_KEY = '@saved_jobs';
 
 // Minimalistic Search Icon
 const SearchTabIcon: React.FC<{ focused: boolean; color: string }> = ({ focused, color }) => (
@@ -33,8 +38,32 @@ const BookmarkTabIcon: React.FC<{ focused: boolean; color: string }> = ({ focuse
 export const NavigationBar: React.FC = () => {
   const { colors, theme } = useTheme();
   const isDarkMode = theme === 'dark';
-  
+  const [savedCount, setSavedCount] = useState<number>(0);
+
   const tabBarStyles = createTabBarStyles({ colors, isDarkMode });
+
+  const loadSavedCount = useCallback(async () => {
+    try {
+      const savedJobsJson = await AsyncStorage.getItem(SAVED_JOBS_KEY);
+      if (!savedJobsJson) {
+        setSavedCount(0);
+        return;
+      }
+      const savedJobs: Job[] = JSON.parse(savedJobsJson);
+      setSavedCount(savedJobs.length);
+    } catch (error) {
+      console.error('Error loading saved jobs count:', error);
+      setSavedCount(0);
+    }
+  }, []);
+
+  useEffect(() => {
+    loadSavedCount();
+    const subscription = DeviceEventEmitter.addListener('savedJobsUpdated', loadSavedCount);
+    return () => {
+      subscription.remove();
+    };
+  }, [loadSavedCount]);
 
   return (
     <Tab.Navigator
@@ -47,7 +76,7 @@ export const NavigationBar: React.FC = () => {
         name="FindJobs"
         component={HomeScreen}
         options={{
-          tabBarLabel: 'Find Jobs',
+          tabBarLabel: 'Jobs',
           tabBarIcon: ({ focused, color }) => (
             <SearchTabIcon focused={focused} color={color} />
           ),
@@ -58,6 +87,7 @@ export const NavigationBar: React.FC = () => {
         component={SavedJobsScreen}
         options={{
           tabBarLabel: 'Saved',
+          tabBarBadge: savedCount > 0 ? savedCount : undefined,
           tabBarIcon: ({ focused, color }) => (
             <BookmarkTabIcon focused={focused} color={color} />
           ),

@@ -61,6 +61,42 @@ export const createHomeStyles = (colors: ThemeColors, width: number, height: num
     },
     allJobsSection: {
     },
+    sortRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      paddingHorizontal: 20,
+      marginBottom: 12,
+    },
+    sortLabel: {
+      fontSize: width * 0.035,
+      color: colors.textSecondary,
+      fontWeight: '500',
+    },
+    sortButtons: {
+      flexDirection: 'row',
+      gap: 8,
+    },
+    sortButton: {
+      paddingHorizontal: 10,
+      paddingVertical: 6,
+      borderRadius: 999,
+      borderWidth: 1,
+      borderColor: colors.borderLight,
+      backgroundColor: colors.background,
+    },
+    sortButtonActive: {
+      backgroundColor: colors.primaryLight,
+      borderColor: colors.primary,
+    },
+    sortButtonText: {
+      fontSize: width * 0.032,
+      color: colors.textSecondary,
+      fontWeight: '600',
+    },
+    sortButtonTextActive: {
+      color: colors.primary,
+    },
     sectionTitle: {
       fontSize: width * 0.055,
       fontWeight: '700',

@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from 'react';
-import { View, Text, ScrollView, SafeAreaView, useWindowDimensions, RefreshControl, Alert, } from 'react-native';
+import { View, Text, ScrollView, SafeAreaView, useWindowDimensions, RefreshControl, Alert, DeviceEventEmitter } from 'react-native';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -81,7 +81,7 @@ export const SavedJobsScreen: React.FC = () => {
           allSavedJobs = allSavedJobs.filter(j => j.id !== jobId);
           await AsyncStorage.setItem(SAVED_JOBS_KEY, JSON.stringify(allSavedJobs));
         }
-        
+        DeviceEventEmitter.emit('savedJobsUpdated');
         showSuccessAlert('Removed', 'Job removed from saved jobs');
       });
     } catch (error) {
@@ -122,6 +122,17 @@ export const SavedJobsScreen: React.FC = () => {
     if (selectedJob) {
       setSavedJobs(prev => prev.filter(j => j.id !== selectedJob.id));
       setAppliedJobIds(prev => new Set(prev).add(selectedJob.id));
+      try {
+        const savedJobsJson = await AsyncStorage.getItem(SAVED_JOBS_KEY);
+        if (savedJobsJson) {
+          let allSavedJobs: Job[] = JSON.parse(savedJobsJson);
+          allSavedJobs = allSavedJobs.filter(j => j.id !== selectedJob.id);
+          await AsyncStorage.setItem(SAVED_JOBS_KEY, JSON.stringify(allSavedJobs));
+        }
+      } catch (error) {
+        console.error('Error removing applied job from saved storage:', error);
+      }
+      DeviceEventEmitter.emit('savedJobsUpdated');
     }
     
     setSelectedJob(null);
