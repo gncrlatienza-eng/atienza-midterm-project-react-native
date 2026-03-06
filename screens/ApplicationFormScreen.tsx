@@ -237,7 +237,7 @@ export const ApplicationFormScreen: React.FC<ApplicationFormScreenProps> = ({
         <KeyboardAvoidingView
           style={styles.container}
           behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-          keyboardVerticalOffset={Platform.OS === 'ios' ? 24 : 0}
+          keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 0}
         >
           {/* Header */}
           <ApplicationFormHeader styles={styles} onClose={handleClose} />

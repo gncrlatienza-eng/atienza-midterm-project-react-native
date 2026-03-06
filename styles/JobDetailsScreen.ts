@@ -19,7 +19,7 @@ export const createJobDetailsStyles = (colors: ThemeColors, width: number, heigh
       alignItems: 'center',
       paddingHorizontal: width * 0.05,
       paddingTop: 20,
-      paddingBottom: 12,
+      paddingBottom: 8,
       backgroundColor: colors.background,
     },
     headerButton: {
@@ -173,6 +173,38 @@ export const createJobDetailsStyles = (colors: ThemeColors, width: number, heigh
       marginVertical: 8,
       marginHorizontal: width * 0.05,
     },
+
+    // TABS FOR DESCRIPTION / REQUIREMENTS / BENEFITS
+    tabBar: {
+      flexDirection: 'row',
+      paddingHorizontal: width * 0.05,
+      paddingVertical: 4,
+      marginTop: 4,
+      borderRadius: 999,
+      borderWidth: 1,
+      borderColor: colors.borderLight,
+      backgroundColor: colors.background,
+      alignSelf: 'center',
+    },
+    tabButton: {
+      flex: 1,
+      paddingVertical: 8,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    tabButtonActive: {
+      backgroundColor: colors.backgroundSecondary,
+      borderRadius: 999,
+    },
+    tabLabel: {
+      fontSize: width * 0.036,
+      fontWeight: '500',
+      color: colors.textSecondary,
+    },
+    tabLabelActive: {
+      color: colors.text,
+      fontWeight: '700',
+    },
     
     // CONTENT SECTIONS
     section: {
@@ -225,8 +257,8 @@ export const createJobDetailsStyles = (colors: ThemeColors, width: number, heigh
       right: 0,
       bottom: 0,
       paddingHorizontal: width * 0.05,
-      paddingBottom: 18,
-      paddingTop: 10,
+      paddingBottom: 10,
+      paddingTop: 8,
       backgroundColor: colors.background,
       borderTopWidth: 0.5,
       borderTopColor: colors.borderLight,

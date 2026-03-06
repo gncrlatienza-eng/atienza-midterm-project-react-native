@@ -25,6 +25,7 @@ export const JobDetailsScreen: React.FC<JobDetailsScreenProps> = ({ route, navig
   const [isSaved, setIsSaved] = useState(false);
   const [isApplied, setIsApplied] = useState(false);
   const [showApplicationForm, setShowApplicationForm] = useState(false);
+  const [activeSection, setActiveSection] = useState<'description' | 'requirements' | 'benefits'>('description');
 
   useFocusEffect(
     useCallback(() => {
@@ -228,26 +229,85 @@ ${job.description ? job.description.substring(0, 200).replace(/<[^>]*>/g, '') + 
 
           <View style={{ height: 32 }} />
 
-          <JobContentSection
-            title="About the Role"
-            content={job.description}
-            styles={styles}
-            colors={colors}
-          />
+          {/* Segmented toggle for Description / Requirements / Benefits */}
+          <View style={styles.tabBar}>
+            <TouchableOpacity
+              style={[
+                styles.tabButton,
+                activeSection === 'description' && styles.tabButtonActive,
+              ]}
+              onPress={() => setActiveSection('description')}
+              activeOpacity={0.8}
+            >
+              <Text
+                style={[
+                  styles.tabLabel,
+                  activeSection === 'description' && styles.tabLabelActive,
+                ]}
+              >
+                Description
+              </Text>
+            </TouchableOpacity>
 
-          <JobContentSection
-            title="Requirements"
-            listItems={job.requirements}
-            styles={styles}
-            colors={colors}
-          />
+            <TouchableOpacity
+              style={[
+                styles.tabButton,
+                activeSection === 'requirements' && styles.tabButtonActive,
+              ]}
+              onPress={() => setActiveSection('requirements')}
+              activeOpacity={0.8}
+            >
+              <Text
+                style={[
+                  styles.tabLabel,
+                  activeSection === 'requirements' && styles.tabLabelActive,
+                ]}
+              >
+                Requirements
+              </Text>
+            </TouchableOpacity>
 
-          <JobContentSection
-            title="Benefits & Perks"
-            listItems={job.benefits}
-            styles={styles}
-            colors={colors}
-          />
+            <TouchableOpacity
+              style={[
+                styles.tabButton,
+                activeSection === 'benefits' && styles.tabButtonActive,
+              ]}
+              onPress={() => setActiveSection('benefits')}
+              activeOpacity={0.8}
+            >
+              <Text
+                style={[
+                  styles.tabLabel,
+                  activeSection === 'benefits' && styles.tabLabelActive,
+                ]}
+              >
+                Benefits
+              </Text>
+            </TouchableOpacity>
+          </View>
+
+          <View style={{ height: 20 }} />
+
+          {activeSection === 'description' && (
+            <JobContentSection
+              title="About the Role"
+              content={job.description}
+            />
+          )}
+
+          {activeSection === 'requirements' && (
+            <JobContentSection
+              title="Requirements"
+              listItems={job.requirements}
+            />
+          )}
+
+          {activeSection === 'benefits' && (
+            <JobContentSection
+              title="Benefits & Perks"
+              listItems={job.benefits}
+            />
+          )}
 
           <View style={{ height: 20 }} />
         </ScrollView>

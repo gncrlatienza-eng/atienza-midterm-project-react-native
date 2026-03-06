@@ -12,7 +12,7 @@ interface JobContentSectionProps {
   colors?: any; // For backward compatibility, but not used anymore
 }
 
-// Check icon for requirements
+// Check icon for list items
 const CheckIcon: React.FC<{ color: string }> = ({ color }) => (
   <Svg width="20" height="20" viewBox="0 0 24 24" fill="none">
     <Circle cx="12" cy="12" r="10" fill={color} opacity="0.15" />
@@ -22,18 +22,6 @@ const CheckIcon: React.FC<{ color: string }> = ({ color }) => (
       strokeWidth="2.5" 
       strokeLinecap="round" 
       strokeLinejoin="round"
-    />
-  </Svg>
-);
-
-// Star icon for benefits
-const StarIcon: React.FC<{ color: string }> = ({ color }) => (
-  <Svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-    <Circle cx="12" cy="12" r="10" fill={color} opacity="0.12" />
-    <Path 
-      d="M12 6L13.545 9.13L17 9.635L14.5 12.07L15.09 15.51L12 13.885L8.91 15.51L9.5 12.07L7 9.635L10.455 9.13L12 6Z" 
-      fill={color}
-      opacity="0.85"
     />
   </Svg>
 );
@@ -75,12 +63,7 @@ export const JobContentSection: React.FC<JobContentSectionProps> = ({
     return null;
   }
 
-  // Determine icon based on section title
-  const isBenefitsSection = title.toLowerCase().includes('benefit') || 
-                            title.toLowerCase().includes('perk');
-  
   const iconColor = colors.primary;
-  const benefitColor = '#FF9500'; // Orange/gold for benefits
 
   const cleanedContent = content ? cleanHTMLText(content) : '';
   const contentLines = cleanedContent
@@ -126,11 +109,7 @@ export const JobContentSection: React.FC<JobContentSectionProps> = ({
             {listItems.map((item, index) => (
               <View key={index} style={styles.listItem}>
                 <View style={styles.iconContainer}>
-                  {isBenefitsSection ? (
-                    <StarIcon color={benefitColor} />
-                  ) : (
-                    <CheckIcon color={iconColor} />
-                  )}
+                  <CheckIcon color={iconColor} />
                 </View>
                 <Text style={styles.listText}>
                   {cleanHTMLText(item)}
