@@ -11,15 +11,18 @@ export const createTabBarStyles = ({ colors, isDarkMode }: TabBarStyleParams) =>
   tabBarStyle: {
     position: 'absolute' as const,
     backgroundColor: isDarkMode 
-      ? 'rgba(28, 28, 30, 0.90)' // Dark mode: slightly transparent
-      : 'rgba(255, 255, 255, 0.90)', // Light mode: slightly transparent
+      ? 'rgba(28, 28, 30, 0.94)'
+      : 'rgba(255, 255, 255, 0.94)',
     borderTopWidth: 0.5,
     borderTopColor: isDarkMode 
       ? 'rgba(84, 84, 88, 0.3)' 
       : 'rgba(0, 0, 0, 0.1)',
-    height: 90,
-    paddingTop: 8,
-    paddingBottom: 28,
+    height: 80,
+    marginHorizontal: 24,
+    marginBottom: 18,
+    borderRadius: 26,
+    paddingTop: 6,
+    paddingBottom: 20,
     elevation: 0,
     shadowColor: '#000',
     shadowOffset: {
@@ -32,7 +35,7 @@ export const createTabBarStyles = ({ colors, isDarkMode }: TabBarStyleParams) =>
   tabBarLabelStyle: {
     fontSize: 11,
     fontWeight: '500' as const,
-    marginTop: 4,
+    marginTop: 2,
   },
   tabBarIconStyle: {
     marginTop: 4,

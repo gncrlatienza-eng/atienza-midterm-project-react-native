@@ -158,6 +158,12 @@ export const createJobDetailsStyles = (colors: ThemeColors, width: number, heigh
       backgroundColor: colors.primary,
       borderColor: colors.primary,
     },
+    applyButtonInner: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: 6,
+    },
     
     // DIVIDER
     divider: {
@@ -211,5 +217,24 @@ export const createJobDetailsStyles = (colors: ThemeColors, width: number, heigh
       lineHeight: width * 0.062,
       color: colors.textSecondary,
       fontWeight: '400',
+    },
+    bottomBar: {
+      position: 'absolute',
+      left: 0,
+      right: 0,
+      bottom: 0,
+      paddingHorizontal: width * 0.05,
+      paddingBottom: 18,
+      paddingTop: 10,
+      backgroundColor: colors.background,
+      borderTopWidth: 0.5,
+      borderTopColor: colors.borderLight,
+    },
+    cancelText: {
+      color: '#EF4444',
+      fontSize: 13,
+      textAlign: 'center',
+      marginTop: 10,
+      textDecorationLine: 'underline',
     },
   });

@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from 'react';
-import { View, ScrollView, SafeAreaView, useWindowDimensions, Share, Platform } from 'react-native';
+import { View, ScrollView, SafeAreaView, useWindowDimensions, Share, Platform, TouchableOpacity, Text, DeviceEventEmitter } from 'react-native';
 import { useTheme } from '../context/ThemedContext';
 import { useFocusEffect } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -7,6 +7,7 @@ import { createJobDetailsStyles } from '../styles/JobDetailsScreen';
 import { JobDetailsHeader } from '../components/JobDetailsHeader';
 import { JobHeroSection } from '../components/JobHeroSection';
 import { JobContentSection } from '../components/JobContentSection';
+import { BookmarkIcon } from '../components/JobDetailIcons';
 import { ApplicationFormScreen } from './ApplicationFormScreen';
 import { showSaveJobModal, showRemoveJobModal, showApplyJobModal, showCancelApplicationModal, showSuccessAlert, showErrorAlert } from '../components/ConfirmationModal';
 import { JobDetailsScreenProps } from '../types/Navigation';
@@ -75,6 +76,7 @@ export const JobDetailsScreen: React.FC<JobDetailsScreenProps> = ({ route, navig
     } catch (error) {
       console.error('Error removing from saved jobs:', error);
     }
+    DeviceEventEmitter.emit('savedJobsUpdated');
 
     if (fromSaved) {
       navigation.navigate('MainTabs', { screen: 'FindJobs' });
@@ -118,6 +120,7 @@ export const JobDetailsScreen: React.FC<JobDetailsScreenProps> = ({ route, navig
 
       await AsyncStorage.setItem(SAVED_JOBS_KEY, JSON.stringify(savedJobs));
       setIsSaved(true);
+      DeviceEventEmitter.emit('savedJobsUpdated');
       showSuccessAlert('Saved!', 'Job added to your saved jobs');
     } catch (error) {
       console.error('Error saving job:', error);
@@ -134,6 +137,7 @@ export const JobDetailsScreen: React.FC<JobDetailsScreenProps> = ({ route, navig
 
         await AsyncStorage.setItem(SAVED_JOBS_KEY, JSON.stringify(savedJobs));
         setIsSaved(false);
+        DeviceEventEmitter.emit('savedJobsUpdated');
         showSuccessAlert('Removed', 'Job removed from saved jobs');
       }
     } catch (error) {
@@ -219,6 +223,7 @@ ${job.description ? job.description.substring(0, 200).replace(/<[^>]*>/g, '') + 
             onApply={handleApply}
             onSave={handleSave}
             onCancelApplication={handleCancelApplication}
+            showActionsInline={false}
           />
 
           <View style={{ height: 32 }} />
@@ -246,6 +251,44 @@ ${job.description ? job.description.substring(0, 200).replace(/<[^>]*>/g, '') + 
 
           <View style={{ height: 20 }} />
         </ScrollView>
+
+        <View style={styles.bottomBar}>
+          <View style={styles.actionRow}>
+            <TouchableOpacity
+              style={styles.applyButton}
+              onPress={handleApply}
+              disabled={isApplied}
+              activeOpacity={isApplied ? 1 : 0.8}
+            >
+              <View style={styles.applyButtonInner}>
+                <Text style={styles.applyButtonText}>
+                  {isApplied ? 'Applied' : 'Apply Now'}
+                </Text>
+              </View>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={[
+                styles.saveButton,
+                isSaved && styles.saveButtonActive,
+                isApplied && { opacity: 0.3 },
+              ]}
+              onPress={isApplied ? undefined : handleSave}
+              disabled={isApplied}
+              activeOpacity={0.8}
+            >
+              <BookmarkIcon color={isSaved ? '#FFFFFF' : colors.primary} filled={isSaved} />
+            </TouchableOpacity>
+          </View>
+
+          {isApplied && (
+            <TouchableOpacity onPress={handleCancelApplication} activeOpacity={0.7}>
+              <Text style={styles.cancelText}>
+                Cancel Application
+              </Text>
+            </TouchableOpacity>
+          )}
+        </View>
 
         <ApplicationFormScreen
           visible={showApplicationForm}

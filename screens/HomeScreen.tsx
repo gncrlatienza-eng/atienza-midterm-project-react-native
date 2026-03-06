@@ -35,11 +35,32 @@ export const HomeScreen = () => {
   const [isSearchFocused, setIsSearchFocused] = useState(false);
   const [savedJobIds, setSavedJobIds] = useState<Set<string>>(new Set());
   const [appliedJobIds, setAppliedJobIds] = useState<Set<string>>(new Set());
-  const [sortOption, setSortOption] = useState<'recent' | 'oldest' | 'title'>('recent');
+  const [sortOption, setSortOption] = useState<'recent' | 'oldest' | 'title' | 'income'>('recent');
 
   const sortJobs = useCallback(
     (jobs: Job[]): Job[] => {
       const jobsCopy = [...jobs];
+
+      if (sortOption === 'income') {
+        const getSalaryValue = (salary?: string): number => {
+          if (!salary) return 0;
+          const cleaned = salary.replace(/,/g, '');
+          const match = cleaned.match(/(\d+(\.\d+)?)/);
+          if (!match) return 0;
+          let value = parseFloat(match[1]);
+          if (/k/i.test(cleaned)) {
+            value = value * 1000;
+          }
+          return isNaN(value) ? 0 : value;
+        };
+
+        return jobsCopy.sort((a, b) => {
+          const aVal = getSalaryValue(a.salary);
+          const bVal = getSalaryValue(b.salary);
+          return bVal - aVal; // highest income first
+        });
+      }
+
       if (sortOption === 'title') {
         return jobsCopy.sort((a, b) => a.title.localeCompare(b.title));
       }
@@ -347,6 +368,23 @@ export const HomeScreen = () => {
                   ]}
                 >
                   A–Z
+                </Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={[
+                  styles.sortButton,
+                  sortOption === 'income' && styles.sortButtonActive,
+                ]}
+                onPress={() => setSortOption('income')}
+              >
+                <Text
+                  style={[
+                    styles.sortButtonText,
+                    sortOption === 'income' && styles.sortButtonTextActive,
+                  ]}
+                >
+                  Income
                 </Text>
               </TouchableOpacity>
             </View>

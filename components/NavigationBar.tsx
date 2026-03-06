@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { useTheme } from '../context/ThemedContext';
 import { HomeScreen } from '../screens/HomeScreen';
@@ -6,7 +6,7 @@ import { SavedJobsScreen } from '../screens/SavedJobScreen';
 import { createTabBarStyles } from '../styles/NavigationBar';
 import Svg, { Path, Circle } from 'react-native-svg';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { DeviceEventEmitter } from 'react-native';
+import { DeviceEventEmitter, Animated } from 'react-native';
 import { Job } from '../types/Job';
 
 const Tab = createBottomTabNavigator();
@@ -34,6 +34,25 @@ const BookmarkTabIcon: React.FC<{ focused: boolean; color: string }> = ({ focuse
     />
   </Svg>
 );
+
+const AnimatedIconWrapper: React.FC<{ focused: boolean; children: React.ReactNode }> = ({ focused, children }) => {
+  const scale = useRef(new Animated.Value(1)).current;
+
+  useEffect(() => {
+    Animated.spring(scale, {
+      toValue: focused ? 1.08 : 1,
+      useNativeDriver: true,
+      friction: 6,
+      tension: 120,
+    }).start();
+  }, [focused, scale]);
+
+  return (
+    <Animated.View style={{ transform: [{ scale }] }}>
+      {children}
+    </Animated.View>
+  );
+};
 
 export const NavigationBar: React.FC = () => {
   const { colors, theme } = useTheme();
@@ -69,6 +88,7 @@ export const NavigationBar: React.FC = () => {
     <Tab.Navigator
       screenOptions={{
         headerShown: false,
+        tabBarHideOnKeyboard: true,
         ...tabBarStyles,
       }}
     >
@@ -78,7 +98,9 @@ export const NavigationBar: React.FC = () => {
         options={{
           tabBarLabel: 'Jobs',
           tabBarIcon: ({ focused, color }) => (
-            <SearchTabIcon focused={focused} color={color} />
+            <AnimatedIconWrapper focused={focused}>
+              <SearchTabIcon focused={focused} color={color} />
+            </AnimatedIconWrapper>
           ),
         }}
       />
@@ -89,7 +111,9 @@ export const NavigationBar: React.FC = () => {
           tabBarLabel: 'Saved',
           tabBarBadge: savedCount > 0 ? savedCount : undefined,
           tabBarIcon: ({ focused, color }) => (
-            <BookmarkTabIcon focused={focused} color={color} />
+            <AnimatedIconWrapper focused={focused}>
+              <BookmarkTabIcon focused={focused} color={color} />
+            </AnimatedIconWrapper>
           ),
         }}
       />

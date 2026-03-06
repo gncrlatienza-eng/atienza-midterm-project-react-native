@@ -26,6 +26,7 @@ interface JobHeroSectionProps {
   onApply: () => void;
   onSave: () => void;
   onCancelApplication?: () => void;
+  showActionsInline?: boolean;
 }
 
 export const JobHeroSection: React.FC<JobHeroSectionProps> = ({
@@ -37,6 +38,7 @@ export const JobHeroSection: React.FC<JobHeroSectionProps> = ({
   onApply,
   onSave,
   onCancelApplication,
+  showActionsInline = true,
 }) => {
   const [logoError, setLogoError] = React.useState(false);
   const heroStyles = createJobHeroStyles();
@@ -89,42 +91,46 @@ export const JobHeroSection: React.FC<JobHeroSectionProps> = ({
         )}
       </View>
 
-      <View style={styles.actionRow}>
-        <TouchableOpacity
-          style={[styles.applyButton, isApplied && styles.appliedButton]}
-          onPress={onApply}
-          disabled={isApplied}
-          activeOpacity={isApplied ? 1 : 0.8}
-        >
-          <View style={heroStyles.applyButtonInner}>
-            <Text style={styles.applyButtonText}>
-              {isApplied ? 'Applied' : 'Apply Now'}
-            </Text>
-            {isApplied && <CheckIcon color="#FFFFFF" />}
+      {showActionsInline && (
+        <>
+          <View style={styles.actionRow}>
+            <TouchableOpacity
+              style={[styles.applyButton, isApplied && styles.appliedButton]}
+              onPress={onApply}
+              disabled={isApplied}
+              activeOpacity={isApplied ? 1 : 0.8}
+            >
+              <View style={heroStyles.applyButtonInner}>
+                <Text style={styles.applyButtonText}>
+                  {isApplied ? 'Applied' : 'Apply Now'}
+                </Text>
+                {isApplied && <CheckIcon color="#FFFFFF" />}
+              </View>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={[
+                styles.saveButton,
+                isSaved && styles.saveButtonActive,
+                isApplied && { opacity: 0.3 },
+                { alignSelf: 'center' },
+              ]}
+              onPress={isApplied ? undefined : onSave}
+              disabled={isApplied}
+              activeOpacity={0.8}
+            >
+              <BookmarkIcon color={isSaved ? '#FFFFFF' : colors.primary} filled={isSaved} />
+            </TouchableOpacity>
           </View>
-        </TouchableOpacity>
 
-        <TouchableOpacity
-          style={[
-            styles.saveButton,
-            isSaved && styles.saveButtonActive,
-            isApplied && { opacity: 0.3 },
-            { alignSelf: 'center' },
-          ]}
-          onPress={isApplied ? undefined : onSave}
-          disabled={isApplied}
-          activeOpacity={0.8}
-        >
-          <BookmarkIcon color={isSaved ? '#FFFFFF' : colors.primary} filled={isSaved} />
-        </TouchableOpacity>
-      </View>
-
-      {isApplied && onCancelApplication && (
-        <TouchableOpacity onPress={onCancelApplication} activeOpacity={0.7}>
-          <Text style={heroStyles.cancelText}>
-            Cancel Application
-          </Text>
-        </TouchableOpacity>
+          {isApplied && onCancelApplication && (
+            <TouchableOpacity onPress={onCancelApplication} activeOpacity={0.7}>
+              <Text style={heroStyles.cancelText}>
+                Cancel Application
+              </Text>
+            </TouchableOpacity>
+          )}
+        </>
       )}
     </View>
   );
