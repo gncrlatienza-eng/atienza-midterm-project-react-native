@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from 'react';
-import { View, Text, ScrollView, SafeAreaView, useWindowDimensions, RefreshControl, Alert, DeviceEventEmitter } from 'react-native';
+import { View, Text, ScrollView, SafeAreaView, useWindowDimensions, RefreshControl, Alert, DeviceEventEmitter, TouchableOpacity } from 'react-native';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -155,7 +155,16 @@ export const SavedJobsScreen: React.FC = () => {
         <View style={styles.header}>
           <View style={styles.headerTop}>
             <Text style={styles.title}>Saved Jobs</Text>
-            <ThemeToggle />
+            <View style={styles.appliedToggleRow}>
+              <TouchableOpacity
+                onPress={() => navigation.navigate('AppliedJobs')}
+                activeOpacity={0.7}
+                style={styles.appliedBadge}
+              >
+                <Text style={styles.appliedBadgeText}>Applied</Text>
+              </TouchableOpacity>
+              <ThemeToggle />
+            </View>
           </View>
           
           {savedJobs.length > 0 && (

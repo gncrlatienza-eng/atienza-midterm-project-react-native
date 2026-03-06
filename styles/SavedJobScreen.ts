@@ -35,6 +35,24 @@ export const createSavedJobsStyles = (colors: ThemeColors, width: number, height
       color: colors.textSecondary,
       marginTop: 4,
     },
+    appliedToggleRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      columnGap: 10,
+    },
+    appliedBadge: {
+      paddingHorizontal: 12,
+      paddingVertical: 8,
+      borderRadius: 999,
+      backgroundColor: colors.backgroundSecondary,
+      borderWidth: 1,
+      borderColor: colors.borderLight,
+    },
+    appliedBadgeText: {
+      fontSize: width * 0.034,
+      fontWeight: '600',
+      color: colors.textSecondary,
+    },
     scrollView: {
       flex: 1,
     },
