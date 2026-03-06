@@ -174,7 +174,7 @@ export const createJobDetailsStyles = (colors: ThemeColors, width: number, heigh
       marginHorizontal: width * 0.05,
     },
 
-    // TABS FOR DESCRIPTION / REQUIREMENTS / BENEFITS
+    // TABS FOR DESCRIPTION / TAGS
     tabBar: {
       flexDirection: 'row',
       paddingHorizontal: width * 0.05,
@@ -227,7 +227,7 @@ export const createJobDetailsStyles = (colors: ThemeColors, width: number, heigh
       fontWeight: '400',
     },
     
-    // LIST CONTAINER
+    // LIST CONTAINER (legacy – still used for description bullets)
     listContainer: {
       gap: 12,
     },
@@ -251,14 +251,45 @@ export const createJobDetailsStyles = (colors: ThemeColors, width: number, heigh
       color: colors.textSecondary,
       fontWeight: '400',
     },
+
+    // TAG PILL CONTAINER
+    tagsContainer: {
+      paddingHorizontal: width * 0.05,
+      marginTop: 28,
+    },
+    tagsTitle: {
+      fontSize: width * 0.052,
+      fontWeight: '700',
+      color: colors.text,
+      marginBottom: 16,
+      letterSpacing: -0.3,
+    },
+    tagsPillRow: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      gap: 8,
+    },
+    tagPill: {
+      paddingHorizontal: 12,
+      paddingVertical: 6,
+      borderRadius: 999,
+      backgroundColor: colors.backgroundSecondary,
+      borderWidth: 1,
+      borderColor: colors.borderLight,
+    },
+    tagPillText: {
+      fontSize: width * 0.036,
+      fontWeight: '500',
+      color: colors.textSecondary,
+    },
     bottomBar: {
       position: 'absolute',
       left: 0,
       right: 0,
       bottom: 0,
       paddingHorizontal: width * 0.05,
-      paddingBottom: 10,
-      paddingTop: 8,
+      paddingBottom: 4,
+      paddingTop: 6,
       backgroundColor: colors.background,
       borderTopWidth: 0.5,
       borderTopColor: colors.borderLight,

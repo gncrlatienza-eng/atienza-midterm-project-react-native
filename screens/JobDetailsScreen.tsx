@@ -25,7 +25,7 @@ export const JobDetailsScreen: React.FC<JobDetailsScreenProps> = ({ route, navig
   const [isSaved, setIsSaved] = useState(false);
   const [isApplied, setIsApplied] = useState(false);
   const [showApplicationForm, setShowApplicationForm] = useState(false);
-  const [activeSection, setActiveSection] = useState<'description' | 'requirements' | 'benefits'>('description');
+  const [activeSection, setActiveSection] = useState<'description' | 'tags'>('description');
 
   useFocusEffect(
     useCallback(() => {
@@ -229,7 +229,7 @@ ${job.description ? job.description.substring(0, 200).replace(/<[^>]*>/g, '') + 
 
           <View style={{ height: 32 }} />
 
-          {/* Segmented toggle for Description / Requirements / Benefits */}
+          {/* Segmented toggle for Description / Tags */}
           <View style={styles.tabBar}>
             <TouchableOpacity
               style={[
@@ -252,36 +252,18 @@ ${job.description ? job.description.substring(0, 200).replace(/<[^>]*>/g, '') + 
             <TouchableOpacity
               style={[
                 styles.tabButton,
-                activeSection === 'requirements' && styles.tabButtonActive,
+                activeSection === 'tags' && styles.tabButtonActive,
               ]}
-              onPress={() => setActiveSection('requirements')}
+              onPress={() => setActiveSection('tags')}
               activeOpacity={0.8}
             >
               <Text
                 style={[
                   styles.tabLabel,
-                  activeSection === 'requirements' && styles.tabLabelActive,
+                  activeSection === 'tags' && styles.tabLabelActive,
                 ]}
               >
-                Requirements
-              </Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={[
-                styles.tabButton,
-                activeSection === 'benefits' && styles.tabButtonActive,
-              ]}
-              onPress={() => setActiveSection('benefits')}
-              activeOpacity={0.8}
-            >
-              <Text
-                style={[
-                  styles.tabLabel,
-                  activeSection === 'benefits' && styles.tabLabelActive,
-                ]}
-              >
-                Benefits
+                Tags
               </Text>
             </TouchableOpacity>
           </View>
@@ -296,30 +278,23 @@ ${job.description ? job.description.substring(0, 200).replace(/<[^>]*>/g, '') + 
             />
           )}
 
-          {activeSection === 'requirements' && (
-            <JobContentSection
-              title="Requirements"
-              content={
-                job.requirements && job.requirements.length > 0
-                  ? undefined
-                  : 'No specific requirements were provided for this job.'
-              }
-              listItems={job.requirements}
-              contentLabel="Requirements"
-            />
-          )}
-
-          {activeSection === 'benefits' && (
-            <JobContentSection
-              title="Benefits & Perks"
-              content={
-                job.benefits && job.benefits.length > 0
-                  ? undefined
-                  : 'No benefits or perks were listed for this job.'
-              }
-              listItems={job.benefits}
-              contentLabel="Benefits"
-            />
+          {activeSection === 'tags' && (
+            <View style={styles.tagsContainer}>
+              <Text style={styles.tagsTitle}>Tags</Text>
+              {job.tags && job.tags.length > 0 ? (
+                <View style={styles.tagsPillRow}>
+                  {job.tags.map((tag, index) => (
+                    <View key={`${tag}-${index}`} style={styles.tagPill}>
+                      <Text style={styles.tagPillText}>{tag}</Text>
+                    </View>
+                  ))}
+                </View>
+              ) : (
+                <Text style={styles.descriptionText}>
+                  No tags are available for this job.
+                </Text>
+              )}
+            </View>
           )}
 
           <View style={{ height: 20 }} />

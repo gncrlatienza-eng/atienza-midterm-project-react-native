@@ -23,6 +23,11 @@ export const createHomeStyles = (colors: ThemeColors, width: number, height: num
       alignItems: 'center',
       marginBottom: height * 0.02,
     },
+    appliedToggleRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 10,
+    },
     title: {
       fontSize: width * 0.08,
       fontWeight: '700',
@@ -37,6 +42,19 @@ export const createHomeStyles = (colors: ThemeColors, width: number, height: num
       justifyContent: 'center',
       alignItems: 'center',
       borderWidth: 0, // No border for minimalist look
+    },
+    appliedBadge: {
+      paddingHorizontal: 12,
+      paddingVertical: 8,
+      borderRadius: 999,
+      backgroundColor: colors.backgroundSecondary,
+      borderWidth: 1,
+      borderColor: colors.borderLight,
+    },
+    appliedBadgeText: {
+      fontSize: width * 0.034,
+      fontWeight: '600',
+      color: colors.textSecondary,
     },
     themeToggleText: {
       fontSize: 20,

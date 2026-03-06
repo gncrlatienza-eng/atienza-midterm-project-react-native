@@ -3,6 +3,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { useTheme } from '../context/ThemedContext';
 import { HomeScreen } from '../screens/HomeScreen';
 import { SavedJobsScreen } from '../screens/SavedJobScreen';
+import { AppliedJobsScreen } from '../screens/AppliedJobsScreen';
 import { createTabBarStyles } from '../styles/NavigationBar';
 import Svg, { Path, Circle } from 'react-native-svg';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -110,6 +111,18 @@ export const NavigationBar: React.FC = () => {
         options={{
           tabBarLabel: 'Saved',
           tabBarBadge: savedCount > 0 ? savedCount : undefined,
+          tabBarIcon: ({ focused, color }) => (
+            <AnimatedIconWrapper focused={focused}>
+              <BookmarkTabIcon focused={focused} color={color} />
+            </AnimatedIconWrapper>
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="AppliedJobs"
+        component={AppliedJobsScreen}
+        options={{
+          tabBarLabel: 'Applied',
           tabBarIcon: ({ focused, color }) => (
             <AnimatedIconWrapper focused={focused}>
               <BookmarkTabIcon focused={focused} color={color} />

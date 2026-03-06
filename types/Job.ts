@@ -10,6 +10,7 @@ export interface Job {
   description?: string;
   type?: string; // Full-time, Part-time, Contract, etc.
   posted?: string; // Date posted
+  tags?: string[];
   requirements?: string[];
   benefits?: string[];
   
@@ -27,6 +28,7 @@ export interface JobApiResponse {
   description?: string;
   type?: string;
   posted?: string;
+  tags?: string[];
   requirements?: string[];
   benefits?: string[];
 }

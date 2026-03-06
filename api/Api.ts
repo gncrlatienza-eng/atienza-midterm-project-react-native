@@ -191,6 +191,7 @@ export const fetchJobs = async (): Promise<Job[]> => {
         description,
         type: job.jobType || job.type || job.job_type || job.employment_type || job.position_type || undefined,
         posted: job.pubDate || job.posted || job.date_posted || job.created_at || job.post_date || undefined,
+        tags: job.tags || job.keywords || job.skills || undefined,
         requirements,
         benefits,
         isSaved: false,
