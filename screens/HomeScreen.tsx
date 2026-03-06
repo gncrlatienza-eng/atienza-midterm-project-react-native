@@ -419,7 +419,7 @@ export const HomeScreen = () => {
             <Text style={styles.title}>Hire N Go</Text>
             <View style={styles.appliedToggleRow}>
               <TouchableOpacity
-                onPress={() => navigation.navigate('AppliedJobs' as never)}
+                onPress={() => navigation.navigate('AppliedJobs')}
                 activeOpacity={0.7}
                 style={styles.appliedBadge}
               >

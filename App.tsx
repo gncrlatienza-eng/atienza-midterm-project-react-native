@@ -6,6 +6,7 @@ import { ThemedStatusBar } from './globalstyles/ThemedStatusBar';
 import { LoadingScreen } from './screens/LoadingScreen';
 import { NavigationBar } from './components/NavigationBar';
 import { JobDetailsScreen } from './screens/JobDetailsScreen';
+import { AppliedJobsScreen } from './screens/AppliedJobsScreen';
 import { RootStackParamList } from './types/Navigation';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -28,6 +29,7 @@ const AppContent = () => {
       >
         <Stack.Screen name="MainTabs" component={NavigationBar} />
         <Stack.Screen name="JobDetails" component={JobDetailsScreen} />
+        <Stack.Screen name="AppliedJobs" component={AppliedJobsScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );

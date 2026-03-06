@@ -149,7 +149,7 @@ export const LoadingScreen: React.FC<LoadingScreenProps> = ({ onFinish }) => {
 
         {/* Title */}
         <View style={styles.titleContainer}>
-          <Text style={styles.title}>Hire n Go</Text>
+          <Text style={styles.title}>Hire N Go</Text>
           <Text style={styles.subtitle}>Find your dream job</Text>
         </View>
 
