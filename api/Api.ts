@@ -21,6 +21,81 @@ const generateStableId = (job: any): string => {
   return `${hashHex}-${hashHex}-${hashHex}-${hashHex}-${hashHex}${hashHex}`;
 };
 
+// Extract sections (description / requirements / benefits) from a single HTML description field
+const extractSectionsFromHtml = (html?: string) => {
+  if (!html) {
+    return {
+      description: undefined as string | undefined,
+      requirements: undefined as string[] | undefined,
+      benefits: undefined as string[] | undefined,
+    };
+  }
+
+  const headingRegex = /<h3[^>]*>(.*?)<\/h3>/gi;
+  const liRegex = /<li[^>]*>(.*?)<\/li>/gi;
+  const stripTags = (value: string) => value.replace(/<[^>]*>/g, '').trim();
+
+  const sections: { title: string; start: number; end: number }[] = [];
+  let match: RegExpExecArray | null;
+
+  while ((match = headingRegex.exec(html)) !== null) {
+    sections.push({
+      title: stripTags(match[1] || ''),
+      start: match.index,
+      end: match.index + match[0].length,
+    });
+  }
+
+  // Attach end indexes (start of next section or end of string)
+  for (let i = 0; i < sections.length; i++) {
+    const next = sections[i + 1];
+    sections[i].end = next ? next.start : html.length;
+  }
+
+  let descriptionHtml: string | undefined;
+  let requirements: string[] | undefined;
+  let benefits: string[] | undefined;
+
+  sections.forEach((section) => {
+    const body = html.slice(section.start, section.end);
+    const titleLower = section.title.toLowerCase();
+
+    if (titleLower.includes('requirement')) {
+      const items: string[] = [];
+      let liMatch: RegExpExecArray | null;
+      while ((liMatch = liRegex.exec(body)) !== null) {
+        const text = stripTags(liMatch[1] || '');
+        if (text) items.push(text);
+      }
+      if (items.length > 0) {
+        requirements = items;
+      }
+    } else if (titleLower.includes('benefit') || titleLower.includes('perk')) {
+      const items: string[] = [];
+      let liMatch: RegExpExecArray | null;
+      while ((liMatch = liRegex.exec(body)) !== null) {
+        const text = stripTags(liMatch[1] || '');
+        if (text) items.push(text);
+      }
+      if (items.length > 0) {
+        benefits = items;
+      }
+    } else if (
+      titleLower.includes('description') ||
+      titleLower.includes('about') ||
+      titleLower.includes('role')
+    ) {
+      descriptionHtml = body;
+    }
+  });
+
+  return {
+    description: descriptionHtml || html,
+    requirements,
+    benefits,
+  };
+};
+
 // Fetch all jobs from the API
 export const fetchJobs = async (): Promise<Job[]> => {
   try {
@@ -82,6 +157,30 @@ export const fetchJobs = async (): Promise<Job[]> => {
         salary = job.salary || job.salary_range || job.compensation;
       }
 
+      // Try to extract description/requirements/benefits from a single HTML field when arrays are missing
+      const rawDescription: string | undefined =
+        job.description || job.job_description || job.details || undefined;
+
+      const parsedSections = extractSectionsFromHtml(rawDescription);
+
+      const requirementsFromDescription = parsedSections.requirements;
+      const benefitsFromDescription = parsedSections.benefits;
+
+      const description = parsedSections.description;
+      const requirements =
+        job.requirements ||
+        job.qualifications ||
+        job.required_skills ||
+        requirementsFromDescription ||
+        undefined;
+
+      const benefits =
+        job.benefits ||
+        job.perks ||
+        job.advantages ||
+        benefitsFromDescription ||
+        undefined;
+
       return {
         id: generateStableId(job),
         title: job.title || job.job_title || 'Untitled Position',
@@ -89,11 +188,11 @@ export const fetchJobs = async (): Promise<Job[]> => {
         companyLogo: job.companyLogo || job.company_logo || job.logo || undefined,
         location: job.locations?.[0] || job.location || job.city || job.address || job.job_location || undefined,
         salary: salary,
-        description: job.description || job.job_description || job.details || undefined,
+        description,
         type: job.jobType || job.type || job.job_type || job.employment_type || job.position_type || undefined,
         posted: job.pubDate || job.posted || job.date_posted || job.created_at || job.post_date || undefined,
-        requirements: job.requirements || job.qualifications || job.required_skills || undefined,
-        benefits: job.benefits || job.perks || job.advantages || undefined,
+        requirements,
+        benefits,
         isSaved: false,
       };
     });

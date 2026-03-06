@@ -292,20 +292,33 @@ ${job.description ? job.description.substring(0, 200).replace(/<[^>]*>/g, '') + 
             <JobContentSection
               title="About the Role"
               content={job.description}
+              contentLabel="Description"
             />
           )}
 
           {activeSection === 'requirements' && (
             <JobContentSection
               title="Requirements"
+              content={
+                job.requirements && job.requirements.length > 0
+                  ? undefined
+                  : 'No specific requirements were provided for this job.'
+              }
               listItems={job.requirements}
+              contentLabel="Requirements"
             />
           )}
 
           {activeSection === 'benefits' && (
             <JobContentSection
               title="Benefits & Perks"
+              content={
+                job.benefits && job.benefits.length > 0
+                  ? undefined
+                  : 'No benefits or perks were listed for this job.'
+              }
               listItems={job.benefits}
+              contentLabel="Benefits"
             />
           )}
 

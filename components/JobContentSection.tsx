@@ -8,6 +8,7 @@ interface JobContentSectionProps {
   title: string;
   content?: string;
   listItems?: string[];
+  contentLabel?: string;
   styles?: any; // For backward compatibility, but not used anymore
   colors?: any; // For backward compatibility, but not used anymore
 }
@@ -54,6 +55,7 @@ export const JobContentSection: React.FC<JobContentSectionProps> = ({
   title,
   content,
   listItems,
+  contentLabel,
 }) => {
   const { colors } = useTheme();
   const styles = createJobContentSectionStyles(colors);
@@ -64,6 +66,7 @@ export const JobContentSection: React.FC<JobContentSectionProps> = ({
   }
 
   const iconColor = colors.primary;
+  const labelText = contentLabel || title;
 
   const cleanedContent = content ? cleanHTMLText(content) : '';
   const contentLines = cleanedContent
@@ -84,7 +87,7 @@ export const JobContentSection: React.FC<JobContentSectionProps> = ({
       
       {content && (
         <View style={styles.contentCard}>
-          <Text style={styles.contentLabel}>Description</Text>
+          <Text style={styles.contentLabel}>{labelText}</Text>
 
           {bulletLines.length > 0 ? (
             <View style={styles.contentBullets}>
