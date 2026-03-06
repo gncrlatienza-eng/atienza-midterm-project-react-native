@@ -13,7 +13,7 @@ export const createSavedJobsStyles = (colors: ThemeColors, width: number, height
     },
     header: {
       paddingHorizontal: 20,
-      paddingTop: height * 0.01,
+      paddingTop: 20,
       paddingBottom: height * 0.015,
       backgroundColor: colors.background,
     },

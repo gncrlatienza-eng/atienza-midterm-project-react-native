@@ -86,7 +86,6 @@ export const JobContentSection: React.FC<JobContentSectionProps> = ({
     <View style={styles.section}>
       <Text style={styles.sectionTitle}>{title}</Text>
       
-      {/* Render text content in a card if provided */}
       {content && (
         <View style={styles.contentCard}>
           <Text style={styles.descriptionText}>
@@ -95,23 +94,24 @@ export const JobContentSection: React.FC<JobContentSectionProps> = ({
         </View>
       )}
       
-      {/* Render list items with SVG icons if provided */}
       {listItems && listItems.length > 0 && (
-        <View style={styles.listContainer}>
-          {listItems.map((item, index) => (
-            <View key={index} style={styles.listItem}>
-              <View style={styles.iconContainer}>
-                {isBenefitsSection ? (
-                  <StarIcon color={benefitColor} />
-                ) : (
-                  <CheckIcon color={iconColor} />
-                )}
+        <View style={styles.listCard}>
+          <View style={styles.listContainer}>
+            {listItems.map((item, index) => (
+              <View key={index} style={styles.listItem}>
+                <View style={styles.iconContainer}>
+                  {isBenefitsSection ? (
+                    <StarIcon color={benefitColor} />
+                  ) : (
+                    <CheckIcon color={iconColor} />
+                  )}
+                </View>
+                <Text style={styles.listText}>
+                  {cleanHTMLText(item)}
+                </Text>
               </View>
-              <Text style={styles.listText}>
-                {cleanHTMLText(item)}
-              </Text>
-            </View>
-          ))}
+            ))}
+          </View>
         </View>
       )}
     </View>

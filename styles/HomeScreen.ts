@@ -13,7 +13,7 @@ export const createHomeStyles = (colors: ThemeColors, width: number, height: num
     },
     header: {
       paddingHorizontal: width * 0.05,
-      paddingTop: height * 0.01,
+      paddingTop: 20,
       paddingBottom: height * 0.01,
       backgroundColor: colors.background,
     },
@@ -54,7 +54,15 @@ export const createHomeStyles = (colors: ThemeColors, width: number, height: num
       paddingBottom: height * 0.02,
     },
     featuredSection: {
-      marginBottom: 24,
+      marginBottom: 28,
+    },
+    featuredSectionTitle: {
+      fontSize: width * 0.072,
+      fontWeight: '700',
+      color: colors.text,
+      marginBottom: 16,
+      paddingHorizontal: 20,
+      letterSpacing: -0.5,
     },
     featuredCardsContainer: {
       // Container for featured cards - no extra styling needed

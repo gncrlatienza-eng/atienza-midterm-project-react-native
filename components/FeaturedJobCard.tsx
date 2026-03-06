@@ -28,6 +28,10 @@ export const FeaturedJobCard: React.FC<FeaturedJobCardProps> = ({ job, onPress }
   const [logoError, setLogoError] = React.useState(false);
   const logoUrl = job.companyLogo || job.logo;
 
+  const descriptionSnippet = [job.location, job.type, job.salary]
+    .filter(Boolean)
+    .join(' · ') || 'View full details.';
+
   return (
     <TouchableOpacity 
       style={styles.card}
@@ -40,53 +44,61 @@ export const FeaturedJobCard: React.FC<FeaturedJobCardProps> = ({ job, onPress }
         <Text style={styles.featuredText}>FEATURED</Text>
       </View>
 
-      <View style={styles.logoContainer}>
-        {logoUrl && !logoError ? (
-          <Image
-            source={{ uri: logoUrl }}
-            style={styles.logo}
-            onError={() => {
-              console.log('Failed to load logo:', logoUrl);
-              setLogoError(true);
-            }}
-          />
-        ) : (
-          <View style={styles.logoFallback}>
-            <Text style={styles.logoText}>
-              {job.company.charAt(0).toUpperCase()}
-            </Text>
-          </View>
-        )}
+      {/* Hero image area - Apple-style */}
+      <View style={styles.heroImageContainer}>
+        <View style={styles.logoContainer}>
+          {logoUrl && !logoError ? (
+            <Image
+              source={{ uri: logoUrl }}
+              style={styles.logo}
+              onError={() => {
+                setLogoError(true);
+              }}
+            />
+          ) : (
+            <View style={styles.logoFallback}>
+              <Text style={styles.logoText}>
+                {job.company.charAt(0).toUpperCase()}
+              </Text>
+            </View>
+          )}
+        </View>
       </View>
 
-      <Text style={styles.title} numberOfLines={2}>
-        {job.title}
-      </Text>
-      
-      <Text style={styles.company} numberOfLines={1}>
-        {job.company}
-      </Text>
-      
-      <View style={styles.details}>
-        {job.location && (
-          <>
-            <Text style={styles.detail}>{job.location}</Text>
-            {(job.type || job.salary) && <Text style={styles.separator}>•</Text>}
-          </>
-        )}
-        {job.type && (
-          <>
-            <Text style={styles.detail}>{job.type}</Text>
-            {job.salary && <Text style={styles.separator}>•</Text>}
-          </>
-        )}
-        {job.salary && (
-          <Text style={styles.detail}>{job.salary}</Text>
-        )}
-      </View>
+      <View style={styles.contentBlock}>
+        <Text style={styles.title} numberOfLines={2}>
+          {job.title}
+        </Text>
+        
+        <Text style={styles.company} numberOfLines={1}>
+          {job.company}
+        </Text>
+        
+        <Text style={styles.description} numberOfLines={2}>
+          {descriptionSnippet}
+        </Text>
+        
+        <View style={styles.details}>
+          {job.location && (
+            <>
+              <Text style={styles.detail}>{job.location}</Text>
+              {(job.type || job.salary) && <Text style={styles.separator}>•</Text>}
+            </>
+          )}
+          {job.type && (
+            <>
+              <Text style={styles.detail}>{job.type}</Text>
+              {job.salary && <Text style={styles.separator}>•</Text>}
+            </>
+          )}
+          {job.salary && (
+            <Text style={styles.detail}>{job.salary}</Text>
+          )}
+        </View>
 
-      <View style={styles.viewButton}>
-        <Text style={styles.viewButtonText}>View</Text>
+        <View style={styles.viewButton}>
+          <Text style={styles.viewButtonText}>View</Text>
+        </View>
       </View>
     </TouchableOpacity>
   );

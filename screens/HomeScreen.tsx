@@ -306,7 +306,7 @@ export const HomeScreen = () => {
       >
         {showFeatured && (
           <View style={styles.featuredSection}>
-            <Text style={styles.sectionTitle}>Featured</Text>
+            <Text style={styles.featuredSectionTitle}>Featured</Text>
             <FeaturedCarousel
               jobs={allJobs.slice(0, 5)}
               onJobPress={handleJobPress}

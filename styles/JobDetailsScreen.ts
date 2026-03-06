@@ -12,13 +12,14 @@ export const createJobDetailsStyles = (colors: ThemeColors, width: number, heigh
       backgroundColor: colors.background,
     },
     
-    // HEADER - iOS 18 style
+    // HEADER - iOS style, clear of system UI
     header: {
       flexDirection: 'row',
       justifyContent: 'space-between',
       alignItems: 'center',
       paddingHorizontal: width * 0.05,
-      paddingVertical: 12,
+      paddingTop: 20,
+      paddingBottom: 12,
       backgroundColor: colors.background,
     },
     headerButton: {
