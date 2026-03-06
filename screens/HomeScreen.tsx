@@ -35,7 +35,7 @@ export const HomeScreen = () => {
   const [isSearchFocused, setIsSearchFocused] = useState(false);
   const [savedJobIds, setSavedJobIds] = useState<Set<string>>(new Set());
   const [appliedJobIds, setAppliedJobIds] = useState<Set<string>>(new Set());
-  const [sortOption, setSortOption] = useState<'recent' | 'oldest' | 'title' | 'income' | 'tags'>('recent');
+  const [sortOption, setSortOption] = useState<'recent' | 'oldest' | 'title' | 'income'>('recent');
 
   const sortJobs = useCallback(
     (jobs: Job[]): Job[] => {
@@ -63,15 +63,6 @@ export const HomeScreen = () => {
 
       if (sortOption === 'title') {
         return jobsCopy.sort((a, b) => a.title.localeCompare(b.title));
-      }
-
-      if (sortOption === 'tags') {
-        const getPrimaryTag = (job: Job): string =>
-          (job.tags && job.tags.length > 0 ? job.tags[0] : '').toLowerCase();
-
-        return jobsCopy.sort((a, b) =>
-          getPrimaryTag(a).localeCompare(getPrimaryTag(b))
-        );
       }
 
       const parseDate = (value?: string) => (value ? Date.parse(value) || 0 : 0);
@@ -397,22 +388,6 @@ export const HomeScreen = () => {
                 </Text>
               </TouchableOpacity>
 
-              <TouchableOpacity
-                style={[
-                  styles.sortButton,
-                  sortOption === 'tags' && styles.sortButtonActive,
-                ]}
-                onPress={() => setSortOption('tags')}
-              >
-                <Text
-                  style={[
-                    styles.sortButtonText,
-                    sortOption === 'tags' && styles.sortButtonTextActive,
-                  ]}
-                >
-                  Tags
-                </Text>
-              </TouchableOpacity>
             </View>
           </View>
 

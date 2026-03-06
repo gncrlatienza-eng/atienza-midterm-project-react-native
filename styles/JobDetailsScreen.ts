@@ -291,8 +291,8 @@ export const createJobDetailsStyles = (colors: ThemeColors, width: number, heigh
       paddingBottom: 4,
       paddingTop: 6,
       backgroundColor: colors.background,
-      borderTopWidth: 0.5,
-      borderTopColor: colors.borderLight,
+      borderTopWidth: 0,
+      borderTopColor: 'transparent',
     },
     cancelText: {
       color: '#EF4444',
